@@ -1,0 +1,35 @@
+{
+  "id":"LineSp",
+  "name":"改行コード",
+  "packageName":"me.suwash.tools.comparefiles.infra.classification",
+  "values":[
+    {
+        "id":"LF",
+        "name":"LF",
+        "storeValue":"LF"
+    },
+    {
+        "id":"CR",
+        "name":"CR",
+        "storeValue":"CR"
+    },
+    {
+        "id":"CRLF",
+        "name":"CRLF",
+        "storeValue":"CRLF"
+    },
+    {
+        "id":"None",
+        "name":"なし",
+        "storeValue":"NONE"
+    }
+  ],
+  "groups":[
+    {
+        "id":"default",
+        "name":"デフォルト",
+        "values":["LF", "CR", "CRLF", "None"],
+        "defaultValue":"LF"
+    }
+  ]
+}

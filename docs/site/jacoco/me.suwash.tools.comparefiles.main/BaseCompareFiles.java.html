@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>BaseCompareFiles.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.main</a> &gt; <span class="el_source">BaseCompareFiles.java</span></div><h1>BaseCompareFiles.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.main;
+
+import java.util.List;
+
+import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
+import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
+import me.suwash.util.ConfigUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.beust.jcommander.JCommander;
+
+/**
+ * CUIバウンダリ基底クラス。
+ */
+<span class="fc" id="L20">public abstract class BaseCompareFiles {</span>
+
+    /**
+     * 比較実行のTemplateメソッドです。
+     * サブクラスのmainメソッドから呼び出せる様に、protectedで公開しています。
+     *
+     * @param args コマンドライン引数
+     * @return 比較結果
+     */
+    protected ProcessStatus execute(final String... args) {
+        // -----------------------------------------------------------------------------------------
+        // シャットダウンフック追加
+        // -----------------------------------------------------------------------------------------
+<span class="fc" id="L33">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+            @Override
+            public void run() {
+<span class="fc" id="L36">                final String violationMessage = ValidateUtils.getViolationMessage();</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">                if (!StringUtils.isEmpty(violationMessage)) {</span>
+<span class="nc" id="L38">                    System.err.println(violationMessage);</span>
+                }
+<span class="fc" id="L40">            }</span>
+        });
+
+        // -----------------------------------------------------------------------------------------
+        // 引数のパース
+        // -----------------------------------------------------------------------------------------
+<span class="fc" id="L46">        final CompareFilesOption option = new CompareFilesOption();</span>
+<span class="fc" id="L47">        new JCommander(option, args);</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (!isValidParam(option)) {</span>
+<span class="fc" id="L49">            throw new CompareFilesException(Const.MSGCD_ERROR_ARG);</span>
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // 設定ファイルの読み込み
+        // -----------------------------------------------------------------------------------------
+        // デフォルト設定の読み込み
+<span class="fc" id="L56">        final CompareFilesConfig defaultConfig = CompareFilesConfig.parse(</span>
+<span class="fc" id="L57">            ConfigUtils.getConfigFileClasspath(CompareFiles.class, Const.EXT_CONFIG),</span>
+            true);
+
+        // 設定ファイルパスの指定を確認
+<span class="fc" id="L61">        CompareFilesConfig config = null;</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(option.getConfigFilePath())) {</span>
+            // 指定されていない場合、デフォルト設定を利用
+<span class="fc" id="L64">            config = defaultConfig;</span>
+
+        } else {
+            // 設定ファイルパスが指定されている場合、カスタム設定の読み込み
+<span class="nc" id="L68">            config = CompareFilesConfig.parse(option.getConfigFilePath(), false);</span>
+<span class="nc" id="L69">            config.setDefault(defaultConfig);</span>
+        }
+
+        // 設定をコマンドライン引数で上書き
+<span class="fc" id="L73">        option.overwriteConfig(config);</span>
+
+        // 設定の妥当性チェック
+<span class="fc" id="L76">        ValidateUtils.validate(config);</span>
+
+        // -----------------------------------------------------------------------------------------
+        // Facade呼出し
+        // -----------------------------------------------------------------------------------------
+<span class="fc" id="L81">        final List&lt;String&gt; paramList = option.getParamList();</span>
+<span class="fc" id="L82">        return executeFacade(paramList, config);</span>
+    }
+
+    /**
+     * 起動パラメータの妥当性を確認します。
+     *
+     * @param option 起動パラメータ
+     * @return 妥当な場合、true
+     */
+    protected abstract boolean isValidParam(CompareFilesOption option);
+
+    /**
+     * 比較レイアウトを読み込みます。
+     * サブクラスから任意のタイミングで読み込みできる様にprotected公開しています。
+     *
+     * @param config システム設定
+     */
+    protected void loadLayout(final CompareFilesConfig config) {
+        // --------------------------------------------------
+        // レイアウト設定の読み込み
+        // --------------------------------------------------
+<span class="fc" id="L103">        final FileLayoutManager layoutManager = FileLayoutManager.getInstance();</span>
+<span class="fc" id="L104">        final String overwriteLayoutDirs = config.getOverwriteLayoutDir();</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (!StringUtils.isEmpty(overwriteLayoutDirs)) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            for (final String curDir : overwriteLayoutDirs.split(&quot;,&quot;)) {</span>
+<span class="nc" id="L107">                layoutManager.addLayoutDir(curDir.trim());</span>
+            }
+        }
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * アプリケーション層の処理を呼び出します。
+     *
+     * @param paramList 引数なしパラメータリスト
+     * @param config システム設定
+     * @return 処理結果
+     */
+    protected abstract ProcessStatus executeFacade(List&lt;String&gt; paramList, CompareFilesConfig config);
+
+    /**
+     * アプリケーション層の処理結果を判断します。
+     * サブクラスから共通で判断できる様にprotected公開しています。
+     *
+     * @param processStatus アプリケーション層の処理結果
+     */
+    protected static void exitScript(final ProcessStatus processStatus) {
+<span class="nc bnc" id="L128" title="All 3 branches missed.">        switch (processStatus) {</span>
+            case Success:
+<span class="nc" id="L130">                System.exit(Const.EXITCODE_SUCCESS);</span>
+<span class="nc" id="L131">                break;</span>
+
+            case Warning:
+<span class="nc" id="L134">                System.exit(Const.EXITCODE_WARN);</span>
+<span class="nc" id="L135">                break;</span>
+
+            case Failure:
+            default:
+<span class="nc" id="L139">                System.exit(Const.EXITCODE_ERROR);</span>
+                break;
+        }
+
+<span class="nc" id="L143">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

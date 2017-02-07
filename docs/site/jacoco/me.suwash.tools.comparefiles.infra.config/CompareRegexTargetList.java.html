@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CompareRegexTargetList.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.infra.config</a> &gt; <span class="el_source">CompareRegexTargetList.java</span></div><h1>CompareRegexTargetList.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.infra.config;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.util.CsvUtils;
+import me.suwash.util.FileUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * ファイル名正規表現指定の比較対象設定リスト。
+ */
+<span class="fc" id="L17">@lombok.extern.slf4j.Slf4j</span>
+public class CompareRegexTargetList implements Iterable&lt;CompareRegexTarget&gt; {
+
+    private static final int REGEX_TARGET_COLNUM_COUNT = 3;
+
+<span class="fc" id="L22">    private final List&lt;CompareRegexTarget&gt; list = new ArrayList&lt;CompareRegexTarget&gt;();</span>
+
+    /**
+     * コンストラクタ。
+     *
+     * @param filePath 比較対象設定ファイルパス
+     * @param charset 文字コード
+     */
+<span class="fc" id="L30">    public CompareRegexTargetList(final String filePath, final String charset) {</span>
+<span class="fc" id="L31">        log.debug(&quot;CompareRegexTargetList(&quot; + filePath + &quot;, &quot; + charset + &quot;)&quot;);</span>
+
+        // 引数チェック
+<span class="fc" id="L34">        FileUtils.readCheck(filePath, charset);</span>
+
+        // CSVを全行ループ
+<span class="fc" id="L37">        final List&lt;String[]&gt; parsedStringsList = CsvUtils.parseFile(filePath, charset, CsvUtils.getCsvConfig());</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        for (int i = 0; i &lt; parsedStringsList.size(); i++) {</span>
+<span class="fc" id="L39">            final String[] parsedStrings = parsedStringsList.get(i);</span>
+            // 空行をスキップ
+<span class="pc bpc" id="L41" title="1 of 6 branches missed.">            if (parsedStrings == null || parsedStrings.length == 1 &amp;&amp; StringUtils.isEmpty(parsedStrings[0])) {</span>
+<span class="fc" id="L42">                continue;</span>
+            }
+
+            // #で始まる行をスキップ
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">            if (parsedStrings.length &gt; 0 &amp;&amp; parsedStrings[0].charAt(0) == '#') {</span>
+<span class="fc" id="L47">                continue;</span>
+            }
+
+            // レイアウト確認
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            if (parsedStrings.length != REGEX_TARGET_COLNUM_COUNT) {</span>
+<span class="fc" id="L52">                throw new CompareFilesException(</span>
+                    Const.MSGCD_ERROR_FILE_LAYOUT,
+<span class="fc" id="L54">                    new Object[] {filePath, charset, i + 1, getArrayString(parsedStrings)});</span>
+            }
+
+            // オブジェクト変換
+            try {
+<span class="fc" id="L59">                list.add(getCompareTarget(parsedStrings));</span>
+<span class="fc" id="L60">            } catch (Exception e) {</span>
+<span class="fc" id="L61">                throw new CompareFilesException(</span>
+                    Const.MSGCD_ERROR_FILE_PARSE,
+<span class="fc" id="L63">                    new Object[] {filePath, charset, i + 1, getArrayString(parsedStrings)},</span>
+                    e);
+<span class="fc" id="L65">            }</span>
+        }
+
+<span class="fc" id="L68">    }</span>
+
+    /**
+     * ファイル1行分の文字列リストから比較対象オブジェクトに変換します。
+     *
+     * @param parsedStrings ファイル1行分の文字列リスト
+     * @return 比較対象オブジェクト
+     */
+    private CompareRegexTarget getCompareTarget(final String... parsedStrings) {
+<span class="fc" id="L77">        return new CompareRegexTarget(parsedStrings[0], parsedStrings[1], parsedStrings[2]);</span>
+    }
+
+    /**
+     * 文字列配列の文字列表現を返します。
+     *
+     * @param array 文字列配列
+     * @return 文字列表現
+     */
+    private String getArrayString(final String... array) {
+<span class="fc" id="L87">        final StringBuilder sb = new StringBuilder();</span>
+<span class="fc" id="L88">        sb.append('[');</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        for (final String elem : array) {</span>
+<span class="fc" id="L90">            sb.append(elem).append(',');</span>
+        }
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (array.length != 0) {</span>
+<span class="fc" id="L93">            sb.deleteCharAt(sb.length() - 1);</span>
+        }
+<span class="fc" id="L95">        sb.append(']');</span>
+
+<span class="fc" id="L97">        return sb.toString();</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see java.lang.Iterable#iterator()
+     */
+    @Override
+    public Iterator&lt;CompareRegexTarget&gt; iterator() {
+<span class="fc" id="L106">        return list.iterator();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<!--
+	Alpha by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>logfilter</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+	</head>
+	<body class="landing">
+		<div id="page-wrapper">
+
+			<!-- Header -->
+				<header id="header" class="alt">
+					<h1><a href="index.html">compare files</a></h1>
+					<nav id="nav">
+						<ul>
+							<li><a href="index.html">Home</a></li>
+							<li>
+								<a href="#" class="icon fa-angle-down">Page Content</a>
+								<ul>
+									<li><a href="#main">Overview</a></li>
+									<li><a href="#cta">Download</a></li>
+									<li><a href="#getting_started">Getting Started</a></li>
+								</ul>
+							</li>
+              <li><a href="https://github.com/suwa-sh/compare-files" class="button"><span class="icon fa-github"> View On GitHub</span></a></li>
+						</ul>
+					</nav>
+				</header>
+
+			<!-- Banner -->
+				<section id="banner">
+					<h2>compare files</h2>
+					<p>テキスト、画像ファイルを一括比較するコマンドラインツール</p>
+					<ul class="actions">
+						<li><a href="https://github.com/suwa-sh/compare-files/releases/latest" class="button special">Download</a></li>
+						<li><a href="https://github.com/suwa-sh/compare-files/blob/master/README.md" class="button">Learn More</a></li>
+					</ul>
+				</section>
+
+			<!-- Main -->
+				<section id="main" class="container">
+
+					<section class="box special">
+						<header class="major">
+							<h2>
+								テキストファイル比較
+							</h2>
+							<p>
+								どの行の、どの項目に差分があるのかを確認できます。
+							</p>
+						</header>
+						<span class="image featured"><img src="images/pic01.jpg" alt="" /></span>
+					</section>
+
+					<section class="box special features">
+						<div class="features-row">
+							<section>
+								<span class="icon major fa-warning accent3"></span>
+								<h3>比較キーでの対象行選択</h3>
+								<p>
+									比較時のキー項目を設定して、ソート順の異なるファイルから、対象行を探して比較できます。
+								</p>
+							</section>
+							<section>
+								<span class="icon major fa-bars accent4"></span>
+								<h3>比較条件</h3>
+								<p>
+									比較結果をOKと判断する条件は、項目単位に、文字列の完全一致・不一致、数値・時刻の大小比較、除外などを設定できます。
+								</p>
+							</section>
+						</div>
+						<div class="features-row">
+							<section>
+								<span class="icon major fa-gear accent5"></span>
+								<h3>項目単位の差分出力</h3>
+								<p>
+									比較結果は、レイアウトに従ったCSV形式です。各セルには比較結果がOKの場合「左の値」、NGの場合「左右の値を並べて」出力します。
+								</p>
+							</section>
+							<section>
+								<span class="icon major fa-clock-o accent2"></span>
+								<h3>対応ファイル形式</h3>
+								<p>
+									Json / JsonList / ヘッダーあり・なしのCSV・TSV / 固定長テキスト / PlainText 形式に対応しています。
+								</p>
+							</section>
+						</div>
+					</section>
+
+					<section class="box special">
+						<header class="major">
+							<h2>
+								画像比較
+							</h2>
+							<p>
+								どこのピクセル位置に差分があるのかを確認できます。
+							</p>
+						</header>
+						<span class="image featured"><img src="images/pic01.jpg" alt="" /></span>
+					</section>
+
+					<section class="box special features">
+						<div class="features-row">
+							<section>
+								<span class="icon major fa-warning accent3"></span>
+								<h3>比較除外エリア指定</h3>
+								<p>
+									比較を除外するエリアを全ファイル共通、ファイル名正規表現ごとに指定できます。
+								</p>
+							</section>
+							<section>
+								<span class="icon major fa-clock-o accent2"></span>
+								<h3>差分のマーカー出力</h3>
+								<p>
+									比較結果は、2枚の画像を並べた画像です。比較結果がOKの場合「比較除外エリアをマスクした画像」、NGの場合「差分エリアをマーキングした画像」を出力します。
+								</p>
+							</section>
+						</div>
+						<div class="features-row">
+							<section>
+								<span class="icon major fa-bars accent4"></span>
+								<h3>結果ファイルのスタイル設定</h3>
+								<p>
+									結果ファイルのラベル文言、フォントサイズ、配色などを指定できます。
+								</p>
+							</section>
+							<section>
+								<span class="icon major fa-gear accent5"></span>
+								<h3>対応フォーマット</h3>
+								<p>
+									jpeg / png / gif / bmp / wbmp 形式に対応しています。
+								</p>
+							</section>
+						</div>
+					</section>
+
+					<div class="row">
+						<div class="6u 12u(narrower)">
+
+							<section class="box special">
+								<span class="image featured"><img src="images/pic02.jpg" alt="" /></span>
+								<h3>ディレクトリ比較</h3>
+								<p>
+									構成が同じ2つのディレクトリを再帰的に比較できます。
+									ファイル名、拡張子から、比較レイアウトを判断して、テキストファイル比較・画像ファイル比較を自動判断します。
+									結果は、比較対象のファイル単位以外に、一括比較結果の一覧が出力されます。
+								</p>
+								<ul class="actions">
+									<li><a href="https://github.com/suwa-sh/compare-files/blob/master/README.md" class="button alt">Learn More</a></li>
+								</ul>
+							</section>
+
+						</div>
+						<div class="6u 12u(narrower)">
+
+							<section class="box special">
+								<span class="image featured"><img src="images/pic03.jpg" alt="" /></span>
+								<h3>正規表現での指定比較</h3>
+								<p>
+									タイムスタンプが含まれる場合など、可変のファイル名の比較ができます。
+									ファイル名、拡張子から、比較レイアウトを判断して、テキストファイル比較・画像ファイル比較を自動判断します。
+									結果は、比較対象のファイル単位以外に、一括比較結果の一覧が出力されます。
+								</p>
+								<ul class="actions">
+									<li><a href="https://github.com/suwa-sh/compare-files/blob/master/README.md" class="button alt">Learn More</a></li>
+								</ul>
+							</section>
+
+						</div>
+					</div>
+
+				</section>
+
+			<!-- CTA -->
+				<section id="cta">
+					<h2>Download</h2>
+					<p>最新版はこのリンクからダウンロードできます。</p>
+					<a href="https://github.com/suwa-sh/compare-files/releases/latest" class="button special" style="color: #e89980 !important;">Download</a>
+				</section>
+
+			<!-- Getting Started -->
+				<section id="getting_started">
+					<div class="row">
+						<div class="12u">
+
+							<section class="box">
+								<h2>Getting Started</h2>
+
+								<h3>デプロイ</h3>
+								<p>解凍して、権限を付与すればすぐに利用できます。</p>
+								<pre>
+# 配置ディレクトリで展開
+cd ${DIR_PARENT}
+tar xvfz ./compare-files_*.tar.gz
+rm -f ./compare-files_*.tar.gz
+
+# 最新版にシンボリックリンクを作成
+ln -s ${DIR_PARENT}/compare_files_${VERSION} ${DIR_PARENT}/compare_files
+
+# 実行権限を付与
+chmod 755 ./compare_files/bin/*.sh
+</pre>
+
+								<h3>テキストファイル比較</h3>
+								<p>サンプルファイルを利用して、テキストファイルの比較を実行してみます。詳細な起動方法はヘルプを参照して下さい。</p>
+								<pre>
+cd ./compare_files/bin/
+./compare_files.sh ../sample/left/list.json ../sample/right/list.json
+</pre>
+
+								<h3>画像ファイル比較</h3>
+								<p>サンプルファイルを利用して、画像ファイルの比較を実行してみます。詳細な起動方法はヘルプを参照して下さい。</p>
+								<pre>
+cd ./compare_files/bin/
+./compare_files.sh ../sample/left/image01.jpg ../sample/right/image01.jpg
+</pre>
+
+								<h3>ディレクトリ比較</h3>
+								<p>サンプルファイルを利用してディレクトリ同士の比較を実行してみます。</p>
+								<pre>
+cd ./compare_files/bin/
+./compare_files.sh ../sample/left ../sample/right
+</pre>
+
+								<h3>ファイル名正規表現指定比較</h3>
+								<p>サンプルファイルを利用して、比較対象ファイルを正規表現で指定する比較を実行してみます。</p>
+								<pre>
+cd ./compare_files/bin/
+./compare_regex.sh ../sample/target_regex.csv
+</pre>
+
+							</section>
+
+						</div>
+					</div>
+				</section>
+
+			<!-- Footer -->
+				<footer id="footer">
+					<ul class="copyright">
+						<li>maintained by <a href="https://github.com/suwa-sh"><span class="icon fa-github"> suwa-sh</span></a>.</li>
+						<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</footer>
+		</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.dropotron.min.js"></script>
+			<script src="assets/js/jquery.scrollgress.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="PID">????</Property>
+<!--
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight{%5p}{FATAL=Bright red, ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan, TRACE=black} %style{${sys:PID}}{magenta} [%10.10t] %style{%-30.30c{1.}}{cyan} %style{:}{gray} %m%n%xEx{full}</Property>
+-->
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${sys:PID} [%10.10t] %-30.30c{1.} : %m%n%xEx{full}</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+<!--
+        <Root level="INFO">
+-->
+        <Root level="DEBUG">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <Logger name="org.hibernate.validator" level="ERROR">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="org.jboss.logging" level="ERROR">
+            <AppenderRef ref="Console"/>
+        </Logger>
+    </Loggers>
+</Configuration>

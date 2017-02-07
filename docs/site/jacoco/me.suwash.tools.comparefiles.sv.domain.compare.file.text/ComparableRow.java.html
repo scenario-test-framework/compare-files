@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>ComparableRow.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.domain.compare.file.text</a> &gt; <span class="el_source">ComparableRow.java</span></div><h1>ComparableRow.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.domain.compare.file.text;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import me.suwash.tools.comparefiles.sv.domain.BaseRow;
+import me.suwash.util.CompareUtils;
+
+/**
+ * 比較用の行データ。
+ */
+<span class="fc" id="L14">public class ComparableRow extends BaseRow implements Comparable&lt;ComparableRow&gt; {</span>
+
+    private static final String KEY_DUMMY = &quot;dummy&quot;;
+
+    /*
+     * (非 Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    @Override
+    public int compareTo(final ComparableRow targetObject) {
+        // 相手がnullの場合、nullを小さいものとして扱う。
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">        if (targetObject == null) {</span>
+<span class="nc" id="L26">            return -1;</span>
+        }
+
+        // キーで比較
+<span class="fc" id="L30">        return CompareUtils.deepCompare(this.getKeyMap(), targetObject.getKeyMap());</span>
+    }
+
+    /**
+     * 指定された項目IDの設定値を返します。
+     * ※キー項目、その他の項目を再帰的に指定キーで走査します。
+     *
+     * @param itemId 項目ID
+     * @return 値
+     */
+    protected String getItemValue(final String itemId) {
+        // キー項目から、対象項目を取得
+<span class="fc" id="L42">        String value = getItemValueMain(this.getKeyMap(), itemId);</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (value == null) {</span>
+            // キーから取得できない場合、その他の項目から取得
+<span class="fc" id="L45">            value = getItemValueMain(this.getValueMap(), itemId);</span>
+        }
+<span class="fc" id="L47">        return value;</span>
+    }
+
+    /**
+     * 再帰呼び出し用。
+     *
+     * @param contentMap 対象Map
+     * @param itemId 項目ID
+     * @return 値
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private String getItemValueMain(final Map&lt;String, Object&gt; contentMap, final String itemId) {
+        // itemIdの確認
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (itemId.contains(&quot;.&quot;)) {</span>
+            // --------------------------------------------------------------------------------
+            // ドットが含まれている場合
+            // --------------------------------------------------------------------------------
+            // ドットがなくなるまで再帰的にvalueを検索
+<span class="fc" id="L65">            final String parentItemId = itemId.substring(0, itemId.indexOf('.'));</span>
+<span class="fc" id="L66">            final String childItemId = itemId.substring(itemId.indexOf('.') + 1);</span>
+
+<span class="fc" id="L68">            final Object parentObj = contentMap.get(parentItemId);</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">            if (parentObj == null) {</span>
+<span class="fc" id="L70">                return null;</span>
+
+            } else {
+<span class="fc bfc" id="L73" title="All 2 branches covered.">                if (parentObj instanceof Map) {</span>
+                    // 再帰呼出し
+<span class="fc" id="L75">                    final Map&lt;String, Object&gt; parentMap = (Map&lt;String, Object&gt;) parentObj;</span>
+<span class="fc" id="L76">                    return getItemValueMain(parentMap, childItemId);</span>
+
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">                } else if (parentObj instanceof List) {</span>
+<span class="fc" id="L79">                    final List&lt;Object&gt; parentList = (List&lt;Object&gt;) parentObj;</span>
+<span class="fc" id="L80">                    final List&lt;Object&gt; returnList = new ArrayList&lt;Object&gt;();</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                    for (final Object parentSubObj : parentList) {</span>
+                        // ダミーMapに詰めて再帰呼び出し
+<span class="fc" id="L83">                        final Map&lt;String, Object&gt; dummyMap = getDummyMap(parentSubObj);</span>
+<span class="fc" id="L84">                        returnList.add(getItemValueMain((Map&lt;String, Object&gt;) dummyMap, KEY_DUMMY + &quot;.&quot; + childItemId));</span>
+<span class="fc" id="L85">                    }</span>
+<span class="fc" id="L86">                    return returnList.toString();</span>
+
+                } else {
+<span class="nc" id="L89">                    return parentObj.toString();</span>
+                }
+            }
+
+        } else {
+            // --------------------------------------------------------------------------------
+            // ドットが含まれていない場合
+            // --------------------------------------------------------------------------------
+            // 対象Mapから直接valueを検索
+<span class="fc" id="L98">            final Object valueObj = contentMap.get(itemId);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            if (valueObj == null) {</span>
+<span class="fc" id="L100">                return null;</span>
+            } else {
+<span class="fc" id="L102">                return valueObj.toString();</span>
+            }
+        }
+    }
+
+    /**
+     * 再帰呼び出し用のダミーMapを返します。
+     *
+     * @param targetObj ダミーMapに詰めるオブジェクト
+     * @return 対象オブジェクトを設定したダミーMap
+     */
+    private Map&lt;String, Object&gt; getDummyMap(final Object targetObj) {
+<span class="fc" id="L114">        final Map&lt;String, Object&gt; dummyMap = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L115">        dummyMap.put(KEY_DUMMY, targetObj);</span>
+<span class="fc" id="L116">        return dummyMap;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>GenericRowReadRepository.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.da.file.repository.impl</a> &gt; <span class="el_source">GenericRowReadRepository.java</span></div><h1>GenericRowReadRepository.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.da.file.repository.impl;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.classification.FileFormat;
+import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.sv.da.file.reader.RowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.BaseRowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.CsvRowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.FixedRowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.JsonListRowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.JsonRowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.TextRowReader;
+import me.suwash.tools.comparefiles.sv.da.file.reader.impl.TsvRowReader;
+import me.suwash.tools.comparefiles.sv.domain.BaseRow;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * 行データ読み込みリポジトリ。
+ *
+ * @param &lt;R&gt; 行データ
+ */
+public class GenericRowReadRepository&lt;R extends BaseRow&gt; extends GenericFileRepository&lt;R&gt; {
+
+    protected FileLayout fileLayout;
+    protected int csvHeaderRow;
+    protected int csvDataStartRow;
+    protected String codeValueForOnlyOneRecordType;
+    protected BaseRowReader&lt;R&gt; rowReader;
+
+    /**
+     * コンストラクタ。
+     *
+     * @param filePath 対象ファイルパス
+     * @param overrideCharset ファイルレイアウト定義を上書きする文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param csvHeaderRow CSV/TSVヘッダー行番号
+     * @param csvDataStartRow CSV/TSVデータ開始行番号
+     * @param codeValueForOnlyOneRecordType レコードタイプが1種類の場合の判定コード
+     * @param dummy 行データ型引数ダミー値 ※実行時に指定された型の空配列を、BaseRowReaderまで伝播させてリフレクションでインスタンス化しています。
+     */
+    @SafeVarargs
+    public GenericRowReadRepository(
+        final String filePath,
+        final String overrideCharset,
+        final FileLayout fileLayout,
+        final int csvHeaderRow,
+        final int csvDataStartRow,
+        final String codeValueForOnlyOneRecordType,
+        final R... dummy
+    ) {
+<span class="fc" id="L58">        super();</span>
+
+<span class="fc" id="L60">        setFields(filePath, overrideCharset, fileLayout, csvHeaderRow, csvDataStartRow, codeValueForOnlyOneRecordType, dummy);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * フィールドに初期値を設定します。
+     *
+     * @param filePath 対象ファイルパス
+     * @param overrideCharset ファイルレイアウト定義を上書きする文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param csvHeaderRow CSV/TSVヘッダー行番号
+     * @param csvDataStartRow CSV/TSVデータ開始行番号
+     * @param codeValueForOnlyOneRecordType レコードタイプが1種類の場合の判定コード
+     * @param dummy 行データ型引数ダミー値 ※実行時に指定された型の空配列を、BaseRowReaderまで伝播させてリフレクションでインスタンス化しています。
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private void setFields(
+        final String filePath,
+        final String overrideCharset,
+        final FileLayout fileLayout,
+        final int csvHeaderRow,
+        final int csvDataStartRow,
+        final String codeValueForOnlyOneRecordType,
+        final R... dummy
+    ) {
+
+        // ファイルレイアウトが指定されていない場合、デフォルト値を設定。
+<span class="fc" id="L86">        FileLayout decidedLayout = fileLayout;</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        if (decidedLayout == null) {</span>
+<span class="fc" id="L88">            decidedLayout = FileLayout.getDefaultLayout();</span>
+        }
+
+<span class="fc" id="L91">        this.filePath = filePath;</span>
+<span class="fc" id="L92">        this.txFilePath = filePath + '.' + RandomStringUtils.randomAlphanumeric(10);</span>
+
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(overrideCharset)) {</span>
+<span class="nc" id="L95">            this.charset = decidedLayout.getCharset();</span>
+        } else {
+<span class="fc" id="L97">            this.charset = overrideCharset;</span>
+        }
+
+<span class="fc" id="L100">        this.lineSp = decidedLayout.getLineSp();</span>
+
+<span class="fc" id="L102">        this.fileLayout = decidedLayout;</span>
+<span class="fc" id="L103">        this.csvHeaderRow = csvHeaderRow;</span>
+<span class="fc" id="L104">        this.csvDataStartRow = csvDataStartRow;</span>
+<span class="fc" id="L105">        this.codeValueForOnlyOneRecordType = codeValueForOnlyOneRecordType;</span>
+<span class="fc" id="L106">        this.rowReader = getReader(dummy);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * ファイルレイアウト.ファイルフォーマットにマッチする、行データリーダーを返します。
+     *
+     * @param dummy 行データ型引数ダミー値 ※実行時に指定された型の空配列を、BaseRowReaderまで伝播させてリフレクションでインスタンス化しています。
+     * @return 行データリーダー
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    private BaseRowReader&lt;R&gt; getReader(final R... dummy) {
+<span class="fc" id="L117">        final FileFormat fileFormat = fileLayout.getFileFormat();</span>
+        try {
+<span class="fc bfc" id="L119" title="All 4 branches covered.">            if (FileFormat.CSV_noHeader.equals(fileFormat) || FileFormat.CSV_withHeader.equals(fileFormat)) {</span>
+<span class="fc" id="L120">                return new CsvRowReader&lt;R&gt;(filePath, charset, fileLayout, csvHeaderRow, csvDataStartRow, dummy);</span>
+<span class="pc bpc" id="L121" title="2 of 4 branches missed.">            } else if (FileFormat.TSV_noHeader.equals(fileFormat) || FileFormat.TSV_withHeader.equals(fileFormat)) {</span>
+<span class="nc" id="L122">                return new TsvRowReader&lt;R&gt;(filePath, charset, fileLayout, csvHeaderRow, csvDataStartRow, dummy);</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">            } else if (FileFormat.Json.equals(fileFormat)) {</span>
+<span class="fc" id="L124">                return new JsonRowReader&lt;R&gt;(filePath, charset, fileLayout, dummy);</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            } else if (FileFormat.JsonList.equals(fileFormat)) {</span>
+<span class="fc" id="L126">                return new JsonListRowReader&lt;R&gt;(filePath, charset, fileLayout, dummy);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">            } else if (FileFormat.Fixed.equals(fileFormat)) {</span>
+<span class="fc" id="L128">                return new FixedRowReader&lt;R&gt;(filePath, charset, fileLayout, codeValueForOnlyOneRecordType, dummy);</span>
+            } else {
+<span class="fc" id="L130">                return new TextRowReader&lt;R&gt;(filePath, charset, fileLayout, dummy);</span>
+            }
+<span class="nc" id="L132">        } catch (IOException e) {</span>
+<span class="nc" id="L133">            throw new CompareFilesException(Const.STREAM_CANTOPEN_INPUT, new Object[] {filePath}, e);</span>
+        }
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.da.file.repository.impl.GenericFileRepository#getReader()
+     */
+    @Override
+    protected Reader getReader() {
+<span class="fc" id="L143">        return this.rowReader;</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.da.file.repository.impl.GenericFileRepository#getWriter()
+     */
+    @Override
+    protected Writer getWriter() {
+<span class="fc" id="L152">        return null;</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.infra.policy.FileRepository#next()
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public R next() {
+<span class="fc" id="L162">        return ((RowReader&lt;R&gt;) reader).next();</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.da.file.repository.impl.GenericFileRepository#write(java.lang.Object)
+     */
+    @Override
+    public void write(final R row) {
+<span class="nc" id="L171">        throw new CompareFilesException(Const.UNSUPPORTED);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

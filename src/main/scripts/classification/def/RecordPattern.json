@@ -1,0 +1,35 @@
+{
+  "id":"RecordPattern",
+  "name":"レコードタイプの組み合わせパターン",
+  "packageName":"me.suwash.tools.comparefiles.infra.classification",
+  "values":[
+    {
+        "id":"None",
+        "name":"なし",
+        "storeValue":"NONE"
+    },
+    {
+        "id":"HeaderData",
+        "name":"ヘッダー/データ",
+        "storeValue":"HD"
+    },
+    {
+        "id":"DataOnly",
+        "name":"データのみ",
+        "storeValue":"D"
+    },
+    {
+        "id":"Multi",
+        "name":"マルチレコードタイプ",
+        "storeValue":"MULTI"
+    }
+  ],
+  "groups":[
+    {
+        "id":"default",
+        "name":"デフォルト",
+        "values":["None", "HeaderData", "DataOnly", "Multi"],
+        "defaultValue":"None"
+    }
+  ]
+}

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CompareFilesConfig.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.infra.config</a> &gt; <span class="el_source">CompareFilesConfig.java</span></div><h1>CompareFilesConfig.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.infra.config;
+
+import java.awt.Rectangle;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.util.ImageCompareUtils.ConfirmImageStyle;
+import me.suwash.util.validation.constraints.Charset;
+
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * システム設定。
+ */
+@Getter
+<span class="fc" id="L26">@Setter</span>
+<span class="fc" id="L27">@ToString</span>
+<span class="fc" id="L28">@lombok.extern.slf4j.Slf4j</span>
+<span class="fc" id="L29">public class CompareFilesConfig {</span>
+
+<span class="fc" id="L31">    private static final ObjectMapper MAPPER = new ObjectMapper();</span>
+
+<span class="fc" id="L33">    private String leftFilePath;</span>
+
+<span class="fc" id="L35">    private String rightFilePath;</span>
+
+    @Charset
+<span class="fc" id="L38">    private String defaultInputCharset;</span>
+
+    @NotEmpty
+<span class="fc" id="L41">    private String outputDir;</span>
+
+    @NotEmpty
+    @Charset
+<span class="fc" id="L45">    private String outputCharset;</span>
+
+<span class="fc" id="L47">    private boolean isSorted;</span>
+
+<span class="fc" id="L49">    private int csvHeaderRow = Const.DEFAULT_INT_VALUE;</span>
+
+<span class="fc" id="L51">    private int csvDataStartRow = Const.DEFAULT_INT_VALUE;</span>
+
+<span class="fc" id="L53">    private boolean isWriteDiffOnly;</span>
+
+    @NotEmpty
+<span class="fc" id="L56">    private String leftPrefix;</span>
+
+    @NotEmpty
+<span class="fc" id="L59">    private String rightPrefix;</span>
+
+    @NotEmpty
+<span class="fc" id="L62">    private String compareResultFileName;</span>
+
+    @NotEmpty
+<span class="fc" id="L65">    private String compareDetailFilePrefix;</span>
+
+<span class="fc" id="L67">    private int chunkSize = Const.DEFAULT_INT_VALUE;</span>
+
+<span class="fc" id="L69">    private List&lt;String&gt; ignoreFileRegexList;</span>
+
+<span class="fc" id="L71">    private List&lt;String&gt; ignoreItemList;</span>
+
+<span class="fc" id="L73">    private List&lt;Rectangle&gt; ignoreAreaList;</span>
+
+<span class="fc" id="L75">    private String overwriteLayoutDir;</span>
+
+<span class="fc" id="L77">    private boolean isDeleteWorkDir;</span>
+
+<span class="fc" id="L79">    private String codeValueForOnlyOneRecordType;</span>
+
+<span class="fc" id="L81">    private ConfirmImageStyle okImageStyle;</span>
+
+<span class="fc" id="L83">    private ConfirmImageStyle ngImageStyle;</span>
+
+    /**
+     * 指定パスのファイルをオブジェクトにパースします。
+     *
+     * @param filePath 設定ファイルパス
+     * @param isClasspath クラスパス指定か？
+     * @return パース後のオブジェクト
+     */
+    public static CompareFilesConfig parse(final String filePath, final boolean isClasspath) {
+<span class="fc" id="L93">        CompareFilesConfig config = null;</span>
+
+        try {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            if (isClasspath) {</span>
+<span class="fc" id="L97">                final InputStream inStream = CompareFilesConfig.class.getResourceAsStream(filePath);</span>
+<span class="fc" id="L98">                final Reader reader = new InputStreamReader(inStream, Const.CHARSET_DEFAULT_CONFIG);</span>
+<span class="fc" id="L99">                config = MAPPER.readValue(reader, CompareFilesConfig.class);</span>
+
+<span class="fc" id="L101">            } else {</span>
+<span class="fc" id="L102">                config = MAPPER.readValue(new File(filePath), CompareFilesConfig.class);</span>
+            }
+<span class="fc" id="L104">        } catch (Exception e) {</span>
+<span class="fc" id="L105">            throw new CompareFilesException(Const.MSGCD_ERROR_PARSE, new Object[] {filePath}, e);</span>
+<span class="fc" id="L106">        }</span>
+
+<span class="fc" id="L108">        return config;</span>
+    }
+
+    /**
+     * フィールドに初期値が設定されている項目を、指定されたデフォルト設定で上書きします。
+     *
+     * @param defaultConfig デフォルト設定
+     */
+    public void setDefault(final CompareFilesConfig defaultConfig) {
+<span class="fc" id="L117">        final String leftFilePath = defaultConfig.getLeftFilePath();</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.leftFilePath)) {</span>
+<span class="fc" id="L119">            this.leftFilePath = leftFilePath;</span>
+        }
+
+<span class="fc" id="L122">        final String rightFilePath = defaultConfig.getRightFilePath();</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.rightFilePath)) {</span>
+<span class="fc" id="L124">            this.rightFilePath = rightFilePath;</span>
+        }
+
+<span class="fc" id="L127">        final String outputDir = defaultConfig.getOutputDir();</span>
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.outputDir)) {</span>
+<span class="fc" id="L129">            this.outputDir = outputDir;</span>
+        }
+
+<span class="fc" id="L132">        final String outputCharset = defaultConfig.getOutputCharset();</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.outputCharset)) {</span>
+<span class="fc" id="L134">            this.outputCharset = outputCharset;</span>
+        }
+
+<span class="fc" id="L137">        final boolean isSorted = defaultConfig.isSorted();</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (!this.isSorted) {</span>
+<span class="fc" id="L139">            this.isSorted = isSorted;</span>
+        }
+
+<span class="fc" id="L142">        final int csvHeaderRow = defaultConfig.getCsvHeaderRow();</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">        if (this.csvHeaderRow == Const.DEFAULT_INT_VALUE) {</span>
+<span class="fc" id="L144">            this.csvHeaderRow = csvHeaderRow;</span>
+        }
+
+<span class="fc" id="L147">        final int csvDataStartRow = defaultConfig.getCsvDataStartRow();</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">        if (this.csvDataStartRow == Const.DEFAULT_INT_VALUE) {</span>
+<span class="fc" id="L149">            this.csvDataStartRow = csvDataStartRow;</span>
+        }
+
+<span class="fc" id="L152">        final boolean isWriteDiffOnly = defaultConfig.isWriteDiffOnly();</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (!this.isWriteDiffOnly) {</span>
+<span class="fc" id="L154">            this.isWriteDiffOnly = isWriteDiffOnly;</span>
+        }
+
+<span class="fc" id="L157">        final String leftPrefix = defaultConfig.getLeftPrefix();</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.leftPrefix)) {</span>
+<span class="fc" id="L159">            this.leftPrefix = leftPrefix;</span>
+        }
+
+<span class="fc" id="L162">        final String rightPrefix = defaultConfig.getRightPrefix();</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.rightPrefix)) {</span>
+<span class="fc" id="L164">            this.rightPrefix = rightPrefix;</span>
+        }
+
+<span class="fc" id="L167">        final String compareResultFileName = defaultConfig.getCompareResultFileName();</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.compareResultFileName)) {</span>
+<span class="fc" id="L169">            this.compareResultFileName = compareResultFileName;</span>
+        }
+
+<span class="fc" id="L172">        final String compareDetailFilePrefix = defaultConfig.getCompareDetailFilePrefix();</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.compareDetailFilePrefix)) {</span>
+<span class="fc" id="L174">            this.compareDetailFilePrefix = compareDetailFilePrefix;</span>
+        }
+
+<span class="fc" id="L177">        final int chunkSize = defaultConfig.getChunkSize();</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (this.chunkSize == Const.DEFAULT_INT_VALUE) {</span>
+<span class="fc" id="L179">            this.chunkSize = chunkSize;</span>
+        }
+
+<span class="fc" id="L182">        final List&lt;String&gt; ignoreFileRegexList = defaultConfig.getIgnoreFileRegexList();</span>
+<span class="pc bpc" id="L183" title="3 of 4 branches missed.">        if (this.ignoreFileRegexList == null || this.ignoreFileRegexList.size() == 0) {</span>
+<span class="fc" id="L184">            this.ignoreFileRegexList = ignoreFileRegexList;</span>
+        }
+
+<span class="fc" id="L187">        final List&lt;String&gt; ignoreItemList = defaultConfig.getIgnoreItemList();</span>
+<span class="pc bpc" id="L188" title="1 of 4 branches missed.">        if (this.ignoreItemList == null || this.ignoreItemList.size() == 0) {</span>
+<span class="fc" id="L189">            this.ignoreItemList = ignoreItemList;</span>
+        }
+
+<span class="fc" id="L192">        final List&lt;Rectangle&gt; ignoreAreaList = defaultConfig.getIgnoreAreaList();</span>
+<span class="pc bpc" id="L193" title="3 of 4 branches missed.">        if (this.ignoreAreaList == null || this.ignoreAreaList.size() == 0) {</span>
+<span class="fc" id="L194">            this.ignoreAreaList = ignoreAreaList;</span>
+        }
+
+<span class="fc" id="L197">        final String overwriteLayoutDir = defaultConfig.getOverwriteLayoutDir();</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (StringUtils.isEmpty(this.overwriteLayoutDir)) {</span>
+<span class="fc" id="L199">            this.overwriteLayoutDir = overwriteLayoutDir;</span>
+        }
+
+<span class="fc" id="L202">        final boolean isDeleteWorkDir = defaultConfig.isDeleteWorkDir();</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">        if (!this.isDeleteWorkDir) {</span>
+<span class="fc" id="L204">            this.isDeleteWorkDir = isDeleteWorkDir;</span>
+        }
+
+<span class="fc" id="L207">        final String codeValueForOnlyOneRecordType = defaultConfig.getCodeValueForOnlyOneRecordType();</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(this.codeValueForOnlyOneRecordType)) {</span>
+<span class="fc" id="L209">            this.codeValueForOnlyOneRecordType = codeValueForOnlyOneRecordType;</span>
+        }
+
+<span class="fc" id="L212">        final ConfirmImageStyle okImageStyle = defaultConfig.getOkImageStyle();</span>
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">        if (this.okImageStyle == null) {</span>
+<span class="fc" id="L214">            this.okImageStyle = okImageStyle;</span>
+        }
+
+<span class="fc" id="L217">        final ConfirmImageStyle ngImageStyle = defaultConfig.getNgImageStyle();</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if (this.ngImageStyle == null) {</span>
+<span class="fc" id="L219">            this.ngImageStyle = ngImageStyle;</span>
+        }
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * 保持している設定をロガー出力します。
+     */
+    public void printDetails() {
+<span class="fc" id="L227">        log.info(&quot;・設定&quot;);</span>
+<span class="fc" id="L228">        log.info(&quot;  ・比較情報&quot;);</span>
+<span class="fc" id="L229">        log.info(&quot;    ・ソート済か？                  : &quot; + isSorted);</span>
+<span class="fc" id="L230">        log.info(&quot;    ・レイアウト配置ディレクトリ    : &quot; + overwriteLayoutDir);</span>
+<span class="fc" id="L231">        log.info(&quot;    ・除外ファイル名正規表現        : &quot; + ignoreFileRegexList);</span>
+<span class="fc" id="L232">        log.info(&quot;    ・共通除外項目                  : &quot; + ignoreItemList);</span>
+<span class="fc" id="L233">        log.info(&quot;    ・共通除外エリア                : &quot; + ignoreAreaList);</span>
+<span class="fc" id="L234">        log.info(&quot;    ・CSV/TSVヘッダー行番号         : &quot; + csvHeaderRow);</span>
+<span class="fc" id="L235">        log.info(&quot;    ・CSV/TSVデータ開始行番号       : &quot; + csvDataStartRow);</span>
+<span class="fc" id="L236">        log.info(&quot;  ・出力情報&quot;);</span>
+<span class="fc" id="L237">        log.info(&quot;    ・出力ディレクトリ              : &quot; + outputDir);</span>
+<span class="fc" id="L238">        log.info(&quot;    ・出力文字コード                : &quot; + outputCharset);</span>
+<span class="fc" id="L239">        log.info(&quot;    ・作業ディレクトリを削除するか？: &quot; + isDeleteWorkDir);</span>
+<span class="fc" id="L240">        log.info(&quot;    ・出力バッファ行数              : &quot; + chunkSize);</span>
+<span class="fc" id="L241">        log.info(&quot;    ・結果ファイル名                : &quot; + compareResultFileName);</span>
+<span class="fc" id="L242">        log.info(&quot;    ・詳細ファイル&quot;);</span>
+<span class="fc" id="L243">        log.info(&quot;      ・詳細ファイル名プリフィックス: &quot; + compareDetailFilePrefix);</span>
+<span class="fc" id="L244">        log.info(&quot;      ・差分のみ出力するか？        : &quot; + isWriteDiffOnly);</span>
+<span class="fc" id="L245">        log.info(&quot;      ・左差分プリフィックス        : &quot; + leftPrefix);</span>
+<span class="fc" id="L246">        log.info(&quot;      ・右差分プリフィックス        : &quot; + rightPrefix);</span>
+<span class="fc" id="L247">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -1,0 +1,876 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FileSortResult.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.domain.sort</a> &gt; <span class="el_source">FileSortResult.java</span></div><h1>FileSortResult.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.domain.sort;
+
+import java.io.File;
+import java.lang.management.ManagementFactory;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.ddd.policy.Input;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.classification.FileFormat;
+import me.suwash.tools.comparefiles.infra.classification.LineSp;
+import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
+import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.policy.AggregateEntity;
+import me.suwash.tools.comparefiles.infra.policy.FileRepository;
+import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
+import me.suwash.tools.comparefiles.sv.da.file.repository.impl.GenericRowReadRepository;
+import me.suwash.tools.comparefiles.sv.da.file.repository.impl.StringFileRepository;
+import me.suwash.tools.comparefiles.sv.da.file.repository.impl.TempSortedRowWriteRepository;
+import me.suwash.util.FileUtils;
+import me.suwash.util.RuntimeUtils;
+import me.suwash.util.validation.constraints.Charset;
+import me.suwash.util.validation.constraints.ExistPath;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * ファイルのソートサービス。
+ * 大容量ファイルに対応するため、マージソートを実施します。
+ */
+<span class="fc" id="L38">@lombok.extern.slf4j.Slf4j</span>
+public class FileSortResult implements AggregateEntity {
+
+    private static final int LINENUM_FIRST = 1;
+
+    /** マージフェーズのステータス。 */
+<span class="pc" id="L44">    private enum MergePhaseStatus {</span>
+<span class="fc" id="L45">        Compare,</span>
+<span class="fc" id="L46">        Sep1GotoUnsortedPos,</span>
+<span class="fc" id="L47">        Sep2GotoUnsortedPos</span>
+    }
+
+    /** ソート入力データモデル。 */
+    private final FileSortInput sortInput;
+
+    /** 処理ステータス。 */
+<span class="fc" id="L54">    @Getter</span>
+    private ProcessStatus processStatus = ProcessStatus.Processing;
+
+    /**
+     * コンストラクタ。
+     *
+     * @param inputFilePath 入力ファイルパス
+     * @param inputCharset 入力ファイル文字コード
+     * @param outputDirPath 出力ディレクトリ
+     * @param outputCharset 出力ファイル文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     */
+    public FileSortResult(
+        final String inputFilePath,
+        final String inputCharset,
+        final String outputDirPath,
+        final String outputCharset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig) {
+
+<span class="fc" id="L75">        super();</span>
+<span class="fc" id="L76">        final FileSortInput sortInput = new FileSortInput();</span>
+<span class="fc" id="L77">        sortInput.setInputFile(inputFilePath);</span>
+<span class="fc" id="L78">        sortInput.setInputCharset(inputCharset);</span>
+<span class="fc" id="L79">        sortInput.setOutputDir(outputDirPath);</span>
+<span class="fc" id="L80">        sortInput.setOutputCharset(outputCharset);</span>
+<span class="fc" id="L81">        sortInput.setFileLayout(fileLayout);</span>
+<span class="fc" id="L82">        sortInput.setSystemConfig(systemConfig);</span>
+<span class="fc" id="L83">        this.sortInput = sortInput;</span>
+<span class="fc" id="L84">    }</span>
+
+    /**
+     * ソートを実行します。
+     */
+    public void sort() {
+        // --------------------------------------------------------------------------------
+        // 事前処理
+        // --------------------------------------------------------------------------------
+
+        // ----------------------------------------
+        // 単項目チェック
+        // ----------------------------------------
+<span class="fc" id="L97">        ValidateUtils.validate(sortInput);</span>
+
+        // ----------------------------------------
+        // 関連チェック
+        // ----------------------------------------
+        // 出力ディレクトリ
+<span class="fc" id="L103">        final String outputDirPath = sortInput.getOutputDir();</span>
+<span class="fc" id="L104">        FileUtils.mkdirs(outputDirPath);</span>
+
+        // 作業ディレクトリの初期化
+<span class="fc" id="L107">        final String workDirPath = outputDirPath + File.separator + getWorkDirName(sortInput);</span>
+<span class="fc" id="L108">        FileUtils.initDir(workDirPath);</span>
+
+        // --------------------------------------------------------------------------------
+        // 本処理
+        // --------------------------------------------------------------------------------
+        // --------------------------------------------------
+        // 設定
+        // --------------------------------------------------
+        // 入力ファイル
+<span class="fc" id="L117">        final String inputFilePath = sortInput.getInputFile();</span>
+<span class="fc" id="L118">        final File inputFile = new File(inputFilePath);</span>
+<span class="fc" id="L119">        final String inputFileName = inputFile.getName();</span>
+
+        // 出力ファイル
+<span class="fc" id="L122">        final String outputFilePath = outputDirPath + File.separator + inputFileName;</span>
+
+        // --------------------------------------------------
+        // 0バイトチェック
+        // --------------------------------------------------
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (inputFile.length() == 0) {</span>
+<span class="nc" id="L128">            log.warn(&quot;        ・SKIP 空ファイル:&quot; + inputFilePath);</span>
+<span class="nc" id="L129">            FileUtils.createNewFile(outputFilePath);</span>
+<span class="nc" id="L130">            this.processStatus = ProcessStatus.Warning;</span>
+<span class="nc" id="L131">            return;</span>
+        }
+
+        // --------------------------------------------------
+        // ヘッダーファイル出力
+        // --------------------------------------------------
+<span class="fc" id="L137">        final String inputCharset = sortInput.getInputCharset();</span>
+<span class="fc" id="L138">        final String outputCharset = sortInput.getOutputCharset();</span>
+<span class="fc" id="L139">        final FileLayout fileLayout = sortInput.getFileLayout();</span>
+<span class="fc" id="L140">        final CompareFilesConfig systemConfig = sortInput.getSystemConfig();</span>
+<span class="fc" id="L141">        final int chunkSize = systemConfig.getChunkSize();</span>
+
+        // ヘッダー有無を考慮して、データ開始行より前までのファイルを作成
+<span class="fc" id="L144">        final String headerFilePath = workDirPath + File.separator + &quot;header&quot;;</span>
+<span class="fc" id="L145">        final File headerFile = new File(headerFilePath);</span>
+<span class="fc" id="L146">        final boolean hasHeader = hasHeader(fileLayout.getFileFormat());</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (hasHeader) {</span>
+<span class="fc" id="L148">            writeHeaderFile(inputFile, inputCharset, systemConfig.getCsvDataStartRow(), headerFile, outputCharset, chunkSize);</span>
+        }
+
+        // --------------------------------------------------
+        // 部分ソートファイル出力
+        // --------------------------------------------------
+        // ヘッダー有無を考慮して、入力ファイルをざっくりバブルソート ※高速化
+<span class="fc" id="L155">        final String tempSortedFilePath = workDirPath + File.separator + &quot;tempSorted&quot;;</span>
+<span class="fc" id="L156">        final File tempSortedFile = new File(tempSortedFilePath);</span>
+<span class="fc" id="L157">        writeTempSortedFile(inputFilePath, inputCharset, fileLayout, systemConfig, tempSortedFile, outputCharset, hasHeader, chunkSize);</span>
+
+        // --------------------------------------------------
+        // マージソート
+        // --------------------------------------------------
+        // 部分ソートファイルを元にマージソート
+<span class="fc" id="L163">        final String mergedFilePath = workDirPath + File.separator + &quot;merged&quot;;</span>
+<span class="fc" id="L164">        final File mergedFile = new File(mergedFilePath);</span>
+<span class="fc" id="L165">        mergeSort(tempSortedFile, workDirPath, mergedFile, outputCharset, fileLayout, systemConfig, chunkSize);</span>
+
+        // --------------------------------------------------
+        // 結果ファイル出力
+        // --------------------------------------------------
+        // ヘッダーファイルとマージソート結果ファイルを連結
+<span class="fc" id="L171">        final File outputFile = new File(outputFilePath);</span>
+<span class="fc" id="L172">        writeResultFile(headerFile, outputCharset, mergedFile, outputCharset, outputFile, outputCharset, fileLayout, systemConfig, chunkSize);</span>
+
+        // --------------------------------------------------------------------------------
+        // 事後処理
+        // --------------------------------------------------------------------------------
+        // workディレクトリの削除
+<span class="fc" id="L178">        FileUtils.rmdirs(workDirPath);</span>
+
+        // 処理ステータスが未設定の場合、正常終了を設定
+<span class="pc bpc" id="L181" title="1 of 2 branches missed.">        if (ProcessStatus.Processing.equals(this.processStatus)) {</span>
+<span class="fc" id="L182">            this.processStatus = ProcessStatus.Success;</span>
+        }
+<span class="fc" id="L184">    }</span>
+
+    /**
+     * ヘッダーが存在するファイルフォーマットか確認します。
+     *
+     * @param fileFormat ファイルフォーマット
+     * @return ヘッダーが存在する場合、true
+     */
+    private boolean hasHeader(final FileFormat fileFormat) {
+<span class="fc" id="L193">        boolean hasHeader = false;</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (FileFormat.CSV_withHeader.equals(fileFormat) ||</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">            FileFormat.TSV_withHeader.equals(fileFormat)) {</span>
+<span class="fc" id="L196">            hasHeader = true;</span>
+        }
+<span class="fc" id="L198">        return hasHeader;</span>
+    }
+
+    /**
+     * 作業ディレクトリ名を返します。
+     * マルチプロセス、マルチスレッド対応にするため、入力データモデルを利用してIDを保持します。
+     *
+     * @param input 入力データモデル
+     * @return 作業ディレクトリ名
+     */
+    private String getWorkDirName(final FileSortInput input) {
+<span class="fc" id="L209">        final String processId = ManagementFactory.getRuntimeMXBean().getName().split(&quot;@&quot;)[0];</span>
+<span class="fc" id="L210">        final String threadName = Thread.currentThread().getName();</span>
+<span class="fc" id="L211">        final String fileName = new File(input.getInputFile()).getName();</span>
+<span class="fc" id="L212">        final String randomStr = RandomStringUtils.randomAlphanumeric(6);</span>
+
+<span class="fc" id="L214">        final StringBuilder workDirNameBuilder = new StringBuilder();</span>
+<span class="fc" id="L215">        return workDirNameBuilder</span>
+<span class="fc" id="L216">            .append(Const.DIRNAME_WORK).append('_')</span>
+<span class="fc" id="L217">            .append(processId).append('_')</span>
+<span class="fc" id="L218">            .append(threadName).append('_')</span>
+<span class="fc" id="L219">            .append(fileName).append('_')</span>
+<span class="fc" id="L220">            .append(randomStr)</span>
+<span class="fc" id="L221">            .toString();</span>
+    }
+
+    /**
+     * ファイルレイアウトにマッチする行データ読み込みリポジトリを返します。
+     *
+     * @param filePath 入力ファイルパス
+     * @param charset 入力文字コード
+     * @param fileLayout 入力ファイルレイアウト
+     * @param systemConfig システム設定
+     * @return 行データ読み込みリポジトリ
+     */
+    private FileRepository&lt;SortableRow&gt; getRowReadRepository(
+        final String filePath,
+        final String charset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig) {
+
+<span class="fc" id="L239">        return getRowReadRepository(filePath, charset, fileLayout, systemConfig, false);</span>
+    }
+
+    /**
+     * ファイルレイアウトにマッチする行データ読み込みリポジトリを返します。
+     *
+     * @param filePath 入力ファイルパス
+     * @param charset 入力文字コード
+     * @param fileLayout 入力ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param isUseConfigDataStartRow システム設定のデータ開始行から読み込むか？
+     * @return 行データ読み込みリポジトリ
+     */
+    private FileRepository&lt;SortableRow&gt; getRowReadRepository(
+        final String filePath,
+        final String charset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final boolean isUseConfigDataStartRow) {
+
+<span class="fc" id="L259">        int csvHeaderRow = systemConfig.getCsvHeaderRow();</span>
+<span class="fc" id="L260">        int csvDataStartRow = systemConfig.getCsvDataStartRow();</span>
+<span class="fc" id="L261">        final String codeValueForOnlyOneRecordType = systemConfig.getCodeValueForOnlyOneRecordType();</span>
+<span class="fc bfc" id="L262" title="All 2 branches covered.">        if (!isUseConfigDataStartRow) {</span>
+<span class="fc" id="L263">            csvHeaderRow = 0;</span>
+<span class="fc" id="L264">            csvDataStartRow = 1;</span>
+        }
+
+<span class="fc" id="L267">        final FileRepository&lt;SortableRow&gt; repo = new GenericRowReadRepository&lt;SortableRow&gt;(filePath, charset, fileLayout, csvHeaderRow, csvDataStartRow, codeValueForOnlyOneRecordType);</span>
+<span class="fc" id="L268">        repo.begin();</span>
+<span class="fc" id="L269">        return repo;</span>
+    }
+
+    /**
+     * ヘッダー部分を抽出した一時ファイルを作成します。
+     * データ部分をマージソートした後で、結合します。
+     *
+     * @param inputFile 入力ファイル
+     * @param inputCharset 入力ファイル文字コード
+     * @param dataStartRow データ開始行番号
+     * @param headerFile ヘッダーファイル
+     * @param headerCharset ヘッダーファイル文字コード
+     * @param chunkSize 書き出しバッファ行数
+     */
+    private void writeHeaderFile(
+        final File inputFile,
+        final String inputCharset,
+        final int dataStartRow,
+        final File headerFile,
+        final String headerCharset,
+        final int chunkSize) {
+
+<span class="fc" id="L291">        log.debug(&quot;        ・writeHeaderFile&quot;);</span>
+
+        // 入力ファイル
+<span class="fc" id="L294">        final FileRepository&lt;String&gt; inputRepo = new StringFileRepository(</span>
+<span class="fc" id="L295">            inputFile.getAbsolutePath(), inputCharset, null, chunkSize);</span>
+<span class="fc" id="L296">        inputRepo.begin();</span>
+        // ヘッダーファイル
+<span class="fc" id="L298">        final FileRepository&lt;String&gt; headerRepo = new StringFileRepository(</span>
+<span class="fc" id="L299">            headerFile.getAbsolutePath(), headerCharset, null, chunkSize);</span>
+<span class="fc" id="L300">        headerRepo.begin();</span>
+
+        // 行番号
+<span class="fc" id="L303">        long curLineNum = 0;</span>
+        // 現在行コンテンツに1行目を読み込み
+<span class="fc" id="L305">        String curLineContent = inputRepo.next();</span>
+
+        // 全行ループ
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">        while (curLineContent != null) {</span>
+<span class="fc" id="L309">            curLineNum++;</span>
+
+            // データ開始行に到達した場合、出力ループを抜ける
+<span class="fc bfc" id="L312" title="All 2 branches covered.">            if (curLineNum &gt;= dataStartRow) {</span>
+<span class="fc" id="L313">                break;</span>
+            }
+
+<span class="fc" id="L316">            headerRepo.write(curLineContent);</span>
+<span class="fc" id="L317">            curLineContent = inputRepo.next();</span>
+        }
+
+        // ファイル操作を確定
+<span class="fc" id="L321">        inputRepo.commit();</span>
+<span class="fc" id="L322">        headerRepo.commit();</span>
+<span class="fc" id="L323">    }</span>
+
+    /**
+     * マージソートの前に、チャンクサイズごとにバブルソートしたファイルを作成して高速化します。
+     *
+     * @param inputFilePath 入力ファイルパス
+     * @param inputCharset 入力ファイル文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param outputFile 出力ファイル
+     * @param outputCharset 出力ファイル文字コード
+     * @param hasHeader ヘッダー有無
+     * @param chunkSize 書き出しバッファ行数
+     */
+    private void writeTempSortedFile(
+        final String inputFilePath,
+        final String inputCharset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final File outputFile,
+        final String outputCharset,
+        final boolean hasHeader,
+        final int chunkSize) {
+
+<span class="fc" id="L347">        log.debug(&quot;        ・writeTempSortedFile&quot;);</span>
+
+<span class="fc" id="L349">        final FileRepository&lt;SortableRow&gt; inputRepo = getRowReadRepository(inputFilePath, inputCharset, fileLayout, systemConfig, hasHeader);</span>
+<span class="fc" id="L350">        int dataStartRow = 0;</span>
+<span class="fc bfc" id="L351" title="All 2 branches covered.">        if (hasHeader) {</span>
+            // データ開始行以降をバブルソートして出力
+<span class="fc" id="L353">            dataStartRow = systemConfig.getCsvDataStartRow();</span>
+        } else {
+            // すべての行をバブルソートして出力
+<span class="fc" id="L356">            dataStartRow = 1;</span>
+        }
+
+<span class="fc" id="L359">        final LineSp lineSp = getLineSp(fileLayout);</span>
+
+        // ソート済みファイルリポジトリ
+<span class="fc" id="L362">        final FileRepository&lt;SortableRow&gt; tempSortedFileRepo =</span>
+            new TempSortedRowWriteRepository&lt;SortableRow&gt;(outputFile, outputCharset, lineSp, chunkSize);
+<span class="fc" id="L364">        tempSortedFileRepo.begin();</span>
+
+        // 行番号
+<span class="fc" id="L367">        long curLineNum = 0;</span>
+
+        // 現在行コンテンツ
+<span class="fc" id="L370">        SortableRow curRow = inputRepo.next();</span>
+
+        // 全行ループ
+<span class="fc bfc" id="L373" title="All 2 branches covered.">        while (curRow != null) {</span>
+<span class="fc" id="L374">            curLineNum++;</span>
+
+            // データ開始行より前の行はスキップ
+<span class="fc bfc" id="L377" title="All 2 branches covered.">            if (curLineNum &lt; dataStartRow) {</span>
+<span class="fc" id="L378">                continue;</span>
+            }
+
+<span class="fc" id="L381">            tempSortedFileRepo.write(curRow);</span>
+<span class="fc" id="L382">            curRow = inputRepo.next();</span>
+        }
+
+        // ファイル操作を確定
+<span class="fc" id="L386">        inputRepo.commit();</span>
+<span class="fc" id="L387">        tempSortedFileRepo.commit();</span>
+<span class="fc" id="L388">    }</span>
+
+    /**
+     * マージソートを実行します。
+     *
+     * @param inputFile 入力ファイル
+     * @param workDirPath 作業ディレクトリパス
+     * @param outputFile 出力ファイル
+     * @param charset 入出力文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param chunkSize 書き出しバッファ行数
+     */
+    private void mergeSort(
+        final File inputFile,
+        final String workDirPath,
+        final File outputFile,
+        final String charset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final int chunkSize) {
+
+<span class="fc" id="L410">        log.debug(&quot;        ・mergeSort&quot;);</span>
+
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">        if (inputFile.length() == 0) {</span>
+            // データ部が空ファイルの場合、リネームのみ
+<span class="nc bnc" id="L414" title="All 2 branches missed.">            if (!inputFile.renameTo(outputFile)) {</span>
+<span class="nc" id="L415">                throw new CompareFilesException(Const.FILE_CANTWRITE, new Object[] {</span>
+                    outputFile
+                });
+            }
+<span class="nc" id="L419">            return;</span>
+        }
+
+        // 分割ファイル
+<span class="fc" id="L423">        final String sep1FilePath = workDirPath + File.separator + &quot;sep1&quot;;</span>
+<span class="fc" id="L424">        final File sep1File = new File(sep1FilePath);</span>
+<span class="fc" id="L425">        final String sep2FilePath = workDirPath + File.separator + &quot;sep2&quot;;</span>
+<span class="fc" id="L426">        final File sep2File = new File(sep2FilePath);</span>
+
+        // 部分ソートファイルをマージファイルにリネーム
+<span class="pc bpc" id="L429" title="1 of 2 branches missed.">        if (inputFile.renameTo(outputFile)) {</span>
+<span class="fc" id="L430">            mergeSortMain(sep1File, sep2File, outputFile, charset, fileLayout, systemConfig, chunkSize);</span>
+        } else {
+<span class="nc" id="L432">            throw new CompareFilesException(Const.FILE_CANTWRITE, new Object[] {outputFile});</span>
+        }
+<span class="fc" id="L434">    }</span>
+
+    /**
+     * マージソートの本書り。
+     *
+     * @param sep1File 分割ファイル1
+     * @param sep2File 分割ファイル2
+     * @param mergedFile マージ済みファイル
+     * @param charset 入出力文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param chunkSize 書き出しバッファ行数
+     */
+    private void mergeSortMain(
+        final File sep1File,
+        final File sep2File,
+        final File mergedFile,
+        final String charset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final int chunkSize) {
+
+<span class="fc" id="L456">        long phaseCount = 0;</span>
+        while (true) {
+<span class="fc" id="L458">            phaseCount++;</span>
+
+            // 分割フェーズ
+<span class="fc bfc" id="L461" title="All 2 branches covered.">            if (!mergeSortSeparatePhase(mergedFile, sep1File, sep2File, charset, fileLayout, systemConfig, chunkSize)) {</span>
+                // 分割を実施しなかった場合、処理を終了
+<span class="fc" id="L463">                return;</span>
+            }
+
+            // マージフェーズ
+<span class="fc" id="L467">            mergeSortMergePhase(sep1File, sep2File, mergedFile, charset, fileLayout, systemConfig, chunkSize);</span>
+
+            // 進捗表示
+<span class="pc bpc" id="L470" title="1 of 2 branches missed.">            if (phaseCount % 10 == 0) {</span>
+<span class="nc" id="L471">                log.debug(phaseCount + &quot; 回目：&quot; + RuntimeUtils.getMemoryInfo());</span>
+            }
+<span class="pc bpc" id="L473" title="1 of 2 branches missed.">            if (phaseCount % Const.RANGE_REPORT == 0) {</span>
+<span class="nc" id="L474">                log.info(&quot;    &quot; + phaseCount + &quot; merge-sort phase finished.&quot;);</span>
+            }
+        }
+    }
+
+    /**
+     * マージソート.分割フェーズ。
+     *
+     * @param mergedFile マージ済みファイル
+     * @param sep1File 分割ファイル1
+     * @param sep2File 分割ファイル2
+     * @param charset 入出力文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param chunkSize 書き出しバッファ行数
+     * @return 分割を実施した場合、true
+     */
+    private boolean mergeSortSeparatePhase(
+        final File mergedFile,
+        final File sep1File,
+        final File sep2File,
+        final String charset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final int chunkSize) {
+
+<span class="fc" id="L500">        log.trace(&quot;　・separate phase&quot;);</span>
+
+        // 分割元ファイルリポジトリ（マージ済みファイル）
+<span class="fc" id="L503">        final FileRepository&lt;SortableRow&gt; mergedRepo = getRowReadRepository(mergedFile.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
+
+<span class="fc" id="L505">        final LineSp lineSp = getLineSp(fileLayout);</span>
+
+        // 分割ファイル1リポジトリ
+<span class="fc" id="L508">        final FileRepository&lt;String&gt; sep1Repo = new StringFileRepository(sep1File, charset, lineSp, chunkSize);</span>
+<span class="fc" id="L509">        sep1Repo.begin();</span>
+        // 分割ファイル2リポジトリ
+<span class="fc" id="L511">        final FileRepository&lt;String&gt; sep2Repo = new StringFileRepository(sep2File, charset, lineSp, chunkSize);</span>
+<span class="fc" id="L512">        sep2Repo.begin();</span>
+
+        // 分割実施フラグ
+<span class="fc" id="L515">        boolean isSeparated = false;</span>
+
+        // 行番号
+<span class="fc" id="L518">        long curLineNum = 0;</span>
+        // 現在行コンテンツ
+<span class="fc" id="L520">        SortableRow curLine = mergedRepo.next();</span>
+        // 前行コンテンツ
+<span class="fc" id="L522">        SortableRow beforeLine = null;</span>
+
+        // 分割ファイル1への出力フラグ
+<span class="fc" id="L525">        boolean isWriteSep1 = true;</span>
+<span class="fc" id="L526">        log.trace(&quot;　　・write sep1&quot;);</span>
+
+        // 全行ループ
+<span class="fc bfc" id="L529" title="All 2 branches covered.">        while (curLine != null) {</span>
+            // 行番号をインクリメント
+<span class="fc" id="L531">            curLineNum++;</span>
+
+            // 1行目は前行コンテンツの設定だけでスキップ
+<span class="fc bfc" id="L534" title="All 2 branches covered.">            if (curLineNum == LINENUM_FIRST) {</span>
+<span class="fc" id="L535">                beforeLine = curLine;</span>
+<span class="fc" id="L536">                curLine = mergedRepo.next();</span>
+<span class="fc" id="L537">                continue;</span>
+            }
+
+            // 出力先に合わせて、前行をファイル出力
+<span class="fc bfc" id="L541" title="All 2 branches covered.">            if (isWriteSep1) {</span>
+<span class="fc" id="L542">                sep1Repo.write(beforeLine.getRawLine());</span>
+            } else {
+<span class="fc" id="L544">                sep2Repo.write(beforeLine.getRawLine());</span>
+            }
+
+            // 前行と現在行を比較
+<span class="fc bfc" id="L548" title="All 2 branches covered.">            if (beforeLine.compareTo(curLine) &gt; 0) {</span>
+                // 現在行の方が小さい場合
+                // 出力先ファイルを切替
+<span class="fc bfc" id="L551" title="All 2 branches covered.">                isWriteSep1 = !isWriteSep1;</span>
+                // 分割実施フラグをON
+<span class="fc" id="L553">                isSeparated = true;</span>
+<span class="pc bpc" id="L554" title="1 of 2 branches missed.">                if (log.isTraceEnabled()) {</span>
+<span class="nc bnc" id="L555" title="All 2 branches missed.">                    if (isWriteSep1) {</span>
+<span class="nc" id="L556">                        log.trace(&quot;　　・write sep1&quot;);</span>
+                    } else {
+<span class="nc" id="L558">                        log.trace(&quot;　　・write sep2&quot;);</span>
+                    }
+                }
+            }
+
+            // 前行を更新
+<span class="fc" id="L564">            beforeLine = curLine;</span>
+            // 次の行へ
+<span class="fc" id="L566">            curLine = mergedRepo.next();</span>
+        }
+
+        // 最終行の出力
+<span class="fc bfc" id="L570" title="All 2 branches covered.">        if (isWriteSep1) {</span>
+<span class="fc" id="L571">            sep1Repo.write(beforeLine.getRawLine());</span>
+        } else {
+<span class="fc" id="L573">            sep2Repo.write(beforeLine.getRawLine());</span>
+        }
+
+        // ファイル操作を確定
+<span class="fc" id="L577">        mergedRepo.commit();</span>
+<span class="fc" id="L578">        sep1Repo.commit();</span>
+<span class="fc" id="L579">        sep2Repo.commit();</span>
+
+<span class="fc" id="L581">        return isSeparated;</span>
+    }
+
+    /**
+     * マージソート.マージフェーズ。
+     *
+     * @param sep1File 分割ファイル1
+     * @param sep2File 分割ファイル2
+     * @param mergedFile マージ済みファイル
+     * @param charset 入出力文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param chunkSize 書き出しバッファ行数
+     */
+    private void mergeSortMergePhase(
+        final File sep1File,
+        final File sep2File,
+        final File mergedFile,
+        final String charset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final int chunkSize) {
+
+<span class="fc" id="L604">        log.trace(&quot;　・merge phase&quot;);</span>
+
+        // マージ元ファイル1リポジトリ（分割ファイル1）
+<span class="fc" id="L607">        final FileRepository&lt;SortableRow&gt; sep1Repo = getRowReadRepository(sep1File.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
+        // マージ元ファイル2リポジトリ（分割ファイル2）
+<span class="fc" id="L609">        final FileRepository&lt;SortableRow&gt; sep2Repo = getRowReadRepository(sep2File.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
+
+<span class="fc" id="L611">        final LineSp lineSp = getLineSp(fileLayout);</span>
+
+        // マージファイルリポジトリ
+<span class="fc" id="L614">        final FileRepository&lt;String&gt; mergedRepo = new StringFileRepository(mergedFile, charset, lineSp, chunkSize);</span>
+<span class="fc" id="L615">        mergedRepo.begin();</span>
+
+        // sep1用変数
+<span class="fc" id="L618">        SortableRow sep1CurLine = null;</span>
+<span class="fc" id="L619">        SortableRow sep1BeforeLine = null;</span>
+        // sep2用変数
+<span class="fc" id="L621">        SortableRow sep2CurLine = null;</span>
+<span class="fc" id="L622">        SortableRow sep2BeforeLine = null;</span>
+
+        // マージフェーズステータス
+<span class="fc" id="L625">        MergePhaseStatus status = MergePhaseStatus.Compare;</span>
+
+        // 分割ファイルの1行目を読み込み
+<span class="fc" id="L628">        sep1CurLine = sep1Repo.next();</span>
+<span class="fc" id="L629">        sep2CurLine = sep2Repo.next();</span>
+
+        // 2つの分割ファイル両方を読み込みきるまでループ
+        while (true) {
+
+            // マージフェーズステータスを確認
+<span class="fc bfc" id="L635" title="All 2 branches covered.">            if (MergePhaseStatus.Sep1GotoUnsortedPos.equals(status)) {</span>
+                // --------------------------------------------------
+                // 分割ファイル1のソート未済位置まで出力中
+                // --------------------------------------------------
+                // 読み込み
+<span class="fc" id="L640">                sep1BeforeLine = sep1CurLine;</span>
+<span class="fc" id="L641">                sep1CurLine = sep1Repo.next();</span>
+
+                // 前行をファイル出力
+<span class="fc" id="L644">                mergedRepo.write(sep1BeforeLine.getRawLine());</span>
+
+                // 空行をスキップ
+<span class="pc bpc" id="L647" title="1 of 4 branches missed.">                while (sep1CurLine != null &amp;&amp; StringUtils.EMPTY.equals(sep1CurLine.getRawLine())) {</span>
+<span class="nc" id="L648">                    sep1CurLine = sep1Repo.next();</span>
+                }
+
+                // 現在行がnullの場合、出力を中断
+<span class="fc bfc" id="L652" title="All 2 branches covered.">                if (sep1CurLine == null) {</span>
+                    // ソートされていない場合、出力を中断
+<span class="fc" id="L654">                    status = MergePhaseStatus.Compare;</span>
+                }
+
+                // 現在行と分割ファイル2の現在行を比較
+<span class="pc bpc" id="L658" title="1 of 6 branches missed.">                if (sep1CurLine != null &amp;&amp; sep2CurLine != null &amp;&amp; sep1CurLine.compareTo(sep2CurLine) &gt; 0) {</span>
+                    // 分割ファイル2の方が小さい場合、分割ファイル2のソート未済位置まで出力開始
+<span class="fc" id="L660">                    status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
+
+                } else {
+                    // 現在行の方が小さい or 一致する場合、前行と現在行を比較
+<span class="fc bfc" id="L664" title="All 2 branches covered.">                    if (sep1BeforeLine.compareTo(sep1CurLine) &gt; 0) {</span>
+                        // ソートされていない場合、出力を中断
+<span class="fc" id="L666">                        status = MergePhaseStatus.Compare;</span>
+                    }
+                }
+
+<span class="fc bfc" id="L670" title="All 2 branches covered.">            } else if (MergePhaseStatus.Sep2GotoUnsortedPos.equals(status)) {</span>
+                // --------------------------------------------------
+                // 分割ファイル2のソート未済位置まで出力中
+                // --------------------------------------------------
+                // 読み込み
+<span class="fc" id="L675">                sep2BeforeLine = sep2CurLine;</span>
+<span class="fc" id="L676">                sep2CurLine = sep2Repo.next();</span>
+
+                // 前行をファイル出力
+<span class="fc" id="L679">                mergedRepo.write(sep2BeforeLine.getRawLine());</span>
+
+                // 空行をスキップ
+<span class="pc bpc" id="L682" title="1 of 4 branches missed.">                while (sep2CurLine != null &amp;&amp; StringUtils.EMPTY.equals(sep2CurLine.getRawLine())) {</span>
+<span class="nc" id="L683">                    sep2CurLine = sep2Repo.next();</span>
+                }
+
+                // 現在行がnullの場合、出力を中断
+<span class="fc bfc" id="L687" title="All 2 branches covered.">                if (sep2CurLine == null) {</span>
+                    // ソートされていない場合、出力を中断
+<span class="fc" id="L689">                    status = MergePhaseStatus.Compare;</span>
+                }
+
+                // 現在行と分割ファイル1の現在行を比較
+<span class="fc bfc" id="L693" title="All 6 branches covered.">                if (sep1CurLine != null &amp;&amp; sep2CurLine != null &amp;&amp; sep2CurLine.compareTo(sep1CurLine) &gt; 0) {</span>
+                    // 分割ファイル1の方が小さい場合、分割ファイル1のソート未済位置まで出力開始
+<span class="fc" id="L695">                    status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
+
+                } else {
+                    // 現在行の方が小さい or 一致する場合、前行と現在行を比較
+<span class="pc bpc" id="L699" title="1 of 2 branches missed.">                    if (sep2BeforeLine.compareTo(sep2CurLine) &gt; 0) {</span>
+                        // ソートされていない場合、出力を中断
+<span class="nc" id="L701">                        status = MergePhaseStatus.Compare;</span>
+                    }
+                }
+
+            } else {
+                // --------------------------------------------------
+                // 分割ファイル1 / 分割ファイル2の比較中
+                // --------------------------------------------------
+                // 分割ファイル1現在行 と 分割ファイル2現在行 のデータ存在確認
+<span class="fc bfc" id="L710" title="All 2 branches covered.">                if (sep1CurLine == null) {</span>
+<span class="fc bfc" id="L711" title="All 2 branches covered.">                    if (sep2CurLine == null) {</span>
+                        // ------------------------------
+                        // どちらも行データが存在しない場合
+                        // ------------------------------
+                        // ループを終了
+<span class="fc" id="L716">                        break;</span>
+
+                    } else {
+                        // ------------------------------
+                        // 分割ファイル2の行データが存在する場合
+                        // ------------------------------
+                        // 分割ファイル2のソート未済位置まで出力開始
+<span class="fc" id="L723">                        status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
+                    }
+
+                } else {
+<span class="fc bfc" id="L727" title="All 2 branches covered.">                    if (sep2CurLine == null) {</span>
+                        // ------------------------------
+                        // 分割ファイル1の行データだけが存在する場合
+                        // ------------------------------
+                        // 分割ファイル1のソート未済位置まで出力開始
+<span class="fc" id="L732">                        status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
+
+                    } else {
+                        // ------------------------------
+                        // どちらも行データが存在する場合
+                        // ------------------------------
+                        // 分割ファイル1現在行 と 分割ファイル2現在行 の比較
+<span class="pc bpc" id="L739" title="1 of 2 branches missed.">                        if (sep1CurLine.compareTo(sep2CurLine) &lt;= 0) {</span>
+                            // 分割ファイル1現在行の方が小さい場合、分割ファイル1のソート未済位置まで出力開始
+<span class="fc" id="L741">                            status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
+                        } else {
+                            // 分割ファイル2現在行の方が小さい場合、分割ファイル2のソート未済位置まで出力開始
+<span class="nc" id="L744">                            status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
+                        }
+                    }
+                }
+
+            } // END MargePhaseStatus分岐
+        } // END 2つの分割ファイル両方を読み込みきるまでループ
+
+        // ファイル操作を確定
+<span class="fc" id="L753">        sep1Repo.commit();</span>
+<span class="fc" id="L754">        sep2Repo.commit();</span>
+<span class="fc" id="L755">        mergedRepo.commit();</span>
+<span class="fc" id="L756">    }</span>
+
+    /**
+     * ヘッダーファイルと、マージソート済ファイルを結合して結果ファイルを出力します。
+     *
+     * @param headerFile ヘッダーファイル
+     * @param headerFileCharset ヘッダーファイル文字コード
+     * @param mergedFile マージソート済ファイル
+     * @param mergedFileCharset マージソート済ファイル文字コード
+     * @param outputFile 出力ファイル
+     * @param outputCharset 出力ファイル文字コード
+     * @param fileLayout ファイルレイアウト
+     * @param systemConfig システム設定
+     * @param chunkSize 書き出しバッファ行数
+     */
+    private void writeResultFile(
+        final File headerFile,
+        final String headerFileCharset,
+        final File mergedFile,
+        final String mergedFileCharset,
+        final File outputFile,
+        final String outputCharset,
+        final FileLayout fileLayout,
+        final CompareFilesConfig systemConfig,
+        final int chunkSize) {
+
+<span class="fc" id="L782">        log.debug(&quot;        ・writeResultFile&quot;);</span>
+
+<span class="fc" id="L784">        final LineSp lineSp = getLineSp(fileLayout);</span>
+
+        // 出力ファイルリポジトリ
+<span class="fc" id="L787">        final FileRepository&lt;String&gt; outputRepo = new StringFileRepository(outputFile, outputCharset, lineSp, chunkSize);</span>
+<span class="fc" id="L788">        outputRepo.begin();</span>
+
+        // --------------------------------------------------------------------------------
+        // ヘッダーファイル部分の出力
+        // --------------------------------------------------------------------------------
+<span class="fc bfc" id="L793" title="All 2 branches covered.">        if (headerFile.exists()) {</span>
+<span class="fc" id="L794">            final FileRepository&lt;String&gt; headerRepo = new StringFileRepository(headerFile, headerFileCharset, lineSp, chunkSize);</span>
+<span class="fc" id="L795">            headerRepo.begin();</span>
+
+<span class="fc" id="L797">            String curLineStr = headerRepo.next();</span>
+<span class="fc bfc" id="L798" title="All 2 branches covered.">            while (curLineStr != null) {</span>
+<span class="fc" id="L799">                outputRepo.write(curLineStr);</span>
+<span class="fc" id="L800">                curLineStr = headerRepo.next();</span>
+            }
+
+<span class="fc" id="L803">            headerRepo.commit();</span>
+        }
+
+        // --------------------------------------------------------------------------------
+        // データファイル部分の出力
+        // --------------------------------------------------------------------------------
+<span class="fc" id="L809">        final FileRepository&lt;SortableRow&gt; mergedRepo = getRowReadRepository(mergedFile.getAbsolutePath(), mergedFileCharset, fileLayout, systemConfig);</span>
+<span class="fc" id="L810">        mergedRepo.begin();</span>
+
+<span class="fc" id="L812">        SortableRow curLine = mergedRepo.next();</span>
+<span class="fc bfc" id="L813" title="All 2 branches covered.">        while (curLine != null) {</span>
+<span class="fc" id="L814">            outputRepo.write(curLine.getRawLine());</span>
+<span class="fc" id="L815">            curLine = mergedRepo.next();</span>
+        }
+
+<span class="fc" id="L818">        mergedRepo.commit();</span>
+
+        // ファイル操作を確定
+<span class="fc" id="L821">        outputRepo.commit();</span>
+<span class="fc" id="L822">    }</span>
+
+    /**
+     * ファイルレイアウトから、改行コードを判断します。
+     *
+     * @param fileLayout ファイルレイアウト
+     * @return 改行コード
+     */
+    private LineSp getLineSp(final FileLayout fileLayout) {
+<span class="fc" id="L831">        LineSp lineSp = null;</span>
+<span class="fc bfc" id="L832" title="All 2 branches covered.">        if (FileFormat.Fixed.equals(fileLayout.getFileFormat())) {</span>
+<span class="fc" id="L833">            lineSp = fileLayout.getLineSp();</span>
+        }
+<span class="fc" id="L835">        return lineSp;</span>
+    }
+
+    /**
+     * ソート処理の入力データモデル。
+     */
+    @Getter
+<span class="fc" id="L842">    @Setter</span>
+<span class="fc" id="L843">    private static class FileSortInput implements Input {</span>
+
+        /** システム設定。 */
+        @NotNull
+<span class="fc" id="L847">        private CompareFilesConfig systemConfig;</span>
+
+        /** 入力ファイルレイアウト。 */
+        @NotNull
+        @Valid
+<span class="fc" id="L852">        private FileLayout fileLayout;</span>
+
+        /** 入力ファイル。 */
+        @NotEmpty
+        @ExistPath
+        @me.suwash.util.validation.constraints.File
+<span class="fc" id="L858">        private String inputFile;</span>
+
+        /** 入力ファイル文字コード。 */
+        @NotEmpty
+        @Charset
+<span class="fc" id="L863">        private String inputCharset;</span>
+
+        /** 出力ファイル配置ディレクトリ。 */
+        @NotEmpty
+<span class="fc" id="L867">        private String outputDir;</span>
+
+        /** 出力ファイル文字コード。 */
+        @NotEmpty
+        @Charset
+<span class="fc" id="L872">        private String outputCharset;</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

@@ -1,0 +1,7 @@
+"Status","RowNum","DiffItems","keyObj.key1","keyObj.key2","valueObj.amount","valueObj.number","valueObj.lastUpdateTime"
+"OK","L:1
+R:1","-","100","AAA","1000","1","2017/01/01 00:00:00.000"
+"OK","L:2
+R:2","-","100","BBB","1000","2","2017/01/01 00:00:00.000"
+"OK","L:3
+R:3","-","100","CCC","1000","3","2017/01/01 00:00:00.000"

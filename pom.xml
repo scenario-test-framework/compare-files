@@ -1,0 +1,400 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>compare-files</artifactId>
+    <version>1.0.0</version>
+    <name>Compare Files</name>
+
+    <parent>
+        <groupId>me.suwash.commons</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.1.0</version>
+    </parent>
+
+    <properties>
+        <core.package>me.suwash.tools.comparefiles</core.package>
+        <dirname.assembly.work>compare_files_${project.version}</dirname.assembly.work>
+        <dir.assembly.work>${project.build.directory}/${dirname.assembly.work}</dir.assembly.work>
+
+        <version.ddd>1.0.0</version.ddd>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <target.env>local</target.env>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>IT</id>
+            <properties>
+                <target.env>IT</target.env>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>ST</id>
+            <properties>
+                <target.env>ST</target.env>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>production</id>
+            <properties>
+                <target.env>production</target.env>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>only-eclipse</id>
+            <activation>
+                <property>
+                    <name>m2e.version</name>
+                </property>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <!-- m2e -->
+                        <plugin>
+                            <groupId>org.eclipse.m2e</groupId>
+                            <artifactId>lifecycle-mapping</artifactId>
+                            <version>1.0.0</version>
+                            <configuration>
+                                <lifecycleMappingMetadata>
+                                    <pluginExecutions>
+                                        <pluginExecution>
+                                            <pluginExecutionFilter>
+                                                <groupId>org.apache.maven.plugins</groupId>
+                                                <artifactId>maven-dependency-plugin</artifactId>
+                                                <versionRange>[1.0.0,)</versionRange>
+                                                <goals>
+                                                    <goal>copy-dependencies</goal>
+                                                    <goal>unpack</goal>
+                                                </goals>
+                                            </pluginExecutionFilter>
+                                            <action>
+                                                <execute>
+                                                    <runOnIncremental>false</runOnIncremental>
+                                                </execute>
+                                            </action>
+                                        </pluginExecution>
+                                    </pluginExecutions>
+                                </lifecycleMappingMetadata>
+                            </configuration>
+                        </plugin>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-eclipse-plugin</artifactId>
+                            <version>2.8</version>
+                            <configuration>
+                                <additionalBuildcommands>
+                                    <buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
+                                </additionalBuildcommands>
+                                <additionalProjectnatures>
+                                    <projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
+                                </additionalProjectnatures>
+                                <additionalConfig>
+                                    <file>
+                                        <name>.checkstyle</name>
+                                        <location>/eclipse/checkstyle.xml</location>
+                                    </file>
+                                </additionalConfig>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${java.encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${dir.assembly.work}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- 実行ファイル -->
+                                <copy todir="${dir.assembly.work}/lib">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="${project.artifactId}-${project.version}.jar" />
+                                    </fileset>
+                                </copy>
+                                <!-- 実行スクリプト -->
+                                <mkdir dir="${dir.assembly.work}/bin" />
+                                <copy todir="${dir.assembly.work}/bin"
+                                    overwrite="yes" encoding="UTF-8">
+                                    <fileset dir="${project.build.scriptSourceDirectory}/bin">
+                                        <include name="**/**" />
+                                    </fileset>
+                                    <filterset filtersfile="env/${target.env}/filter.properties" />
+                                </copy>
+                                <!-- 設定ファイル -->
+                                <mkdir dir="${dir.assembly.work}/config" />
+                                <copy todir="${dir.assembly.work}/config"
+                                    overwrite="yes" encoding="UTF-8">
+                                    <fileset dir="${project.build.scriptSourceDirectory}/config">
+                                        <include name="**/**" />
+                                    </fileset>
+                                    <filterset filtersfile="env/${target.env}/filter.properties" />
+                                </copy>
+                                <!-- 不要ファイルの削除 -->
+                                <delete>
+                                    <fileset dir="${dir.assembly.work}">
+                                        <include name="**/.gitkeep" />
+                                        <include name="lib/junit*.jar" />
+                                        <include name="lib/test*.jar" />
+                                    </fileset>
+                                </delete>
+                                <!-- readmeファイル -->
+                                <copy todir="${dir.assembly.work}"
+                                    overwrite="yes" encoding="UTF-8">
+                                    <fileset dir=".">
+                                        <include name="README.md" />
+                                    </fileset>
+                                </copy>
+                                <!-- バージョンファイル -->
+                                <echo message="${project.version}_${target.env}"
+                                    file="${dir.assembly.work}/version.txt"
+                                    encoding="UTF-8" />
+                                <!-- 配布用アーカイブ -->
+                                <tar
+                                    destfile="${project.build.directory}/${project.artifactId}_${project.version}_${target.env}.tar.gz"
+                                    basedir="${project.build.directory}"
+                                    includes="${dirname.assembly.work}/**"
+                                    compression="gzip" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.suwash.commons</groupId>
+            <artifactId>test</artifactId>
+            <version>[1.0.0,)</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>me.suwash.commons</groupId>
+            <artifactId>ddd</artifactId>
+            <version>${version.ddd}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.velocity</groupId>
+                    <artifactId>velocity</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.48</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework.plugin</groupId>
+                    <artifactId>spring-plugin-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-aop</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-beans</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-web</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-webmvc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+        </dependency>
+    </dependencies>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven-pmd-plugin.version}</version>
+                <configuration>
+                    <targetJdk>${java.version}</targetJdk>
+                    <linkXref>true</linkXref>
+                    <minimumTokens>100</minimumTokens>
+                    <excludes>
+                        <exclude>**/dto/*.java</exclude>
+                        <exclude>**/infra/Config.java</exclude>
+                        <exclude>**/infra/Context.java</exclude>
+                        <exclude>**/*Exception.java</exclude>
+                        <exclude>**/Errors.java</exclude>
+                        <exclude>**/BaseFacade.java</exclude>
+                    </excludes>
+                    <rulesets>
+                        <ruleset>src/site/pmd.xml</ruleset>
+                    </rulesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/ap/dto/*</exclude>
+                        <exclude>**/infra/classification/*</exclude>
+                        <exclude>**/infra/exception/*</exclude>
+                        <exclude>**/infra/i18n/*</exclude>
+                        <exclude>**/infra/policy/*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs-maven-plugin.version}</version>
+                <configuration>
+                    <xmlOutput>true</xmlOutput>
+                    <effort>Max</effort>
+                    <excludeFilterFile>src/site/findbugs-exclude.xml</excludeFilterFile>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </reporting>
+
+    <scm>
+        <url>https://github.com/suwa-sh/compare-files</url>
+        <connection>scm:git:git://github.com/suwa-sh/compare-files.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/suwa-sh/compare-files.git</developerConnection>
+    </scm>
+    <url>https://suwa-sh.github.io/compare-files</url>
+    <organization>
+        <url>https://suwa-sh.github.io/compare-files</url>
+        <name>Private</name>
+    </organization>
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/suwa-sh/compare-files/issues</url>
+    </issueManagement>
+</project>
