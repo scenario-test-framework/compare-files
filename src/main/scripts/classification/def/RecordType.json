@@ -1,0 +1,35 @@
+{
+  "id":"RecordType",
+  "name":"レコードタイプ",
+  "packageName":"me.suwash.tools.comparefiles.infra.classification",
+  "values":[
+    {
+        "id":"Header",
+        "name":"ヘッダーレコード",
+        "storeValue":"H"
+    },
+    {
+        "id":"Data",
+        "name":"データレコード",
+        "storeValue":"D"
+    },
+    {
+        "id":"Trailer",
+        "name":"トレーラレコード",
+        "storeValue":"T"
+    },
+    {
+        "id":"End",
+        "name":"エンドレコード",
+        "storeValue":"E"
+    }
+  ],
+  "groups":[
+    {
+        "id":"default",
+        "name":"デフォルト",
+        "values":["Header", "Data", "Trailer", "End"],
+        "defaultValue":"Header"
+    }
+  ]
+}

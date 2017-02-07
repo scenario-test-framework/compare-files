@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>RecordLayout.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.infra.config</a> &gt; <span class="el_source">RecordLayout.java</span></div><h1>RecordLayout.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.infra.config;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.suwash.tools.comparefiles.infra.classification.RecordType;
+import me.suwash.util.CompareUtils.CompareCriteria;
+
+/**
+ * レコードレイアウト設定。
+ */
+<span class="fc" id="L16">public class RecordLayout {</span>
+
+    /** レコードタイプ。 */
+<span class="fc" id="L19">    @Getter</span>
+<span class="fc" id="L20">    @Setter</span>
+    private RecordType type;
+
+    /** 当該レコードタイプだと判断する1文字目のコード値 ※0→Header、1→Data、8→Trailer、9→End etc。 */
+<span class="fc" id="L24">    @Getter</span>
+<span class="fc" id="L25">    @Setter</span>
+    private String codeValue;
+
+    /** 項目設定リスト。 */
+<span class="fc" id="L29">    @Getter</span>
+<span class="fc" id="L30">    @Setter</span>
+    private List&lt;ItemLayout&gt; itemList;
+
+    /** バイト長。 */
+<span class="nc" id="L34">    @Setter</span>
+    private int byteLength;
+
+    /** 比較キー項目リスト。 */
+    private List&lt;String&gt; compareKeyItemList;
+
+    /** 全項目リスト。 */
+    private List&lt;String&gt; compareItemNameList;
+
+    /** 比較条件マップ。 */
+    private Map&lt;String, CompareCriteria&gt; criteriaMap;
+
+    /**
+     * 1レコードのバイト長を返します。
+     *
+     * @return 1レコードのバイト長
+     */
+    public int getByteLength() {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (byteLength &lt;= 0) {</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">            for (final ItemLayout item : itemList) {</span>
+<span class="fc" id="L54">                byteLength = byteLength + item.getByteLength();</span>
+<span class="fc" id="L55">            }</span>
+        }
+<span class="fc" id="L57">        return byteLength;</span>
+    }
+
+    /**
+     * 比較キー項目をリストで返します。
+     *
+     * @return 比較キー項目リスト
+     */
+    public List&lt;String&gt; getCompareKeyItemList() {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (compareKeyItemList == null) {</span>
+<span class="fc" id="L67">            compareKeyItemList = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            for (final ItemLayout item : itemList) {</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">                if (item.isCompareKey()) {</span>
+<span class="fc" id="L70">                    compareKeyItemList.add(item.getId());</span>
+                }
+<span class="fc" id="L72">            }</span>
+        }
+<span class="fc" id="L74">        return compareKeyItemList;</span>
+    }
+
+    /**
+     * 全項目をリストで返します。
+     *
+     * @return 全項目リスト
+     */
+    public List&lt;String&gt; getCompareItemNameList() {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (compareItemNameList == null) {</span>
+<span class="fc" id="L84">            compareItemNameList = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            for (final ItemLayout item : itemList) {</span>
+<span class="fc" id="L86">                compareItemNameList.add(item.getId());</span>
+<span class="fc" id="L87">            }</span>
+        }
+<span class="fc" id="L89">        return compareItemNameList;</span>
+    }
+
+    /**
+     * 項目と対応する比較条件をMapで返します。
+     *
+     * @return 比較条件マップ
+     */
+    public Map&lt;String, CompareCriteria&gt; getCriteriaMap() {
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (criteriaMap == null) {</span>
+<span class="fc" id="L99">            criteriaMap = new LinkedHashMap&lt;String, CompareCriteria&gt;();</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">            for (final ItemLayout item : itemList) {</span>
+<span class="fc" id="L101">                criteriaMap.put(item.getId(), item.getCriteria());</span>
+<span class="fc" id="L102">            }</span>
+        }
+<span class="fc" id="L104">        return criteriaMap;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

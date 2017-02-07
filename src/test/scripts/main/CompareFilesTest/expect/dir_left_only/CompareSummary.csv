@@ -1,0 +1,2 @@
+"Status","Left","Right","Layout","Row","OK Row","NG Row","Ignore Row","LeftOnly Row","RightOnly Row","StartTime","EndTime","Length"
+"LeftOnly","src/test/scripts/main/CompareFilesTest/input/left","src/test/scripts/main/CompareFilesTest/input/not_exist","-","0","0","0","0","0","0","2017-02-07 07:56:00.892","2017-02-07 07:56:00.892","00:00:00.000"

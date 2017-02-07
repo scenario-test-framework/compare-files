@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>TextFileRowCompareResult.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.domain.compare.file.text</a> &gt; <span class="el_source">TextFileRowCompareResult.java</span></div><h1>TextFileRowCompareResult.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.domain.compare.file.text;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import lombok.Getter;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.classification.FileFormat;
+import me.suwash.tools.comparefiles.infra.classification.RecordType;
+import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.config.RecordLayout;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
+import me.suwash.util.CompareUtils.CompareCriteria;
+import me.suwash.util.CompareUtils.CompareStatus;
+
+/**
+ * 行単位の比較結果。
+ */
+<span class="fc" id="L21">@lombok.extern.slf4j.Slf4j</span>
+public class TextFileRowCompareResult {
+
+    private static final int RECORDLIST_SIZE_ONLY_ONE_LAYOUT = 1;
+
+<span class="fc" id="L26">    @Getter</span>
+    private CompareStatus status = CompareStatus.Processing;
+
+<span class="fc" id="L29">    @Getter</span>
+    private FileLayout fileLayout;
+
+    /** レコードタイプ。 */
+<span class="fc" id="L33">    @Getter</span>
+    private RecordType recordType;
+
+    /** 左ファイルの行番号。 */
+<span class="fc" id="L37">    @Getter</span>
+    private long leftRowNum;
+
+    /** 右ファイルの行番号。 */
+<span class="fc" id="L41">    @Getter</span>
+    private long rightRowNum;
+
+    /** 項目単位の比較結果リスト。 */
+<span class="fc" id="L45">    @Getter</span>
+    private final List&lt;TextFileItemCompareResult&gt; itemList = new ArrayList&lt;TextFileItemCompareResult&gt;();
+
+    private final ComparableRow leftRow;
+    private final ComparableRow rightRow;
+
+    /**
+     * 固定値の行比較結果を返します。
+     *
+     * @param status 比較ステータス ※LeftOnly|RightOnly
+     * @param fileLayout ファイルレイアウト
+     * @param leftRow 左ファイルの行データ
+     * @param rightRow 右ファイルの行データ
+     * @return 行比較結果
+     */
+    protected static TextFileRowCompareResult getFixedResult(
+        final CompareStatus status,
+        final FileLayout fileLayout,
+        final ComparableRow leftRow,
+        final ComparableRow rightRow) {
+
+        // 必須チェック
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (status == null) {</span>
+<span class="nc" id="L68">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {</span>
+                &quot;status&quot;
+            });
+        }
+
+        // 行番号判定
+<span class="fc" id="L74">        long leftRowNum = -1;</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (leftRow != null) {</span>
+<span class="nc" id="L76">            leftRowNum = leftRow.getRowNum();</span>
+        }
+<span class="fc" id="L78">        long rightRowNum = -1;</span>
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (rightRow != null) {</span>
+<span class="fc" id="L80">            rightRowNum = rightRow.getRowNum();</span>
+        }
+
+        // 結果に登録する行データを判定
+<span class="fc" id="L84">        ComparableRow curRow = leftRow;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (!CompareStatus.LeftOnly.equals(status)) {</span>
+<span class="fc" id="L86">            curRow = rightRow;</span>
+        }
+
+        // 固定値を作成
+<span class="fc" id="L90">        return new TextFileRowCompareResult(</span>
+            fileLayout,
+            leftRowNum,
+            rightRowNum,
+            curRow,
+            status);
+    }
+
+    /**
+     * AggregateEntityからの取得用コンストラクタ。
+     *
+     * @param fileLayout ファイルレイアウト
+     * @param leftRow 左ファイルの行データ
+     * @param rightRow 右ファイルの行データ
+     */
+    protected TextFileRowCompareResult(
+        final FileLayout fileLayout,
+        final ComparableRow leftRow,
+        final ComparableRow rightRow) {
+
+<span class="fc" id="L110">        super();</span>
+<span class="fc" id="L111">        this.fileLayout = fileLayout;</span>
+<span class="fc" id="L112">        this.leftRow = leftRow;</span>
+<span class="fc" id="L113">        this.rightRow = rightRow;</span>
+<span class="fc" id="L114">    }</span>
+
+    /**
+     * 固定値取得用コンストラクタ。
+     *
+     * @param fileLayout ファイルレイアウト
+     * @param leftRowNum 左ファイル行番号
+     * @param rightRowNum 右ファイル行番号
+     * @param row 行データ
+     * @param status 比較ステータス
+     */
+    private TextFileRowCompareResult(
+        final FileLayout fileLayout,
+        final long leftRowNum,
+        final long rightRowNum,
+        final ComparableRow row,
+        final CompareStatus status) {
+
+<span class="fc" id="L132">        this(fileLayout, null, null);</span>
+<span class="fc" id="L133">        this.leftRowNum = leftRowNum;</span>
+<span class="fc" id="L134">        this.rightRowNum = rightRowNum;</span>
+<span class="fc" id="L135">        this.status = status;</span>
+<span class="fc" id="L136">        updateFixedItems(status, row);</span>
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * 固定値をフィールドに設定します。
+     *
+     * @param status 比較ステータス ※LeftOnly|RightOnly
+     * @param row 行データ
+     */
+    private void updateFixedItems(
+        final CompareStatus status,
+        final ComparableRow row) {
+
+        // キー項目の設定
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (final Map.Entry&lt;String, Object&gt; entry : row.getKeyMap().entrySet()) {</span>
+<span class="fc" id="L151">            setFixedItem(entry.getKey(), entry.getValue(), status);</span>
+<span class="fc" id="L152">        }</span>
+        // バリュー項目の設定
+<span class="pc bpc" id="L154" title="1 of 2 branches missed.">        if (row.getValueMap() != null) {</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">            for (final Map.Entry&lt;String, Object&gt; entry : row.getValueMap().entrySet()) {</span>
+<span class="fc" id="L156">                setFixedItem(entry.getKey(), entry.getValue(), status);</span>
+<span class="fc" id="L157">            }</span>
+        }
+<span class="fc" id="L159">    }</span>
+
+    /**
+     * 行比較結果に、項目情報群を設定します。
+     *
+     * @param itemId 項目ID
+     * @param itemValue 項目設定値
+     * @param status 比較ステータス ※LeftOnly|RightOnly
+     */
+    private void setFixedItem(final String itemId, final Object itemValue, final CompareStatus status) {
+<span class="fc" id="L169">        TextFileItemCompareResult item = null;</span>
+
+<span class="fc" id="L171">        String value = &quot;null&quot;;</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (itemValue != null) {</span>
+<span class="fc" id="L173">            value = itemValue.toString();</span>
+        }
+
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (CompareStatus.LeftOnly.equals(status)) {</span>
+<span class="nc" id="L177">            item = TextFileItemCompareResult.getFixedResult(itemId, value, null, null, status);</span>
+        } else {
+<span class="fc" id="L179">            item = TextFileItemCompareResult.getFixedResult(itemId, null, value, null, status);</span>
+        }
+
+<span class="fc" id="L182">        itemList.add(item);</span>
+<span class="fc" id="L183">    }</span>
+
+    /**
+     * ファイルレイアウトから、行文字列がマッチするレコードレイアウト.比較条件マップ＜項目名, 比較条件＞を返します。
+     *
+     * @param fileLayout ファイルレイアウト
+     * @param rawLine 行文字列
+     * @return 比較条件マップ
+     */
+    private Map&lt;String, CompareCriteria&gt; getCriteriaMap(final FileLayout fileLayout, final String rawLine) {
+        // 行文字列から、レコードタイプを取得
+<span class="fc" id="L194">        final RecordType recordType = getRecordType(fileLayout, rawLine);</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (recordType == null) {</span>
+<span class="fc" id="L196">            return null;</span>
+        }
+
+        // レコードタイプコードがマッチするレイアウトの条件Map
+<span class="fc" id="L200">        final List&lt;RecordLayout&gt; recordLayoutList = fileLayout.getRecordList();</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">        for (final RecordLayout curRecordLayout : recordLayoutList) {</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">            if (recordType.equals(curRecordLayout.getType())) {</span>
+<span class="fc" id="L203">                return curRecordLayout.getCriteriaMap();</span>
+            }
+<span class="fc" id="L205">        }</span>
+
+        // マッチしなかった場合、エラー
+<span class="nc" id="L208">        throw new CompareFilesException(</span>
+            Const.MSGCD_ERROR_COMPARE_FILE_TEXT_ROW_LAYOUT_NOTFOUND,
+            new Object[] {
+<span class="nc" id="L211">                fileLayout.getLogicalFileName(),</span>
+                rawLine});
+    }
+
+    /**
+     * ファイルレイアウトと現在行文字列から、レコードタイプを返します。
+     *
+     * @param fileLayout ファイルレイアウト
+     * @param rawLine 行文字列
+     * @return レコードタイプ
+     */
+    private RecordType getRecordType(final FileLayout fileLayout, final String rawLine) {
+        // ファイルレイアウトチェック
+<span class="fc bfc" id="L224" title="All 2 branches covered.">        if (fileLayout == null) {</span>
+            // 設定されていない場合、レコードタイプなし
+<span class="fc" id="L226">            return null;</span>
+        }
+
+        // レコードレイアウトチェック
+<span class="fc" id="L230">        final List&lt;RecordLayout&gt; recordLayoutList = fileLayout.getRecordList();</span>
+<span class="pc bpc" id="L231" title="2 of 4 branches missed.">        if (recordLayoutList == null || recordLayoutList.isEmpty()) {</span>
+            // 設定されていない場合、レコードタイプなし
+<span class="nc" id="L233">            return null;</span>
+
+<span class="fc bfc" id="L235" title="All 2 branches covered.">        } else if (recordLayoutList.size() == RECORDLIST_SIZE_ONLY_ONE_LAYOUT) {</span>
+            // 1件だけ設定されている場合、設定されているレコードタイプ
+<span class="fc" id="L237">            return recordLayoutList.get(0).getType();</span>
+        }
+
+        // 固定レコードタイプ判定
+<span class="pc bpc" id="L241" title="2 of 4 branches missed.">        if (fileLayout.getFileFormat().equals(FileFormat.CSV_withHeader) || fileLayout.getFileFormat().equals(FileFormat.TSV_withHeader)) {</span>
+            // ヘッダ有のCSV,TSVの場合、レコードタイプにデータを設定
+<span class="nc" id="L243">            return RecordType.Data;</span>
+        }
+
+        // レコードレイアウトが複数件設定されている場合、レコードタイプコードがマッチするレイアウト
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">        for (final RecordLayout recordLayout : recordLayoutList) {</span>
+<span class="fc" id="L248">            final String codeValue = recordLayout.getCodeValue();</span>
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">            if (codeValue == null) {</span>
+<span class="nc" id="L250">                throw new CompareFilesException(</span>
+                    Const.MSGCD_ERROR_COMPARE_FILE_TEXT_ROW_CODEVALUE_NOTFOUND,
+                    new Object[] {
+<span class="nc" id="L253">                        fileLayout.getLogicalFileName(),</span>
+<span class="nc" id="L254">                        recordLayout.getType()});</span>
+            }
+
+<span class="fc" id="L257">            String rawLineCodeValue = null;</span>
+<span class="pc bfc" id="L258" title="All 2 branches covered.">            switch (fileLayout.getFileFormat()) {</span>
+                case CSV_noHeader:
+                case CSV_withHeader:
+                case TSV_noHeader:
+                case TSV_withHeader:
+                    // CSV / TSVの場合、括り文字を除去してコード値を取得
+<span class="fc" id="L264">                    rawLineCodeValue = rawLine.replaceAll(&quot;\&quot;&quot;, &quot;&quot;).substring(0, codeValue.length());</span>
+<span class="fc" id="L265">                    break;</span>
+                default:
+                    // その他のファイルフォーマットの場合、先頭からコード値を取得
+<span class="fc" id="L268">                    rawLineCodeValue = rawLine.substring(0, codeValue.length());</span>
+                    break;
+            }
+<span class="fc bfc" id="L271" title="All 2 branches covered.">            if (codeValue.equals(rawLineCodeValue)) {</span>
+<span class="fc" id="L272">                return recordLayout.getType();</span>
+            }
+<span class="fc" id="L274">        }</span>
+
+        // レコードレイアウトが判断できない場合、データ行として扱う
+<span class="nc" id="L277">        log.warn(</span>
+<span class="nc" id="L278">            CompareFilesMessageSource.getInstance().getMessage(</span>
+                Const.MSGCD_COMPARE_TEXT_ROW_LAYOUT_AS_DATA,
+<span class="nc" id="L280">                new Object[] {fileLayout.getLogicalFileName(), rawLine}));</span>
+<span class="nc" id="L281">        return RecordType.Data;</span>
+    }
+
+    /**
+     * 差分を検出した項目名のリストを返します。
+     *
+     * @return 差分を検出した項目名のリスト
+     */
+    public List&lt;String&gt; getDiffItemNameList() {
+<span class="fc" id="L290">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L291" title="All 2 branches covered.">        for (final TextFileItemCompareResult item : itemList) {</span>
+<span class="fc bfc" id="L292" title="All 4 branches covered.">            if (!CompareStatus.OK.equals(item.getStatus()) &amp;&amp; !CompareStatus.Ignore.equals(item.getStatus())) {</span>
+<span class="fc" id="L293">                list.add(item.getName());</span>
+            }
+<span class="fc" id="L295">        }</span>
+<span class="fc" id="L296">        return list;</span>
+    }
+
+    /**
+     * 行の比較を実行します。
+     */
+    protected void compare() {
+        // 条件Mapの確認
+<span class="fc" id="L304">        final String leftRawLine = leftRow.getRawLine();</span>
+<span class="fc" id="L305">        final Map&lt;String, CompareCriteria&gt; criteriaMap = getCriteriaMap(fileLayout, leftRawLine);</span>
+<span class="fc bfc" id="L306" title="All 2 branches covered.">        if (criteriaMap == null) {</span>
+            // --------------------------------------------------------------------------------
+            // 条件Mapが指定されていない場合
+            // --------------------------------------------------------------------------------
+            // value1項目に1行のデータがまとめて入っている体で比較
+<span class="fc" id="L311">            final String itemId = Const.DEFAULT_ITEM_ID;</span>
+<span class="fc" id="L312">            final String leftValue = leftRow.getItemValue(itemId);</span>
+<span class="fc" id="L313">            final String rightValue = rightRow.getItemValue(itemId);</span>
+<span class="fc" id="L314">            final CompareCriteria criteria = CompareCriteria.Equal;</span>
+
+            // 項目比較
+<span class="fc" id="L317">            compareItem(itemId, leftValue, rightValue, criteria);</span>
+
+<span class="fc" id="L319">        } else {</span>
+            // --------------------------------------------------------------------------------
+            // 条件Mapが指定されている場合
+            // --------------------------------------------------------------------------------
+            // 条件Mapをベースに比較
+<span class="fc bfc" id="L324" title="All 2 branches covered.">            for (final Map.Entry&lt;String, CompareCriteria&gt; curEntry : criteriaMap.entrySet()) {</span>
+<span class="fc" id="L325">                final String curItemId = curEntry.getKey();</span>
+<span class="fc" id="L326">                final String curLeftValue = leftRow.getItemValue(curItemId);</span>
+<span class="fc" id="L327">                final String curRightValue = rightRow.getItemValue(curItemId);</span>
+<span class="fc" id="L328">                final CompareCriteria curCriteria = curEntry.getValue();</span>
+
+                // 項目比較
+<span class="fc" id="L331">                compareItem(curItemId, curLeftValue, curRightValue, curCriteria);</span>
+<span class="fc" id="L332">            }</span>
+        }
+
+        // 比較ステータスの更新
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">        if (CompareStatus.Processing.equals(status)) {</span>
+<span class="fc" id="L337">            CompareStatus tempStatus = CompareStatus.OK;</span>
+<span class="fc bfc" id="L338" title="All 2 branches covered.">            for (final TextFileItemCompareResult item : itemList) {</span>
+<span class="fc bfc" id="L339" title="All 2 branches covered.">                if (CompareStatus.NG.equals(item.getStatus()) ||</span>
+<span class="pc bpc" id="L340" title="1 of 2 branches missed.">                    CompareStatus.LeftOnly.equals(item.getStatus()) ||</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">                    CompareStatus.RightOnly.equals(item.getStatus())) {</span>
+<span class="fc" id="L342">                    tempStatus = CompareStatus.NG;</span>
+<span class="fc" id="L343">                    break;</span>
+                }
+<span class="fc" id="L345">            }</span>
+<span class="fc" id="L346">            status = tempStatus;</span>
+        }
+
+        // レコードタイプの更新
+<span class="fc" id="L350">        this.recordType = getRecordType(fileLayout, leftRawLine);</span>
+
+        // 行番号の更新
+<span class="fc" id="L353">        this.leftRowNum = leftRow.getRowNum();</span>
+<span class="fc" id="L354">        this.rightRowNum = rightRow.getRowNum();</span>
+<span class="pc bpc" id="L355" title="1 of 2 branches missed.">        if (CompareStatus.LeftOnly.equals(status)) {</span>
+            // 左のみの場合、右の行番号に意味は無いのでクリア
+<span class="nc" id="L357">            rightRowNum = Const.UNKNOWN_LINE;</span>
+<span class="pc bpc" id="L358" title="1 of 2 branches missed.">        } else if (CompareStatus.RightOnly.equals(status)) {</span>
+            // 右のみの場合、左の行番号に意味は無いのでクリア
+<span class="nc" id="L360">            leftRowNum = Const.UNKNOWN_LINE;</span>
+        }
+<span class="fc" id="L362">    }</span>
+
+    /**
+     * 項目を比較します。
+     *
+     * @param itemId 項目ID
+     * @param leftValue 左ファイルの値
+     * @param rightValue 右ファイルの値
+     * @param criteria 比較条件
+     */
+    private void compareItem(
+        final String itemId,
+        final String leftValue,
+        final String rightValue,
+        final CompareCriteria criteria) {
+
+        // 項目比較ステータス
+<span class="fc" id="L379">        CompareStatus status = null;</span>
+
+        // nullチェック
+<span class="pc bpc" id="L382" title="3 of 4 branches missed.">        if (leftValue == null &amp;&amp; rightValue == null) {</span>
+            // どちらもnull
+<span class="nc" id="L384">            status = CompareStatus.OK;</span>
+
+<span class="pc bpc" id="L386" title="2 of 4 branches missed.">        } else if (leftValue != null &amp;&amp; rightValue == null) {</span>
+            // 左のみ
+<span class="nc" id="L388">            status = CompareStatus.LeftOnly;</span>
+
+<span class="pc bpc" id="L390" title="3 of 4 branches missed.">        } else if (leftValue == null &amp;&amp; rightValue != null) {</span>
+            // 右のみ
+<span class="nc" id="L392">            status = CompareStatus.RightOnly;</span>
+
+        }
+
+        // nullチェック結果を確認
+<span class="fc" id="L397">        TextFileItemCompareResult item = null;</span>
+<span class="pc bpc" id="L398" title="1 of 2 branches missed.">        if (status == null) {</span>
+            // 項目比較ステータスが確定していない場合、比較を実行
+<span class="fc" id="L400">            item = new TextFileItemCompareResult(itemId, leftValue, rightValue, criteria);</span>
+<span class="fc" id="L401">            item.compare();</span>
+
+        } else {
+            // 項目比較ステータスが確定している場合、固定値を取得
+<span class="nc" id="L405">            item = TextFileItemCompareResult.getFixedResult(itemId, leftValue, rightValue, criteria, status);</span>
+        }
+
+        // 行比較結果に項目を追加
+<span class="fc" id="L409">        itemList.add(item);</span>
+<span class="fc" id="L410">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

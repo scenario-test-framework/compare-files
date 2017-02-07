@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>DirCompareResult.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.domain.compare.bulk</a> &gt; <span class="el_source">DirCompareResult.java</span></div><h1>DirCompareResult.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.domain.compare.bulk;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
+import me.suwash.tools.comparefiles.infra.policy.AggregateEntity;
+import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
+import me.suwash.tools.comparefiles.sv.da.file.repository.impl.FileCompareResultRepositoryImpl;
+import me.suwash.tools.comparefiles.sv.domain.compare.BaseCompareInput;
+import me.suwash.tools.comparefiles.sv.domain.compare.file.FileCompareResult;
+import me.suwash.util.CompareUtils.CompareStatus;
+import me.suwash.util.FileUtils;
+import me.suwash.util.validation.constraints.Dir;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * ディレクトリ比較結果。
+ */
+@Getter
+<span class="fc" id="L31">@lombok.extern.slf4j.Slf4j</span>
+public class DirCompareResult extends BaseBulkCompareResult implements AggregateEntity {
+
+<span class="nc" id="L34">    private final DirCompareInput input;</span>
+
+    /**
+     * コンストラクタ。
+     *
+     * @param leftDirPath 左ディレクトリパス
+     * @param rightDirPath 右ディレクトリパス
+     * @param outputDirPath 出力ディレクトリパス
+     * @param systemConfig システム設定
+     */
+    public DirCompareResult(
+        final String leftDirPath,
+        final String rightDirPath,
+        final String outputDirPath,
+        final CompareFilesConfig systemConfig) {
+
+<span class="fc" id="L50">        super();</span>
+<span class="fc" id="L51">        final DirCompareInput input = new DirCompareInput();</span>
+<span class="fc" id="L52">        input.setLeftDirPath(leftDirPath);</span>
+<span class="fc" id="L53">        input.setRightDirPath(rightDirPath);</span>
+<span class="fc" id="L54">        input.setOutputDirPath(outputDirPath);</span>
+<span class="fc" id="L55">        input.setSystemConfig(systemConfig);</span>
+<span class="fc" id="L56">        this.input = input;</span>
+<span class="fc" id="L57">    }</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.domain.compare.CompareResult#compare()
+     */
+    @Override
+    public void compare() {
+        // --------------------------------------------------------------------------------
+        // 事前処理
+        // --------------------------------------------------------------------------------
+<span class="fc" id="L68">        final String leftDirPath = input.getLeftDirPath();</span>
+<span class="fc" id="L69">        final String rightDirPath = input.getRightDirPath();</span>
+<span class="fc" id="L70">        final String outputDirPath = input.getOutputDirPath();</span>
+<span class="fc" id="L71">        final CompareFilesConfig systemConfig = input.getSystemConfig();</span>
+
+        // ----------------------------------------
+        // 単項目チェック
+        // ----------------------------------------
+<span class="fc" id="L76">        ValidateUtils.validate(input);</span>
+
+        // ----------------------------------------
+        // 相関チェック
+        // ----------------------------------------
+        // 出力ディレクトリ
+<span class="fc" id="L82">        FileUtils.initDir(outputDirPath);</span>
+
+        // --------------------------------------------------------------------------------
+        // 本処理
+        // --------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------
+        // 設定取得
+        // ----------------------------------------------------------------------
+        // 左ディレクトリ
+<span class="fc" id="L91">        final File leftDir = new File(leftDirPath);</span>
+        // 右ディレクトリ
+<span class="fc" id="L93">        final File rightDir = new File(rightDirPath);</span>
+
+        // 実行開始時刻
+<span class="fc" id="L96">        final Date startTime = new Date();</span>
+
+        // ファイル比較結果リポジトリ
+<span class="fc" id="L99">        final FileCompareResultRepository resultRepo = new FileCompareResultRepositoryImpl(</span>
+<span class="fc" id="L100">            outputDirPath + &quot;/&quot; + systemConfig.getCompareResultFileName(),</span>
+<span class="fc" id="L101">            systemConfig.getOutputCharset(),</span>
+            null,
+<span class="fc" id="L103">            systemConfig.getChunkSize()</span>
+            );
+<span class="fc" id="L105">        resultRepo.begin();</span>
+
+        // ----------------------------------------------------------------------
+        // ディレクトリの存在比較
+        // ----------------------------------------------------------------------
+<span class="fc bfc" id="L110" title="All 4 branches covered.">        if (leftDir.exists() &amp;&amp; !rightDir.exists()) {</span>
+            // 左ディレクトリのみ
+<span class="fc" id="L112">            log.info(&quot;・[左のみ]&quot; + leftDir);</span>
+<span class="fc" id="L113">            final FileCompareResult result = FileCompareResult.getFixedResult(CompareStatus.LeftOnly, leftDirPath, rightDirPath, startTime, startTime);</span>
+<span class="fc" id="L114">            this.addFileResult(result.getStatus());</span>
+<span class="fc" id="L115">            resultRepo.write(result);</span>
+<span class="fc" id="L116">            resultRepo.commit();</span>
+<span class="fc" id="L117">            return;</span>
+
+<span class="fc bfc" id="L119" title="All 4 branches covered.">        } else if (!leftDir.exists() &amp;&amp; rightDir.exists()) {</span>
+            // 右ディレクトリのみ
+<span class="fc" id="L121">            log.info(&quot;・[右のみ]&quot; + rightDir);</span>
+<span class="fc" id="L122">            final FileCompareResult result = FileCompareResult.getFixedResult(CompareStatus.RightOnly, leftDirPath, rightDirPath, startTime, startTime);</span>
+<span class="fc" id="L123">            this.addFileResult(result.getStatus());</span>
+<span class="fc" id="L124">            resultRepo.write(result);</span>
+<span class="fc" id="L125">            resultRepo.commit();</span>
+<span class="fc" id="L126">            return;</span>
+
+<span class="pc bpc" id="L128" title="1 of 4 branches missed.">        } else if (!leftDir.exists() &amp;&amp; !rightDir.exists()) {</span>
+            // どちらも存在しない
+<span class="fc" id="L130">            resultRepo.rollback();</span>
+<span class="fc" id="L131">            throw new CompareFilesException(Const.MSGCD_ERROR_COMPARE_DIR_BOTH_NOTEXIST, new Object[] {leftDir, rightDir});</span>
+        }
+
+        // ----------------------------------------------------------------------
+        // ファイル走査
+        // ----------------------------------------------------------------------
+<span class="fc" id="L137">        log.info(&quot;・ファイル走査&quot;);</span>
+        // 左ファイルの相対パスリスト作成
+<span class="fc" id="L139">        final List&lt;String&gt; leftRelPathList = getRelPathList(leftDir);</span>
+        // 右ファイルの相対パスリスト作成
+<span class="fc" id="L141">        final List&lt;String&gt; rightRelPathList = getRelPathList(rightDir);</span>
+        // マージした相対パスリスト作成
+<span class="fc" id="L143">        final List&lt;String&gt; mergedRelPathList = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L144">        mergedRelPathList.addAll(leftRelPathList);</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        for (final String rightRelPath : rightRelPathList) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">            if (!mergedRelPathList.contains(rightRelPath)) {</span>
+<span class="fc" id="L147">                mergedRelPathList.add(rightRelPath);</span>
+            }
+<span class="fc" id="L149">        }</span>
+<span class="fc" id="L150">        Collections.sort(mergedRelPathList);</span>
+
+        // ----------------------------------------------------------------------
+        // ディレクトリ比較
+        // ----------------------------------------------------------------------
+<span class="fc" id="L155">        log.info(&quot;・ディレクトリ比較&quot;);</span>
+<span class="fc" id="L156">        final boolean isSorted = systemConfig.isSorted();</span>
+        // マージした相対パスリストを全件ループ
+<span class="fc bfc" id="L158" title="All 2 branches covered.">        for (final String relPath : mergedRelPathList) {</span>
+            // 左ファイルパス
+<span class="fc" id="L160">            final String leftFilePath = leftDirPath + relPath;</span>
+            // 右ファイルパス
+<span class="fc" id="L162">            final String rightFilePath = rightDirPath + relPath;</span>
+
+            // システム設定を初期化
+<span class="fc" id="L165">            systemConfig.setSorted(isSorted);</span>
+
+            // ファイル比較
+<span class="fc" id="L168">            compareFile(leftFilePath, rightFilePath, outputDirPath, systemConfig, startTime, resultRepo);</span>
+<span class="fc" id="L169">        }</span>
+
+        // サマリーファイルwriterをclose
+<span class="fc" id="L172">        resultRepo.commit();</span>
+
+        // --------------------------------------------------------------------------------
+        // 事後処理
+        // --------------------------------------------------------------------------------
+        // workディレクトリの削除
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (systemConfig.isDeleteWorkDir()) {</span>
+<span class="nc" id="L179">            final String workDirPath = systemConfig.getOutputDir() + &quot;/&quot; + Const.DIRNAME_WORK;</span>
+<span class="nc" id="L180">            FileUtils.rmdirs(workDirPath);</span>
+        }
+<span class="fc" id="L182">    }</span>
+
+    /**
+     * ファイルを比較します。
+     *
+     * @param leftFilePath 左ファイルパス
+     * @param rightFilePath 右ファイルパス
+     * @param outputDirPath 出力ディレクトリパス
+     * @param systemConfig システム設定
+     * @param startTime 処理開始時刻
+     * @param resultRepo ファイル比較結果リポジトリ
+     */
+    private void compareFile(
+        final String leftFilePath,
+        final String rightFilePath,
+        final String outputDirPath,
+        final CompareFilesConfig systemConfig,
+        final Date startTime,
+        final FileCompareResultRepository resultRepo) {
+
+        // ファイル比較実行
+        try {
+<span class="fc" id="L204">            final FileCompareResult result = new FileCompareResult(leftFilePath, rightFilePath, outputDirPath, systemConfig);</span>
+<span class="fc" id="L205">            result.compare();</span>
+
+            // 結果を出力
+<span class="fc" id="L208">            resultRepo.write(result);</span>
+
+            // 結果確認
+<span class="fc" id="L211">            this.addFileResult(result.getStatus());</span>
+
+<span class="nc" id="L213">        } catch (Exception e) {</span>
+<span class="nc" id="L214">            log.error(</span>
+<span class="nc" id="L215">                CompareFilesMessageSource.getInstance().getMessage(Const.ERRORHANDLE, new Object[] {&quot;FileCompare&quot;, &quot;left=&quot; + leftFilePath + &quot;, right=&quot; + rightFilePath}),</span>
+                e);
+
+            // 妥当性チェックエラー表示
+<span class="nc" id="L219">            final String violationMessage = ValidateUtils.getViolationMessage();</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (! StringUtils.isEmpty(violationMessage)) {</span>
+<span class="nc" id="L221">                log.error(violationMessage);</span>
+            }
+
+            // エラー追加
+<span class="nc" id="L225">            final FileCompareResult result = FileCompareResult.getFixedResult(CompareStatus.Error, leftFilePath, rightFilePath, startTime, startTime);</span>
+<span class="nc" id="L226">            this.addFileResult(result.getStatus());</span>
+<span class="nc" id="L227">            resultRepo.write(result);</span>
+<span class="fc" id="L228">        }</span>
+<span class="fc" id="L229">    }</span>
+
+    /**
+     * サブディレクトリを含めて、指定ディレクトリ配下全てのファイルパスを、相対パスで返します。
+     *
+     * @param dir 基準ディレクトリ
+     * @return 相対ファイルパスリスト
+     */
+    private List&lt;String&gt; getRelPathList(final File dir) {
+<span class="fc" id="L238">        final List&lt;String&gt; filePathList = new ArrayList&lt;String&gt;();</span>
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">        if (dir == null) {</span>
+<span class="nc" id="L240">            return filePathList;</span>
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        } else if (!dir.isDirectory()) {</span>
+<span class="nc" id="L242">            return filePathList;</span>
+        }
+<span class="fc" id="L244">        getRelPathListMain(dir, dir, filePathList);</span>
+<span class="fc" id="L245">        return filePathList;</span>
+    }
+
+    /**
+     * 再帰呼び出し。
+     *
+     * @param rootDir 基準ディレクトリ
+     * @param targetDir 対象ディレクトリ
+     * @param filePathList 相対ファイルパスリスト
+     */
+    private void getRelPathListMain(final File rootDir, final File targetDir, final List&lt;String&gt; filePathList) {
+<span class="fc" id="L256">        final File[] targetFiles = targetDir.listFiles();</span>
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">        if (targetFiles == null) {</span>
+<span class="nc" id="L258">            return;</span>
+        }
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        for (final File targetFile : targetFiles) {</span>
+<span class="pc bpc" id="L261" title="1 of 2 branches missed.">            if (targetFile.isDirectory()) {</span>
+<span class="nc" id="L262">                getRelPathListMain(rootDir, targetFile, filePathList);</span>
+            } else {
+<span class="fc" id="L264">                final String targetPath = targetFile.getPath();</span>
+<span class="fc" id="L265">                final String relPath = targetPath.replace(rootDir.getPath(), StringUtils.EMPTY);</span>
+<span class="fc" id="L266">                filePathList.add(relPath);</span>
+            }
+        }
+<span class="fc" id="L269">    }</span>
+
+    /**
+     * ディレクトリ比較入力データモデル。
+     */
+    @Getter
+<span class="fc" id="L275">    @Setter</span>
+//    @EqualsAndHashCode(callSuper = true)
+//    @ToString(callSuper = true)
+<span class="fc" id="L278">    private static class DirCompareInput extends BaseCompareInput {</span>
+
+        /** 左ディレクトリパス。 */
+        @NotEmpty
+        @Dir
+<span class="fc" id="L283">        private String leftDirPath;</span>
+
+        /** 右ディレクトリパス。 */
+        @NotEmpty
+        @Dir
+<span class="fc" id="L288">        private String rightDirPath;</span>
+
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
