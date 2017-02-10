@@ -1,0 +1,2 @@
+this is DIFF file.
+1行を1項目として比較します。

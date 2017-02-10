@@ -11,8 +11,8 @@ import me.suwash.util.CompareUtils.CompareStatus;
 @Getter
 public class TextFileItemCompareResult {
 
-    /** 項目名。 */
-    private final String name;
+    /** 項目ID。 */
+    private final String id;
 
     /** 左ファイルの値。 */
     private final String leftValue;
@@ -29,7 +29,7 @@ public class TextFileItemCompareResult {
     /**
      * 固定値の項目比較結果を返します。
      *
-     * @param name 項目名
+     * @param id 項目ID
      * @param leftValue 左ファイルの値
      * @param rightValue 右ファイルの値
      * @param criteria 比較条件
@@ -37,51 +37,51 @@ public class TextFileItemCompareResult {
      * @return 比較結果
      */
     protected static TextFileItemCompareResult getFixedResult(
-        final String name,
+        final String id,
         final String leftValue,
         final String rightValue,
         final CompareCriteria criteria,
         final CompareStatus status) {
 
-        return new TextFileItemCompareResult(name, leftValue, rightValue, criteria, status);
+        return new TextFileItemCompareResult(id, leftValue, rightValue, criteria, status);
     }
 
     /**
      * 固定値取得用コンストラクタ。
      *
-     * @param name 項目名
+     * @param id 項目ID
      * @param leftValue 左ファイルの値
      * @param rightValue 右ファイルの値
      * @param criteria 比較条件
      * @param status 比較ステータス
      */
     private TextFileItemCompareResult(
-        final String name,
+        final String id,
         final String leftValue,
         final String rightValue,
         final CompareCriteria criteria,
         final CompareStatus status) {
 
-        this(name, leftValue, rightValue, criteria);
+        this(id, leftValue, rightValue, criteria);
         this.status = status;
     }
 
     /**
      * コンストラクタ。
      *
-     * @param name 項目名
+     * @param id 項目ID
      * @param leftValue 左ファイルの値
      * @param rightValue 右ファイルの値
      * @param criteria 比較条件
      */
     protected TextFileItemCompareResult(
-        final String name,
+        final String id,
         final String leftValue,
         final String rightValue,
         final CompareCriteria criteria) {
 
         super();
-        this.name = name;
+        this.id = id;
         this.leftValue = leftValue;
         this.rightValue = rightValue;
         this.criteria = criteria;

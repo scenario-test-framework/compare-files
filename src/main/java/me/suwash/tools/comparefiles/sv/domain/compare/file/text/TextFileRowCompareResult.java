@@ -282,15 +282,15 @@ public class TextFileRowCompareResult {
     }
 
     /**
-     * 差分を検出した項目名のリストを返します。
+     * 差分を検出した項目IDのリストを返します。
      *
      * @return 差分を検出した項目名のリスト
      */
-    public List<String> getDiffItemNameList() {
+    public List<String> getDiffItemIdList() {
         final List<String> list = new ArrayList<String>();
         for (final TextFileItemCompareResult item : itemList) {
             if (!CompareStatus.OK.equals(item.getStatus()) && !CompareStatus.Ignore.equals(item.getStatus())) {
-                list.add(item.getName());
+                list.add(item.getId());
             }
         }
         return list;

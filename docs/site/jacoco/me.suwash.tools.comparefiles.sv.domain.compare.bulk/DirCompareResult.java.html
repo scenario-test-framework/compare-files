@@ -176,8 +176,8 @@ public class DirCompareResult extends BaseBulkCompareResult implements Aggregate
         // --------------------------------------------------------------------------------
         // workディレクトリの削除
 <span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (systemConfig.isDeleteWorkDir()) {</span>
-<span class="nc" id="L179">            final String workDirPath = systemConfig.getOutputDir() + &quot;/&quot; + Const.DIRNAME_WORK;</span>
-<span class="nc" id="L180">            FileUtils.rmdirs(workDirPath);</span>
+<span class="fc" id="L179">            final String workDirPath = systemConfig.getOutputDir() + &quot;/&quot; + Const.DIRNAME_WORK;</span>
+<span class="fc" id="L180">            FileUtils.rmdirs(workDirPath);</span>
         }
 <span class="fc" id="L182">    }</span>
 
@@ -258,8 +258,8 @@ public class DirCompareResult extends BaseBulkCompareResult implements Aggregate
 <span class="nc" id="L258">            return;</span>
         }
 <span class="fc bfc" id="L260" title="All 2 branches covered.">        for (final File targetFile : targetFiles) {</span>
-<span class="pc bpc" id="L261" title="1 of 2 branches missed.">            if (targetFile.isDirectory()) {</span>
-<span class="nc" id="L262">                getRelPathListMain(rootDir, targetFile, filePathList);</span>
+<span class="fc bfc" id="L261" title="All 2 branches covered.">            if (targetFile.isDirectory()) {</span>
+<span class="fc" id="L262">                getRelPathListMain(rootDir, targetFile, filePathList);</span>
             } else {
 <span class="fc" id="L264">                final String targetPath = targetFile.getPath();</span>
 <span class="fc" id="L265">                final String relPath = targetPath.replace(rootDir.getPath(), StringUtils.EMPTY);</span>

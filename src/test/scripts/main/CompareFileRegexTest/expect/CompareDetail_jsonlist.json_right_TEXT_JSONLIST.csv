@@ -1,0 +1,7 @@
+"Status","RowNum","DiffItems","value"
+"OK","期待値:1
+実績値:1","-","{""keyObj"": {""key1"" : 100, ""key2"": ""AAA""}, ""valueObj"": {""amount"": 1000, ""number"": 1, ""lastUpdateTime"": ""2017/01/01 00:00:00.000""}}"
+"OK","期待値:2
+実績値:2","-","{""keyObj"": {""key1"" : 100, ""key2"": ""BBB""}, ""valueObj"": {""amount"": 1000, ""number"": 2, ""lastUpdateTime"": ""2017/01/01 00:00:00.000""}}"
+"OK","期待値:3
+実績値:3","-","{""keyObj"": {""key1"" : 100, ""key2"": ""CCC""}, ""valueObj"": {""amount"": 1000, ""number"": 3, ""lastUpdateTime"": ""2017/01/01 00:00:00.000""}}"

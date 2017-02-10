@@ -197,10 +197,17 @@
                                 <mkdir dir="${dir.assembly.work}/config" />
                                 <copy todir="${dir.assembly.work}/config"
                                     overwrite="yes" encoding="UTF-8">
-                                    <fileset dir="${project.build.scriptSourceDirectory}/config">
+                                    <fileset dir="src/main/resources">
                                         <include name="**/**" />
                                     </fileset>
                                     <filterset filtersfile="env/${target.env}/filter.properties" />
+                                </copy>
+                                <!-- sampleファイル -->
+                                <mkdir dir="${dir.assembly.work}/sample" />
+                                <copy todir="${dir.assembly.work}/sample">
+                                    <fileset dir="${project.build.scriptSourceDirectory}/sample">
+                                        <include name="**/**" />
+                                    </fileset>
                                 </copy>
                                 <!-- 不要ファイルの削除 -->
                                 <delete>
@@ -224,9 +231,15 @@
                                 <!-- 配布用アーカイブ -->
                                 <tar
                                     destfile="${project.build.directory}/${project.artifactId}_${project.version}_${target.env}.tar.gz"
-                                    basedir="${project.build.directory}"
-                                    includes="${dirname.assembly.work}/**"
-                                    compression="gzip" />
+                                    compression="gzip">
+                                    <tarfileset dir="${project.build.directory}" mode="755">
+                                      <include name="${dirname.assembly.work}/bin/*.sh" />
+                                    </tarfileset>
+                                    <tarfileset dir="${project.build.directory}">
+                                      <include name="${dirname.assembly.work}/**" />
+                                      <exclude name="${dirname.assembly.work}/bin/*.sh" />
+                                    </tarfileset>
+                                </tar>
                             </target>
                         </configuration>
                     </execution>

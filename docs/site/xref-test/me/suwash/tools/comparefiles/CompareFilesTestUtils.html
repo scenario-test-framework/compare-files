@@ -74,52 +74,52 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// 行比較結果リスト群を一括比較</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          TestUtils.assertFilesEquals(dirExpect, dirActual, Const.CHARSET_DEFAULT_CONFIG);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          log.warn(<span class="jxr_string">"▲ここまで"</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          List&lt;String[]&gt; expectLineList = CsvUtils.parseFile(expectSummaryFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, CsvUtils.getCsvConfig());
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          List&lt;String[]&gt; actualLineList = CsvUtils.parseFile(actualSummaryFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, CsvUtils.getCsvConfig());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          StringBuilder failMsgBuilder = <strong class="jxr_keyword">new</strong> StringBuilder();
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">int</strong> lineIndex = 0;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">for</strong> (String[] curExpectLine : expectLineList) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">int</strong> colIndex = 0;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">for</strong> (String curExpect : curExpectLine) {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  String curActual = actualLineList.get(lineIndex)[colIndex];
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <strong class="jxr_keyword">if</strong> (lineIndex == 0) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      <em class="jxr_comment">// ヘッダーは全項目が一致すること</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      <strong class="jxr_keyword">if</strong> (! curExpect.equals(curActual)) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                          appendFail(failMsgBuilder, lineIndex, colIndex, curExpect, curActual);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                      }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <em class="jxr_comment">// データ行</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                      <strong class="jxr_keyword">if</strong> (colIndex == 1 || colIndex == 2) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                          <em class="jxr_comment">// 左右のパスは、期待値の相対パスと一致すること</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          <strong class="jxr_keyword">if</strong> (! curActual.endsWith(curExpect)) {
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                              appendFail(failMsgBuilder, lineIndex, colIndex, curExpect, curActual);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (colIndex &lt; 10) {
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                          <em class="jxr_comment">// その他のカラムは、開始時刻、終了時刻、処理時間以外が一致すること</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                          <strong class="jxr_keyword">if</strong> (! curExpect.equals(curActual)) {
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                              appendFail(failMsgBuilder, lineIndex, colIndex, curExpect, curActual);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>                          }
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      }
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>                 }
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 colIndex++;
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             lineIndex++;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">if</strong> (!actualSummaryFile.renameTo(actualBeforeSummaryFile)) {
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>             fail(<span class="jxr_string">"一時ファイルから、"</span> + actualBeforeSummaryFile + <span class="jxr_string">" への移動に失敗しました。"</span>);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         }
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">if</strong> (!expectSummaryFile.renameTo(expectBeforeSummaryFile)) {
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>             log.error(<span class="jxr_string">"■期待値ディレクトリ："</span> + dirExpect + <span class="jxr_string">" を再配置してください。"</span>);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             fail(<span class="jxr_string">"一時ファイルから、"</span> + expectBeforeSummaryFile + <span class="jxr_string">" への移動に失敗しました。"</span>);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         }
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         FileUtils.rmdirs(dirActualTemp);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         FileUtils.rmdirs(dirExpectTemp);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          List&lt;String[]&gt; expectLineList = CsvUtils.parseFile(expectSummaryFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, CsvUtils.getCsvConfig());
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          List&lt;String[]&gt; actualLineList = CsvUtils.parseFile(actualSummaryFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, CsvUtils.getCsvConfig());
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          StringBuilder failMsgBuilder = <strong class="jxr_keyword">new</strong> StringBuilder();
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">int</strong> lineIndex = 0;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">for</strong> (String[] curExpectLine : expectLineList) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">int</strong> colIndex = 0;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">for</strong> (String curExpect : curExpectLine) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  String curActual = actualLineList.get(lineIndex)[colIndex];
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  <strong class="jxr_keyword">if</strong> (lineIndex == 0) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                      <em class="jxr_comment">// ヘッダーは全項目が一致すること</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                      <strong class="jxr_keyword">if</strong> (! curExpect.equals(curActual)) {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                          appendFail(failMsgBuilder, lineIndex, colIndex, curExpect, curActual);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                      <em class="jxr_comment">// データ行</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                      <strong class="jxr_keyword">if</strong> (colIndex == 1 || colIndex == 2) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                          <em class="jxr_comment">// 左右のパスは、期待値の相対パスと一致すること</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                          <strong class="jxr_keyword">if</strong> (! curActual.endsWith(curExpect)) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                              appendFail(failMsgBuilder, lineIndex, colIndex, curExpect, curActual);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                          }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                      } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (colIndex &lt; 10) {
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                          <em class="jxr_comment">// その他のカラムは、開始時刻、終了時刻、処理時間以外が一致すること</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                          <strong class="jxr_keyword">if</strong> (! curExpect.equals(curActual)) {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                              appendFail(failMsgBuilder, lineIndex, colIndex, curExpect, curActual);
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                          }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>                 colIndex++;
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             }
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             lineIndex++;
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> 
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">if</strong> (!actualSummaryFile.renameTo(actualBeforeSummaryFile)) {
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             fail(<span class="jxr_string">"一時ファイルから、"</span> + actualBeforeSummaryFile + <span class="jxr_string">" への移動に失敗しました。"</span>);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">if</strong> (!expectSummaryFile.renameTo(expectBeforeSummaryFile)) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             log.error(<span class="jxr_string">"■期待値ディレクトリ："</span> + dirExpect + <span class="jxr_string">" を再配置してください。"</span>);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             fail(<span class="jxr_string">"一時ファイルから、"</span> + expectBeforeSummaryFile + <span class="jxr_string">" への移動に失敗しました。"</span>);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         FileUtils.rmdirs(dirActualTemp);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         FileUtils.rmdirs(dirExpectTemp);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         log.warn(<span class="jxr_string">"▲ここまで"</span>);
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">if</strong> (failMsgBuilder.length() &gt; 0) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             fail(summaryFileName + <span class="jxr_string">" で差分を検出しました。\n"</span> + failMsgBuilder.toString());

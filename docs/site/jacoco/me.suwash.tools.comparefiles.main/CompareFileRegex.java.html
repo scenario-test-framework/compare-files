@@ -53,9 +53,15 @@ public class CompareFileRegex extends BaseCompareFiles {
         // 設定ファイルパスが指定されていない場合、「比較対象設定ファイルパス」が指定されていないければエラー
 <span class="pc bpc" id="L54" title="1 of 4 branches missed.">        if (StringUtils.isEmpty(option.getConfigFilePath()) &amp;&amp; paramList.size() != PARAM_SIZE_NO_CONFIG) {</span>
 <span class="fc" id="L55">            isValid = false;</span>
+<span class="fc" id="L56">            final StringBuilder usageBuilder = new StringBuilder();</span>
+<span class="fc" id="L57">            usageBuilder</span>
+<span class="fc" id="L58">                .append(&quot;Usage: compare_regex [Options] TARGET_FILE_PATH&quot;).append(StringUtils.LF)</span>
+<span class="fc" id="L59">                .append(StringUtils.LF)</span>
+<span class="fc" id="L60">                .append(option.usage());</span>
+<span class="fc" id="L61">            System.err.println(usageBuilder.toString());</span>
         }
 
-<span class="fc" id="L58">        return isValid;</span>
+<span class="fc" id="L64">        return isValid;</span>
     }
 
     /*
@@ -65,30 +71,30 @@ public class CompareFileRegex extends BaseCompareFiles {
     @Override
     protected ProcessStatus executeFacade(final List&lt;String&gt; paramList, final CompareFilesConfig config) {
         // 比較対象設定ファイル
-<span class="fc" id="L68">        final String targetConfigFilePath = paramList.get(0);</span>
-<span class="fc" id="L69">        final File targetConfigFile = new File(targetConfigFilePath);</span>
+<span class="fc" id="L74">        final String targetConfigFilePath = paramList.get(0);</span>
+<span class="fc" id="L75">        final File targetConfigFile = new File(targetConfigFilePath);</span>
 
         // 出力ディレクトリ
-<span class="fc" id="L72">        final String outputDirPath = config.getOutputDir();</span>
+<span class="fc" id="L78">        final String outputDirPath = config.getOutputDir();</span>
 
         // Facade呼出し
-<span class="fc" id="L75">        log.info(&quot;・入力情報&quot;);</span>
-<span class="fc" id="L76">        log.info(&quot;  ・比較対象設定ファイル            : &quot; + targetConfigFile.getPath());</span>
-<span class="fc" id="L77">        config.printDetails();</span>
+<span class="fc" id="L81">        log.info(&quot;・入力情報&quot;);</span>
+<span class="fc" id="L82">        log.info(&quot;  ・比較対象設定ファイル            : &quot; + targetConfigFile.getPath());</span>
+<span class="fc" id="L83">        config.printDetails();</span>
 
         // 比較レイアウト読み込み
-<span class="fc" id="L80">        loadLayout(config);</span>
+<span class="fc" id="L86">        loadLayout(config);</span>
 
         // Facade呼出し
-<span class="fc" id="L83">        final FileRegexCompareFacadeInput inDto = new FileRegexCompareFacadeInput();</span>
-<span class="fc" id="L84">        inDto.setTargetConfigFilePath(targetConfigFilePath);</span>
-<span class="fc" id="L85">        inDto.setOutputDir(outputDirPath);</span>
-<span class="fc" id="L86">        inDto.setConfig(config);</span>
-<span class="fc" id="L87">        final FileRegexCompareFacadeOutput outDto = new FileRegexCompareFacade().execute(inDto);</span>
+<span class="fc" id="L89">        final FileRegexCompareFacadeInput inDto = new FileRegexCompareFacadeInput();</span>
+<span class="fc" id="L90">        inDto.setTargetConfigFilePath(targetConfigFilePath);</span>
+<span class="fc" id="L91">        inDto.setOutputDir(outputDirPath);</span>
+<span class="fc" id="L92">        inDto.setConfig(config);</span>
+<span class="fc" id="L93">        final FileRegexCompareFacadeOutput outDto = new FileRegexCompareFacade().execute(inDto);</span>
 
         // 結果出力
-<span class="fc" id="L90">        outDto.printDetails();</span>
-<span class="fc" id="L91">        return outDto.getProcessStatus();</span>
+<span class="fc" id="L96">        outDto.printDetails();</span>
+<span class="fc" id="L97">        return outDto.getProcessStatus();</span>
     }
 
 }

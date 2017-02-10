@@ -1,0 +1,32 @@
+{
+  "keyObj": {
+    "key1" : 100,
+    "key2": "AAA"
+  },
+  "valueList": [
+    {
+      "content": {
+        "month": "201701",
+        "amount": 1001,
+        "number": 1,
+        "lastUpdateTime": "2017/01/01 00:00:00.000"
+      }
+    },
+    {
+      "content": {
+        "month": "201702",
+        "amount": 1000,
+        "number": 2,
+        "lastUpdateTime": "2017/01/01 00:00:00.000"
+      }
+    },
+    {
+      "content": {
+        "month": "201703",
+        "amount": 1000,
+        "number": 1,
+        "lastUpdateTime": "2017/01/01 00:00:00.001"
+      }
+    }
+  ]
+}

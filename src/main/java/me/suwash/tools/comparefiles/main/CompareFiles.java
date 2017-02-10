@@ -56,10 +56,17 @@ public class CompareFiles extends BaseCompareFiles {
         // 設定ファイルパスが指定されていない場合、「左パス」「右パス」が指定されていないければエラー
         if (StringUtils.isEmpty(option.getConfigFilePath()) && paramList.size() != PARAM_SIZE_NO_CONFIG) {
             isValid = false;
+            final StringBuilder usageBuilder = new StringBuilder();
+            usageBuilder
+                .append("Usage: compare_files [Options] LEFT_PATH RIGHT_PATH").append(StringUtils.LF)
+                .append(StringUtils.LF)
+                .append(option.usage());
+            System.err.println(usageBuilder.toString());
         }
 
         return isValid;
     }
+
 
     /*
      * (非 Javadoc)

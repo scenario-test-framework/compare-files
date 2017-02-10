@@ -15,8 +15,8 @@ import me.suwash.util.CompareUtils;
     @Override
     public int compareTo(final SortableRow targetObject) {
         // 相手がnullの場合、nullを小さいものとして扱う。
-<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (targetObject == null) {</span>
-<span class="fc" id="L19">            return -1;</span>
+<span class="pc bpc" id="L18" title="1 of 2 branches missed.">        if (targetObject == null) {</span>
+<span class="nc" id="L19">            return -1;</span>
         }
 
         // キーで比較

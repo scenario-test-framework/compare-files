@@ -7,6 +7,7 @@ import java.io.Writer;
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.classification.FileFormat;
 import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;
 import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
 import me.suwash.tools.comparefiles.sv.da.file.reader.RowReader;
 import me.suwash.tools.comparefiles.sv.da.file.reader.impl.BaseRowReader;
@@ -85,7 +86,7 @@ public class GenericRowReadRepository<R extends BaseRow> extends GenericFileRepo
         // ファイルレイアウトが指定されていない場合、デフォルト値を設定。
         FileLayout decidedLayout = fileLayout;
         if (decidedLayout == null) {
-            decidedLayout = FileLayout.getDefaultLayout();
+            decidedLayout = FileLayoutManager.getDefaultTextLayout();
         }
 
         this.filePath = filePath;

@@ -16,6 +16,9 @@ import com.beust.jcommander.Parameter;
 @Getter
 public class CompareFilesOption {
 
+    @Parameter(names = {"-h", "--help"}, help = true)
+    private boolean help;
+
     /** 設定ファイルパス。 */
     @Parameter(names = {"-config", "--configFile"})
     private String configFilePath;
@@ -85,7 +88,7 @@ public class CompareFilesOption {
     private final List<String> paramList = new ArrayList<String>();
 
     /**
-     * 起動パラメータでシステム設定を上書きします。。
+     * 起動パラメータでシステム設定を上書きします。
      *
      * @param systemConfig システム設定
      */
@@ -178,8 +181,6 @@ public class CompareFilesOption {
             return null;
         }
 
-//        if (string.charAt(0) == '\'' && string.charAt(string.length() - 1) == '\'' ||
-//            string.charAt(0) == '\"' && string.charAt(string.length() - 1) == '\"') {
         if (string.charAt(0) == '\'' && string.charAt(string.length() - 1) == '\'') {
             return string.substring(1, string.length() - 1);
 
@@ -205,5 +206,79 @@ public class CompareFilesOption {
      */
     protected String getInputCharset() {
         return CompareFilesOption.escapeQuote(this.inputCharset);
+    }
+
+    /**
+     * UsageのOPTION分メッセージを返します。
+     *
+     * @return UsageのOptions分
+     */
+    protected String usage() {
+        final StringBuilder usageBuilder = new StringBuilder(2048);
+        usageBuilder
+            .append("  Options:").append(StringUtils.LF)
+            .append("    -h, --help").append(StringUtils.LF)
+            .append("      このメッセージを表示します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -config, --configFile").append(StringUtils.LF)
+            .append("      設定ファイルのパスを指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    ----- 以降の設定を指定すると、設定ファイルより優先されます。 -----").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -ignore, --ignoreItemList").append(StringUtils.LF)
+            .append("      比較除外項目名をカンマ区切りで指定します。").append(StringUtils.LF)
+            .append("      レイアウト定義の設定を上書きして、指定された項目の比較を除外します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -layout, --overwriteLayoutDir").append(StringUtils.LF)
+            .append("      ${comparefiles_root}/config/compareFilesLayout 配下のレイアウト定義に加えて、指定したディレクトリ配下のレイアウト定義を読込みます。").append(StringUtils.LF)
+            .append("      同一の物理ファイル名正規表現を持つレイアウトが存在する場合、後勝ち で上書きします。").append(StringUtils.LF)
+            .append("      ※例）config配下に「定義書から自動生成したレイアウト」を配置。").append(StringUtils.LF)
+            .append("         テストで「共通適用するレイアウト」、「今回のケースだけに適用するレイアウト」").append(StringUtils.LF)
+            .append("         を別ディレクトリで管理。実行時に上記の記載順に指定する。 など").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -d, --deleteWorkDir").append(StringUtils.LF)
+            .append("      作業ディレクトリを削除する場合に指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -s, --sorted").append(StringUtils.LF)
+            .append("      比較対象ファイルが、比較キー項目でソート済の場合に指定します。").append(StringUtils.LF)
+            .append("      内部的にソート後に、比較処理を行っているため、事前にソートされていると高速化が期待できます。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -ch, --csvHeaderRow").append(StringUtils.LF)
+            .append("      CSV / TSV ファイルの比較時に必須です。").append(StringUtils.LF)
+            .append("      ヘッダー行番号を指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -cd, --csvDataStartRow").append(StringUtils.LF)
+            .append("      CSV / TSV ファイルの比較時に必須です。").append(StringUtils.LF)
+            .append("      データ開始行番号を指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -od, --outputDir").append(StringUtils.LF)
+            .append("      出力ディレクトリを指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -oc, --outputCharset").append(StringUtils.LF)
+            .append("      出力ファイルの文字コードを指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -of, --compareResultFileName").append(StringUtils.LF)
+            .append("      比較結果ファイル名を指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -dfp, --compareDetailFilePrefix").append(StringUtils.LF)
+            .append("      比較詳細ファイル名のプリフィックスを指定します。").append(StringUtils.LF)
+            .append("      ファイル名の形式は ${プリフィックス}${比較対象ファイル名}.csv です。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -ddo, --writeDiffOnly").append(StringUtils.LF)
+            .append("      比較詳細ファイルの出力内容を 差分のみ にする場合に指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -dpl, --leftPrefix").append(StringUtils.LF)
+            .append("      比較詳細ファイルの差分出力で 左ファイルの項目を表示するときに利用するプリフィックスを指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -dpr, --rightPrefix").append(StringUtils.LF)
+            .append("      比較詳細ファイルの差分出力で 右ファイルの項目を表示するときに利用するプリフィックスを指定します。").append(StringUtils.LF)
+            .append(StringUtils.LF)
+            .append("    -chunk, --chunkSize").append(StringUtils.LF)
+            .append("      出力バッファサイズを行数で指定します。").append(StringUtils.LF)
+            .append("      比較結果の出力時に、逐次で出力するとFileI/Oで処理時間がかさむためバッファリングしています。").append(StringUtils.LF)
+            .append("      リソースや比較対象のデータサイズに合わせてサイズを調整することで高速化が期待できます。").append(StringUtils.LF)
+            .append(StringUtils.LF);
+        return usageBuilder.toString();
     }
 }

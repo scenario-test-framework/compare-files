@@ -58,6 +58,7 @@ public class JsonRowReader<R extends BaseRow> extends JsonListRowReader<R> {
                 curLine = bufferedReader.readLine();
             }
             content = contentBuilder.toString();
+
         } catch (IOException e) {
             throw new CompareFilesException(
                 Const.FILE_CANTREAD,

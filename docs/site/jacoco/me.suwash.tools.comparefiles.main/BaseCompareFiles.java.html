@@ -7,6 +7,7 @@ import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;
 import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
 import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
 import me.suwash.util.ConfigUtils;
 
@@ -17,7 +18,8 @@ import com.beust.jcommander.JCommander;
 /**
  * CUIバウンダリ基底クラス。
  */
-<span class="fc" id="L20">public abstract class BaseCompareFiles {</span>
+<span class="fc" id="L21">@lombok.extern.slf4j.Slf4j</span>
+<span class="fc" id="L22">public abstract class BaseCompareFiles {</span>
 
     /**
      * 比較実行のTemplateメソッドです。
@@ -27,59 +29,61 @@ import com.beust.jcommander.JCommander;
      * @return 比較結果
      */
     protected ProcessStatus execute(final String... args) {
+<span class="fc" id="L32">        log.info(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_PROCESS_START));</span>
+
         // -----------------------------------------------------------------------------------------
         // シャットダウンフック追加
         // -----------------------------------------------------------------------------------------
-<span class="fc" id="L33">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
+<span class="fc" id="L37">        Runtime.getRuntime().addShutdownHook(new Thread() {</span>
             @Override
             public void run() {
-<span class="fc" id="L36">                final String violationMessage = ValidateUtils.getViolationMessage();</span>
-<span class="pc bpc" id="L37" title="1 of 2 branches missed.">                if (!StringUtils.isEmpty(violationMessage)) {</span>
-<span class="nc" id="L38">                    System.err.println(violationMessage);</span>
+<span class="fc" id="L40">                final String violationMessage = ValidateUtils.getViolationMessage();</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">                if (!StringUtils.isEmpty(violationMessage)) {</span>
+<span class="nc" id="L42">                    System.err.println(violationMessage);</span>
                 }
-<span class="fc" id="L40">            }</span>
+<span class="fc" id="L44">            }</span>
         });
 
         // -----------------------------------------------------------------------------------------
         // 引数のパース
         // -----------------------------------------------------------------------------------------
-<span class="fc" id="L46">        final CompareFilesOption option = new CompareFilesOption();</span>
-<span class="fc" id="L47">        new JCommander(option, args);</span>
-<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (!isValidParam(option)) {</span>
-<span class="fc" id="L49">            throw new CompareFilesException(Const.MSGCD_ERROR_ARG);</span>
+<span class="fc" id="L50">        final CompareFilesOption option = new CompareFilesOption();</span>
+<span class="fc" id="L51">        new JCommander(option, args);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (!isValidParam(option)) {</span>
+<span class="fc" id="L53">            throw new CompareFilesException(Const.MSGCD_ERROR_ARG);</span>
         }
 
         // -----------------------------------------------------------------------------------------
         // 設定ファイルの読み込み
         // -----------------------------------------------------------------------------------------
         // デフォルト設定の読み込み
-<span class="fc" id="L56">        final CompareFilesConfig defaultConfig = CompareFilesConfig.parse(</span>
-<span class="fc" id="L57">            ConfigUtils.getConfigFileClasspath(CompareFiles.class, Const.EXT_CONFIG),</span>
+<span class="fc" id="L60">        final CompareFilesConfig defaultConfig = CompareFilesConfig.parse(</span>
+<span class="fc" id="L61">            ConfigUtils.getConfigFileClasspath(CompareFiles.class, Const.EXT_CONFIG),</span>
             true);
 
         // 設定ファイルパスの指定を確認
-<span class="fc" id="L61">        CompareFilesConfig config = null;</span>
-<span class="pc bpc" id="L62" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(option.getConfigFilePath())) {</span>
+<span class="fc" id="L65">        CompareFilesConfig config = null;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(option.getConfigFilePath())) {</span>
             // 指定されていない場合、デフォルト設定を利用
-<span class="fc" id="L64">            config = defaultConfig;</span>
+<span class="fc" id="L68">            config = defaultConfig;</span>
 
         } else {
             // 設定ファイルパスが指定されている場合、カスタム設定の読み込み
-<span class="nc" id="L68">            config = CompareFilesConfig.parse(option.getConfigFilePath(), false);</span>
-<span class="nc" id="L69">            config.setDefault(defaultConfig);</span>
+<span class="nc" id="L72">            config = CompareFilesConfig.parse(option.getConfigFilePath(), false);</span>
+<span class="nc" id="L73">            config.setDefault(defaultConfig);</span>
         }
 
         // 設定をコマンドライン引数で上書き
-<span class="fc" id="L73">        option.overwriteConfig(config);</span>
+<span class="fc" id="L77">        option.overwriteConfig(config);</span>
 
         // 設定の妥当性チェック
-<span class="fc" id="L76">        ValidateUtils.validate(config);</span>
+<span class="fc" id="L80">        ValidateUtils.validate(config);</span>
 
         // -----------------------------------------------------------------------------------------
         // Facade呼出し
         // -----------------------------------------------------------------------------------------
-<span class="fc" id="L81">        final List&lt;String&gt; paramList = option.getParamList();</span>
-<span class="fc" id="L82">        return executeFacade(paramList, config);</span>
+<span class="fc" id="L85">        final List&lt;String&gt; paramList = option.getParamList();</span>
+<span class="fc" id="L86">        return executeFacade(paramList, config);</span>
     }
 
     /**
@@ -100,14 +104,14 @@ import com.beust.jcommander.JCommander;
         // --------------------------------------------------
         // レイアウト設定の読み込み
         // --------------------------------------------------
-<span class="fc" id="L103">        final FileLayoutManager layoutManager = FileLayoutManager.getInstance();</span>
-<span class="fc" id="L104">        final String overwriteLayoutDirs = config.getOverwriteLayoutDir();</span>
-<span class="pc bpc" id="L105" title="1 of 2 branches missed.">        if (!StringUtils.isEmpty(overwriteLayoutDirs)) {</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            for (final String curDir : overwriteLayoutDirs.split(&quot;,&quot;)) {</span>
-<span class="nc" id="L107">                layoutManager.addLayoutDir(curDir.trim());</span>
+<span class="fc" id="L107">        final FileLayoutManager layoutManager = FileLayoutManager.getInstance();</span>
+<span class="fc" id="L108">        final String overwriteLayoutDirs = config.getOverwriteLayoutDir();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">        if (!StringUtils.isEmpty(overwriteLayoutDirs)) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            for (final String curDir : overwriteLayoutDirs.split(&quot;,&quot;)) {</span>
+<span class="nc" id="L111">                layoutManager.addLayoutDir(curDir.trim());</span>
             }
         }
-<span class="fc" id="L110">    }</span>
+<span class="fc" id="L114">    }</span>
 
     /**
      * アプリケーション層の処理を呼び出します。
@@ -125,21 +129,24 @@ import com.beust.jcommander.JCommander;
      * @param processStatus アプリケーション層の処理結果
      */
     protected static void exitScript(final ProcessStatus processStatus) {
-<span class="nc bnc" id="L128" title="All 3 branches missed.">        switch (processStatus) {</span>
+<span class="nc bnc" id="L132" title="All 3 branches missed.">        switch (processStatus) {</span>
             case Success:
-<span class="nc" id="L130">                System.exit(Const.EXITCODE_SUCCESS);</span>
-<span class="nc" id="L131">                break;</span>
+<span class="nc" id="L134">                log.info(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_EXIT_SUCCESS));</span>
+<span class="nc" id="L135">                System.exit(Const.EXITCODE_SUCCESS);</span>
+<span class="nc" id="L136">                break;</span>
 
             case Warning:
-<span class="nc" id="L134">                System.exit(Const.EXITCODE_WARN);</span>
-<span class="nc" id="L135">                break;</span>
+<span class="nc" id="L139">                log.warn(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_EXIT_WARN));</span>
+<span class="nc" id="L140">                System.exit(Const.EXITCODE_WARN);</span>
+<span class="nc" id="L141">                break;</span>
 
             case Failure:
             default:
-<span class="nc" id="L139">                System.exit(Const.EXITCODE_ERROR);</span>
+<span class="nc" id="L145">                log.error(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_EXIT_FAIL));</span>
+<span class="nc" id="L146">                System.exit(Const.EXITCODE_ERROR);</span>
                 break;
         }
 
-<span class="nc" id="L143">    }</span>
+<span class="nc" id="L150">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

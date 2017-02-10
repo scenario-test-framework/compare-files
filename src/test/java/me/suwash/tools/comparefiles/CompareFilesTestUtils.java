@@ -66,7 +66,6 @@ public class CompareFilesTestUtils {
 
         // 行比較結果リスト群を一括比較
         TestUtils.assertFilesEquals(dirExpect, dirActual, Const.CHARSET_DEFAULT_CONFIG);
-        log.warn("▲ここまで");
 
         List<String[]> expectLineList = CsvUtils.parseFile(expectSummaryFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, CsvUtils.getCsvConfig());
         List<String[]> actualLineList = CsvUtils.parseFile(actualSummaryFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, CsvUtils.getCsvConfig());
@@ -112,6 +111,7 @@ public class CompareFilesTestUtils {
         }
         FileUtils.rmdirs(dirActualTemp);
         FileUtils.rmdirs(dirExpectTemp);
+        log.warn("▲ここまで");
 
         if (failMsgBuilder.length() > 0) {
             fail(summaryFileName + " で差分を検出しました。\n" + failMsgBuilder.toString());

@@ -181,7 +181,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter<TextFileRow
                 // 単一レコードタイプの場合、出力行から項目名を設定
                 for (final TextFileItemCompareResult item : result.getItemList()) {
                     final RecordType recordType = result.getRecordType();
-                    final String columnName = getDynamicColumnName(fileLayout, recordType, item.getName());
+                    final String columnName = getDynamicColumnId(fileLayout, recordType, item.getId());
                     headerMap.put(columnName, columnName);
                 }
             } else {
@@ -189,7 +189,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter<TextFileRow
                 for (final RecordLayout recordLayout : fileLayout.getRecordList()) {
                     for (final ItemLayout itemLayout : recordLayout.getItemList()) {
                         final RecordType recordType = recordLayout.getType();
-                        final String columnName = getDynamicColumnName(fileLayout, recordType, itemLayout.getName());
+                        final String columnName = getDynamicColumnId(fileLayout, recordType, itemLayout.getId());
                         headerMap.put(columnName, columnName);
                     }
                 }
@@ -221,7 +221,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter<TextFileRow
 
             // 差分項目名リスト
             if (CompareStatus.NG.equals(status)) {
-                map.put(COLUMN_NAME_DIFFITEMS, result.getDiffItemNameList().toString());
+                map.put(COLUMN_NAME_DIFFITEMS, result.getDiffItemIdList().toString());
             } else {
                 map.put(COLUMN_NAME_DIFFITEMS, Const.DUMMY_VALUE);
             }
@@ -232,7 +232,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter<TextFileRow
             final FileLayout fileLayout = result.getFileLayout();
             final RecordType recordType = result.getRecordType();
             for (final TextFileItemCompareResult item : result.getItemList()) {
-                final String columnName = getDynamicColumnName(fileLayout, recordType, item.getName());
+                final String columnName = getDynamicColumnId(fileLayout, recordType, item.getId());
                 switch (item.getStatus()) {
                     case OK:
                         map.put(columnName, item.getLeftValue());
@@ -257,15 +257,15 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter<TextFileRow
          *
          * @param fileLayout ファイルレイアウト
          * @param recordType レコードタイプ
-         * @param itemName 項目名
+         * @param itemId 項目ID
          * @return カラム名
          */
-        private static String getDynamicColumnName(final FileLayout fileLayout, final RecordType recordType, final String itemName) {
+        private static String getDynamicColumnId(final FileLayout fileLayout, final RecordType recordType, final String itemId) {
             String columnName = null;
             if (fileLayout == null || fileLayout.getRecordList().size() <= 1) {
-                columnName = itemName;
+                columnName = itemId;
             } else {
-                columnName = recordType.name() + "." + itemName;
+                columnName = recordType.name() + "." + itemId;
             }
             return columnName;
         }

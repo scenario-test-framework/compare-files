@@ -21,7 +21,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  * ファイルレイアウト設定。
  */
 @Getter
-<span class="pc" id="L24">@Setter</span>
+<span class="fc" id="L24">@Setter</span>
 <span class="fc" id="L25">public class FileLayout {</span>
 
     private static final int LIST_SIZE_DATA_ONLY = 1;
@@ -54,51 +54,15 @@ import org.hibernate.validator.constraints.NotEmpty;
 <span class="fc" id="L54">    private List&lt;Rectangle&gt; ignoreAreaList;</span>
 
     /**
-     * テキストファイルのデフォルトファイルレイアウトを返します。
-     * &lt;pre&gt;
-     * 論理名　　　：-
-     * ファイル形式：テキスト形式
-     * 文字コード　：UTF8
-     * 改行コード　：システム
-     * &lt;/pre&gt;
-     *
-     * @return デフォルトのファイルレイアウト。
-     */
-    public static FileLayout getDefaultLayout() {
-<span class="fc" id="L68">        final FileLayout layout = new FileLayout();</span>
-<span class="fc" id="L69">        layout.setLogicalFileName(Const.DUMMY_VALUE);</span>
-<span class="fc" id="L70">        layout.setFileFormat(FileFormat.Text);</span>
-<span class="fc" id="L71">        layout.setCharset(Const.CHARSET_DEFAULT_CONFIG);</span>
-<span class="fc" id="L72">        layout.setLineSp(null);</span>
-<span class="fc" id="L73">        return layout;</span>
-    }
-
-    /**
-     * 画像ファイルのデフォルトファイルレイアウトを返します。
-     * &lt;pre&gt;
-     * 論理名　　　：Image
-     * ファイル形式：画像形式
-     * &lt;/pre&gt;
-     *
-     * @return デフォルトのファイルレイアウト。
-     */
-    public static FileLayout getDefaultImageLayout() {
-<span class="fc" id="L86">        final FileLayout layout = new FileLayout();</span>
-<span class="fc" id="L87">        layout.setLogicalFileName(FileFormat.Image.name());</span>
-<span class="fc" id="L88">        layout.setFileFormat(FileFormat.Image);</span>
-<span class="fc" id="L89">        return layout;</span>
-    }
-
-    /**
      * レコードレイアウト1件目のバイト長を返します。
      *
      * @return レコードレイアウト1件目のバイト長
      */
     public int getFirstRecordByteLength() {
-<span class="pc bpc" id="L98" title="1 of 4 branches missed.">        if (recordList == null || recordList.isEmpty()) {</span>
-<span class="fc" id="L99">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;recordList&quot;});</span>
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">        if (recordList == null || recordList.isEmpty()) {</span>
+<span class="fc" id="L63">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;recordList&quot;});</span>
         }
-<span class="fc" id="L101">        return recordList.get(0).getByteLength();</span>
+<span class="fc" id="L65">        return recordList.get(0).getByteLength();</span>
     }
 
     /**
@@ -107,32 +71,32 @@ import org.hibernate.validator.constraints.NotEmpty;
      * @return レコードパターン
      */
     public RecordPattern getRecordPattern() {
-<span class="pc bpc" id="L110" title="1 of 4 branches missed.">        if (recordList == null || recordList.isEmpty()) {</span>
+<span class="pc bpc" id="L74" title="1 of 4 branches missed.">        if (recordList == null || recordList.isEmpty()) {</span>
             // ファイルレイアウトが設定されていない場合
-<span class="fc" id="L112">            return RecordPattern.None;</span>
+<span class="fc" id="L76">            return RecordPattern.None;</span>
 
-<span class="pc bpc" id="L114" title="1 of 4 branches missed.">        } else if (recordList.size() == LIST_SIZE_DATA_ONLY &amp;&amp; RecordType.Data.equals(recordList.get(0).getType())) {</span>
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">        } else if (recordList.size() == LIST_SIZE_DATA_ONLY &amp;&amp; RecordType.Data.equals(recordList.get(0).getType())) {</span>
             // データレコードのみ定義されている場合
-<span class="fc" id="L116">            return RecordPattern.DataOnly;</span>
+<span class="fc" id="L80">            return RecordPattern.DataOnly;</span>
 
-<span class="fc bfc" id="L118" title="All 2 branches covered.">        } else if (recordList.size() == LIST_SIZE_HEADER_DATA) {</span>
-<span class="fc" id="L119">            boolean hasHeader = false;</span>
-<span class="fc" id="L120">            boolean hasData = false;</span>
-<span class="fc bfc" id="L121" title="All 2 branches covered.">            for (final RecordLayout curRecordLayout : recordList) {</span>
-<span class="fc bfc" id="L122" title="All 2 branches covered.">                if (RecordType.Header.equals(curRecordLayout.getType())) {</span>
-<span class="fc" id="L123">                    hasHeader = true;</span>
-<span class="pc bpc" id="L124" title="1 of 2 branches missed.">                } else if (RecordType.Data.equals(curRecordLayout.getType())) {</span>
-<span class="fc" id="L125">                    hasData = true;</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        } else if (recordList.size() == LIST_SIZE_HEADER_DATA) {</span>
+<span class="fc" id="L83">            boolean hasHeader = false;</span>
+<span class="fc" id="L84">            boolean hasData = false;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            for (final RecordLayout curRecordLayout : recordList) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (RecordType.Header.equals(curRecordLayout.getType())) {</span>
+<span class="fc" id="L87">                    hasHeader = true;</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                } else if (RecordType.Data.equals(curRecordLayout.getType())) {</span>
+<span class="fc" id="L89">                    hasData = true;</span>
                 }
-<span class="fc" id="L127">            }</span>
-<span class="pc bpc" id="L128" title="2 of 4 branches missed.">            if (hasHeader &amp;&amp; hasData) {</span>
+<span class="fc" id="L91">            }</span>
+<span class="pc bpc" id="L92" title="2 of 4 branches missed.">            if (hasHeader &amp;&amp; hasData) {</span>
                 // ヘッダー/データレコードが定義されている場合
-<span class="fc" id="L130">                return RecordPattern.HeaderData;</span>
+<span class="fc" id="L94">                return RecordPattern.HeaderData;</span>
             }
         }
 
         // その他の場合
-<span class="fc" id="L135">        return RecordPattern.Multi;</span>
+<span class="fc" id="L99">        return RecordPattern.Multi;</span>
     }
 
 }

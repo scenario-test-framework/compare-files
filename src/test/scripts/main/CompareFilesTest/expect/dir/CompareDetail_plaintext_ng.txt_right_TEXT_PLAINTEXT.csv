@@ -1,0 +1,6 @@
+"Status","RowNum","DiffItems","value"
+"NG","期待値:1
+実績値:1","[value]","期待値:this is diff file.
+実績値:this is DIFF file."
+"OK","期待値:2
+実績値:2","-","1行を1項目として比較します。"

@@ -1,6 +1,8 @@
 package me.suwash.tools.comparefiles.infra.config;
 
+import java.awt.Rectangle;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -8,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.classification.FileFormat;
 import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
 import me.suwash.util.CompareUtils.CompareCriteria;
 import me.suwash.util.FileUtils;
@@ -184,7 +187,7 @@ public final class FileLayoutManager {
         // systemConfigの存在確認
         if (systemConfig != null) {
             // 指定されている場合、返却用レイアウト定義に除外項目を適用
-            updateIgnore(systemConfig, returnLayout);
+            FileLayoutManager.updateIgnore(systemConfig, returnLayout);
         }
 
         // 除外項目適用後の返却用レイアウト定義を返却
@@ -197,20 +200,34 @@ public final class FileLayoutManager {
      * @param systemConfig システム設定
      * @param fileLayout ファイルレイアウト
      */
-    private void updateIgnore(final CompareFilesConfig systemConfig, final FileLayout fileLayout) {
-        // 除外項目リストを取得
-        final List<String> ignoreItemList = systemConfig.getIgnoreItemList();
-        if (ignoreItemList == null) {
-            // 設定されていない場合、更新せずに終了
-            return;
-        }
+    private static void updateIgnore(final CompareFilesConfig systemConfig, final FileLayout fileLayout) {
+        final FileFormat fileFormat = fileLayout.getFileFormat();
+        if (FileFormat.Image.equals(fileFormat)) {
+            // 画像比較の場合、システム設定の除外エリアをマージ
+            final List<Rectangle> mergedIgnoreAreaList = new ArrayList<Rectangle>();
+            if (fileLayout.getIgnoreAreaList() != null) {
+                mergedIgnoreAreaList.addAll(fileLayout.getIgnoreAreaList());
+            }
+            if (systemConfig.getIgnoreAreaList() != null) {
+                mergedIgnoreAreaList.addAll(systemConfig.getIgnoreAreaList());
+            }
+            fileLayout.setIgnoreAreaList(mergedIgnoreAreaList);
 
-        // 返却用レイアウト定義の項目を全件ループ
-        for (final RecordLayout curRecordLayout : fileLayout.getRecordList()) {
-            for (final ItemLayout curItemLayout : curRecordLayout.getItemList()) {
-                // 一致する場合、criteriaを除外に設定
-                if (isIgnoreItem(ignoreItemList, curItemLayout)) {
-                    curItemLayout.setCriteria(CompareCriteria.Ignore);
+        } else {
+            // 除外項目リストを取得
+            final List<String> ignoreItemList = systemConfig.getIgnoreItemList();
+            if (ignoreItemList == null) {
+                // 設定されていない場合、更新せずに終了
+                return;
+            }
+
+            // 返却用レイアウト定義の項目を全件ループ
+            for (final RecordLayout curRecordLayout : fileLayout.getRecordList()) {
+                for (final ItemLayout curItemLayout : curRecordLayout.getItemList()) {
+                    // 一致する場合、criteriaを除外に設定
+                    if (FileLayoutManager.isIgnoreItem(ignoreItemList, curItemLayout)) {
+                        curItemLayout.setCriteria(CompareCriteria.Ignore);
+                    }
                 }
             }
         }
@@ -223,7 +240,7 @@ public final class FileLayoutManager {
      * @param itemLayout 対象項目レイアウト
      * @return 除外対象の場合、true
      */
-    private boolean isIgnoreItem(final List<String> ignoreItemList, final ItemLayout itemLayout) {
+    private static boolean isIgnoreItem(final List<String> ignoreItemList, final ItemLayout itemLayout) {
         boolean isIgnore = false;
         // 除外項目リストをループ
         for (final String ignoreItemName : ignoreItemList) {
@@ -234,6 +251,45 @@ public final class FileLayoutManager {
             }
         }
         return isIgnore;
+    }
+
+    /**
+     * テキストファイルのデフォルトファイルレイアウトを返します。
+     * <pre>
+     * 論理名　　　：-
+     * ファイル形式：テキスト形式
+     * 文字コード　：UTF8
+     * 改行コード　：システム
+     * </pre>
+     *
+     * @return デフォルトのファイルレイアウト。
+     */
+    public static FileLayout getDefaultTextLayout() {
+        final FileLayout layout = new FileLayout();
+        layout.setLogicalFileName(Const.DUMMY_VALUE);
+        layout.setFileFormat(FileFormat.Text);
+        layout.setCharset(Const.CHARSET_DEFAULT_CONFIG);
+        layout.setLineSp(null);
+        return layout;
+    }
+
+    /**
+     * 画像ファイルのデフォルトファイルレイアウトを返します。
+     * <pre>
+     * 論理名　　　：Image
+     * ファイル形式：画像形式
+     * 除外エリア　：システム設定を引き継ぐ
+     * </pre>
+     *
+     * @param systemConfig システム設定
+     * @return デフォルトのファイルレイアウト。
+     */
+    public static FileLayout getDefaultImageLayout(final CompareFilesConfig systemConfig) {
+        final FileLayout layout = new FileLayout();
+        layout.setLogicalFileName(Const.DUMMY_VALUE);
+        layout.setFileFormat(FileFormat.Image);
+        FileLayoutManager.updateIgnore(systemConfig, layout);
+        return layout;
     }
 
 }

@@ -1,0 +1,163 @@
+{
+  "layoutList": [
+    {
+      "logicalFileName":  "ヘッダーありCSVサンプル",
+      "fileRegexPattern": "csv_with-header.*\\.csv",
+      "fileFormat":       "CSV_withHeader",
+      "charset":          "utf8",
+      "lineSp":           "LF",
+      "recordList": [
+        {
+          "type": "Data", "codeValue": "-", "itemList": [
+            { "id": "KEY1",             "name": "キー1",    "byteLength": 3,   "criteria": "Equal", "compareKey": "true" },
+            { "id": "KEY2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal", "compareKey": "true" },
+            { "id": "AMOUNT",           "name": "金額",     "byteLength": 100, "criteria": "Equal", "compareKey": "false" },
+            { "id": "NUMBER",           "name": "連番",     "byteLength": 20,  "criteria": "Equal", "compareKey": "false" },
+            { "id": "LAST_UPDATE_TIME", "name": "更新時刻", "byteLength": 19,  "criteria": "Equal", "compareKey": "false" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "logicalFileName":  "マルチレコードタイプCSVサンプル",
+      "fileRegexPattern": "csv_multi-record-type.*\\.csv",
+      "fileFormat":       "CSV_noHeader",
+      "charset":          "utf8",
+      "lineSp":           "LF",
+      "recordList": [
+        {
+          "type": "Header", "codeValue": "0", "itemList": [
+            { "id": "RECORD_TYPE", "name": "レコードタイプ",     "byteLength": 1,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "DATA_COUNT",  "name": "データレコード件数", "byteLength": 10, "criteria": "Equal", "compareKey": "false" }
+          ]
+        },
+        {
+          "type": "Data", "codeValue": "1", "itemList": [
+            { "id": "RECORD_TYPE",  "name": "レコードタイプ", "byteLength": 1,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "KEY1",         "name": "キー1",          "byteLength": 3,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "KEY2",         "name": "キー2",          "byteLength": 3,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "AMOUNT",       "name": "金額",           "byteLength": 10, "criteria": "Equal", "compareKey": "false" }
+          ]
+        },
+        {
+          "type": "Trailer", "codeValue": "2", "itemList": [
+            { "id": "RECORD_TYPE", "name": "レコードタイプ", "byteLength": 1,   "criteria": "Equal", "compareKey": "true" },
+            { "id": "SUM_AMOUNT",  "name": "合計金額",       "byteLength": 12,  "criteria": "Equal", "compareKey": "false" },
+            { "id": "AVE_AMOUNT",  "name": "平均金額",       "byteLength": 10,  "criteria": "Equal", "compareKey": "false" },
+            { "id": "MIN_AMOUNT",  "name": "最少金額",       "byteLength": 10,  "criteria": "Equal", "compareKey": "false" },
+            { "id": "MAX_AMOUNT",  "name": "最大金額",       "byteLength": 10,  "criteria": "Equal", "compareKey": "false" }
+          ]
+        },
+        {
+          "type": "End", "codeValue": "9", "itemList": [
+            { "id": "RECORD_TYPE", "name": "レコードタイプ", "byteLength": 1, "criteria": "Equal", "compareKey": "true" },
+            { "id": "STATUS",      "name": "処理ステータス", "byteLength": 1, "criteria": "Equal", "compareKey": "false" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "logicalFileName":  "ヘッダーありTSVサンプル",
+      "fileRegexPattern": "tsv_.*\\.tsv",
+      "fileFormat":       "TSV_withHeader",
+      "charset":          "utf8",
+      "lineSp":           "LF",
+      "recordList": [
+        {
+          "type": "Data", "codeValue": "-", "itemList": [
+            { "id": "KEY1",             "name": "キー1",    "byteLength": 3,   "criteria": "Equal", "compareKey": "true" },
+            { "id": "KEY2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal", "compareKey": "true" },
+            { "id": "AMOUNT",           "name": "金額",     "byteLength": 100, "criteria": "Equal", "compareKey": "false" },
+            { "id": "NUMBER",           "name": "連番",     "byteLength": 20,  "criteria": "Equal", "compareKey": "false" },
+            { "id": "LAST_UPDATE_TIME", "name": "更新時刻", "byteLength": 19,  "criteria": "Equal", "compareKey": "false" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "logicalFileName":  "固定長テキストサンプル",
+      "fileRegexPattern": "fixed_multi-record-type.*\\.txt",
+      "fileFormat":       "Fixed",
+      "charset":          "utf8",
+      "lineSp":           "LF",
+      "recordList": [
+        {
+          "type": "Header", "codeValue": "0", "itemList": [
+            { "id": "RECORD_TYPE", "name": "レコードタイプ",     "byteLength": 1,  "criteria": "Equal", "compareKey": "true"  },
+            { "id": "DATA_COUNT",  "name": "データレコード件数", "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
+            { "id": "BLANK",       "name": "予備",               "byteLength": 39, "criteria": "Equal", "compareKey": "false" }
+          ]
+        },
+        {
+          "type": "Data", "codeValue": "1", "itemList": [
+            { "id": "RECORD_TYPE",  "name": "レコードタイプ", "byteLength": 1,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "KEY1",         "name": "キー1",          "byteLength": 3,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "KEY2",         "name": "キー2",          "byteLength": 3,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "AMOUNT",       "name": "金額",           "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
+            { "id": "BLANK",        "name": "予備",           "byteLength": 33, "criteria": "Equal", "compareKey": "false" }
+          ]
+        },
+        {
+          "type": "Trailer", "codeValue": "2", "itemList": [
+            { "id": "RECORD_TYPE", "name": "レコードタイプ", "byteLength": 1,  "criteria": "Equal", "compareKey": "true" },
+            { "id": "SUM_AMOUNT", "name": "合計金額",        "byteLength": 14, "criteria": "Equal", "compareKey": "false" },
+            { "id": "AVE_AMOUNT", "name": "平均金額",        "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
+            { "id": "MIN_AMOUNT", "name": "最少金額",        "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
+            { "id": "MAX_AMOUNT", "name": "最大金額",        "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
+            { "id": "BLANK",      "name": "予備",            "byteLength": 5,  "criteria": "Equal", "compareKey": "false" }
+          ]
+        },
+        {
+          "type": "End", "codeValue": "9", "itemList": [
+            { "id": "RECORD_TYPE", "name": "レコードタイプ", "byteLength": 1,   "criteria": "Equal", "compareKey": "true" },
+            { "id": "STATUS",      "name": "処理ステータス", "byteLength": 1,   "criteria": "Equal", "compareKey": "false" },
+            { "id": "BLANK",       "name": "予備",           "byteLength": 48,  "criteria": "Equal", "compareKey": "false" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "logicalFileName":  "JsonListサンプル",
+      "fileRegexPattern": "jsonlist_.*\\.json",
+      "fileFormat":       "JsonList",
+      "charset":          "utf8",
+      "lineSp":           "LF",
+      "recordList": [
+        {
+          "type": "Data", "codeValue": "-", "itemList": [
+            { "id": "keyObj.key1",             "name": "キー1",    "byteLength": 3,   "criteria": "Equal",                         "compareKey": "true" },
+            { "id": "keyObj.key2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal",                         "compareKey": "true" },
+            { "id": "valueObj.amount",         "name": "金額",     "byteLength": 100, "criteria": "Equal",                         "compareKey": "false" },
+            { "id": "valueObj.number",         "name": "連番",     "byteLength": 20,  "criteria": "Equal",                         "compareKey": "false" },
+            { "id": "valueObj.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Datetime_GraterEqualThan_Left", "compareKey": "false" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "logicalFileName": "Jsonサンプル",
+      "fileRegexPattern": "json_.*\\.json",
+      "fileFormat": "Json",
+      "charset": "utf8",
+      "lineSp": "LF",
+      "recordList": [
+        {
+          "type": "Data", "codeValue": "-", "itemList": [
+            { "id": "keyObj.key1",                      "name": "キー1",    "byteLength": 3,   "criteria": "Equal",  "compareKey": "true" },
+            { "id": "keyObj.key2",                      "name": "キー2",    "byteLength": 3,   "criteria": "Equal",  "compareKey": "true" },
+            { "id": "valueList.content.month",          "name": "対象月",   "byteLength": 6,   "criteria": "Equal",  "compareKey": "false" },
+            { "id": "valueList.content.amount",         "name": "金額",     "byteLength": 100, "criteria": "Equal",  "compareKey": "false" },
+            { "id": "valueList.content.number",         "name": "連番",     "byteLength": 20,  "criteria": "Equal",  "compareKey": "false" },
+            { "id": "valueList.content.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Ignore", "compareKey": "false" }
+          ]
+        }
+      ]
+    }
+
+  ]
+}

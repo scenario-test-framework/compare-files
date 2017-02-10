@@ -352,17 +352,17 @@ public class TextFileCompareResult extends FileCompareResult {
 
             // どちらもEOFに到達していない場合、キーを比較
 <span class="fc" id="L354">            final int keyCompareResult = leftCurRow.compareTo(rightCurRow);</span>
-<span class="pc bpc" id="L355" title="1 of 2 branches missed.">            if (keyCompareResult &lt; 0) {</span>
+<span class="fc bfc" id="L355" title="All 2 branches covered.">            if (keyCompareResult &lt; 0) {</span>
                 // --------------------------------------------------
                 // 左キーの方が小さい場合
                 // --------------------------------------------------
-<span class="nc" id="L359">                log.trace(&quot;  ・[LEFT ]Only&quot;);</span>
+<span class="fc" id="L359">                log.trace(&quot;  ・[LEFT ]Only&quot;);</span>
                 // 比較結果：左のみ
-<span class="nc" id="L361">                addFixedRowResult(fileLayout, rowResultRepo, CompareStatus.LeftOnly, leftCurRow, null);</span>
+<span class="fc" id="L361">                addFixedRowResult(fileLayout, rowResultRepo, CompareStatus.LeftOnly, leftCurRow, null);</span>
                 // 左ファイル データ読込み
-<span class="nc" id="L363">                leftCurRow = leftRepo.next();</span>
+<span class="fc" id="L363">                leftCurRow = leftRepo.next();</span>
                 // 次の比較へ
-<span class="nc" id="L365">                continue;</span>
+<span class="fc" id="L365">                continue;</span>
 
 <span class="fc bfc" id="L367" title="All 2 branches covered.">            } else if (keyCompareResult &gt; 0) {</span>
                 // --------------------------------------------------
@@ -503,7 +503,7 @@ public class TextFileCompareResult extends FileCompareResult {
     private void updateRowSummaryFields(final CompareStatus rowStatus) {
 <span class="fc" id="L504">        rowCount++;</span>
 
-<span class="pc bpc" id="L506" title="3 of 6 branches missed.">        switch (rowStatus) {</span>
+<span class="pc bpc" id="L506" title="2 of 6 branches missed.">        switch (rowStatus) {</span>
             case OK:
 <span class="fc" id="L508">                okRowCount++;</span>
 <span class="fc" id="L509">                break;</span>
@@ -514,8 +514,8 @@ public class TextFileCompareResult extends FileCompareResult {
 <span class="nc" id="L514">                ignoreRowCount++;</span>
 <span class="nc" id="L515">                break;</span>
             case LeftOnly:
-<span class="nc" id="L517">                leftOnlyRowCount++;</span>
-<span class="nc" id="L518">                break;</span>
+<span class="fc" id="L517">                leftOnlyRowCount++;</span>
+<span class="fc" id="L518">                break;</span>
             case RightOnly:
 <span class="fc" id="L520">                rightOnlyRowCount++;</span>
 <span class="fc" id="L521">                break;</span>
