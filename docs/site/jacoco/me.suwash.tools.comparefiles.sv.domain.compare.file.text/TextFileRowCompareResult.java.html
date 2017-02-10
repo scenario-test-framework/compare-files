@@ -72,17 +72,17 @@ public class TextFileRowCompareResult {
 
         // 行番号判定
 <span class="fc" id="L74">        long leftRowNum = -1;</span>
-<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (leftRow != null) {</span>
-<span class="nc" id="L76">            leftRowNum = leftRow.getRowNum();</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (leftRow != null) {</span>
+<span class="fc" id="L76">            leftRowNum = leftRow.getRowNum();</span>
         }
 <span class="fc" id="L78">        long rightRowNum = -1;</span>
-<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (rightRow != null) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (rightRow != null) {</span>
 <span class="fc" id="L80">            rightRowNum = rightRow.getRowNum();</span>
         }
 
         // 結果に登録する行データを判定
 <span class="fc" id="L84">        ComparableRow curRow = leftRow;</span>
-<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (!CompareStatus.LeftOnly.equals(status)) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (!CompareStatus.LeftOnly.equals(status)) {</span>
 <span class="fc" id="L86">            curRow = rightRow;</span>
         }
 
@@ -173,8 +173,8 @@ public class TextFileRowCompareResult {
 <span class="fc" id="L173">            value = itemValue.toString();</span>
         }
 
-<span class="pc bpc" id="L176" title="1 of 2 branches missed.">        if (CompareStatus.LeftOnly.equals(status)) {</span>
-<span class="nc" id="L177">            item = TextFileItemCompareResult.getFixedResult(itemId, value, null, null, status);</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        if (CompareStatus.LeftOnly.equals(status)) {</span>
+<span class="fc" id="L177">            item = TextFileItemCompareResult.getFixedResult(itemId, value, null, null, status);</span>
         } else {
 <span class="fc" id="L179">            item = TextFileItemCompareResult.getFixedResult(itemId, null, value, null, status);</span>
         }
@@ -282,15 +282,15 @@ public class TextFileRowCompareResult {
     }
 
     /**
-     * 差分を検出した項目名のリストを返します。
+     * 差分を検出した項目IDのリストを返します。
      *
      * @return 差分を検出した項目名のリスト
      */
-    public List&lt;String&gt; getDiffItemNameList() {
+    public List&lt;String&gt; getDiffItemIdList() {
 <span class="fc" id="L290">        final List&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
 <span class="fc bfc" id="L291" title="All 2 branches covered.">        for (final TextFileItemCompareResult item : itemList) {</span>
 <span class="fc bfc" id="L292" title="All 4 branches covered.">            if (!CompareStatus.OK.equals(item.getStatus()) &amp;&amp; !CompareStatus.Ignore.equals(item.getStatus())) {</span>
-<span class="fc" id="L293">                list.add(item.getName());</span>
+<span class="fc" id="L293">                list.add(item.getId());</span>
             }
 <span class="fc" id="L295">        }</span>
 <span class="fc" id="L296">        return list;</span>

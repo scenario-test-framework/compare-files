@@ -1,0 +1,20 @@
+#左ディレクトリ,右ディレクトリ,ファイル名正規表現
+#
+# #で始まる行はコメントです。
+#
+# ファイル名に、タイムスタンプが含まれる場合を想定しています。
+sample/left/TEXT_CSV,sample/right/TEXT_CSV,csv_with-header_\d{14}.csv
+#
+# ファイル名に、連番が含まれる場合を想定しています。
+sample/left/TEXT_FIXED,sample/right/TEXT_FIXED,fixed_multi-record-type_\d{4}.txt
+#
+# 固定のファイル名でも利用できます。
+sample/left/TEXT_JSONLIST,sample/right/TEXT_JSONLIST,jsonlist_ng.json
+#
+# 存在しないファイルの場合
+sample/left,sample/right,not_exist.txt
+#
+# 存在しないディレクトリの場合
+path/to/not_exist,sample/right/TEXT_JSONLIST,jsonlist_ng.json
+sample/left/TEXT_JSONLIST,path/to/not_exist,jsonlist_ng.json
+path/to/not_exist/left,path/to/not_exist/right,jsonlist_ng.json

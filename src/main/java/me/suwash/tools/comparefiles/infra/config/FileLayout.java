@@ -54,42 +54,6 @@ public class FileLayout {
     private List<Rectangle> ignoreAreaList;
 
     /**
-     * テキストファイルのデフォルトファイルレイアウトを返します。
-     * <pre>
-     * 論理名　　　：-
-     * ファイル形式：テキスト形式
-     * 文字コード　：UTF8
-     * 改行コード　：システム
-     * </pre>
-     *
-     * @return デフォルトのファイルレイアウト。
-     */
-    public static FileLayout getDefaultLayout() {
-        final FileLayout layout = new FileLayout();
-        layout.setLogicalFileName(Const.DUMMY_VALUE);
-        layout.setFileFormat(FileFormat.Text);
-        layout.setCharset(Const.CHARSET_DEFAULT_CONFIG);
-        layout.setLineSp(null);
-        return layout;
-    }
-
-    /**
-     * 画像ファイルのデフォルトファイルレイアウトを返します。
-     * <pre>
-     * 論理名　　　：Image
-     * ファイル形式：画像形式
-     * </pre>
-     *
-     * @return デフォルトのファイルレイアウト。
-     */
-    public static FileLayout getDefaultImageLayout() {
-        final FileLayout layout = new FileLayout();
-        layout.setLogicalFileName(FileFormat.Image.name());
-        layout.setFileFormat(FileFormat.Image);
-        return layout;
-    }
-
-    /**
      * レコードレイアウト1件目のバイト長を返します。
      *
      * @return レコードレイアウト1件目のバイト長

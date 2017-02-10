@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>logfilter</title>
+		<title>compare files</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
@@ -63,14 +63,14 @@
 					<section class="box special features">
 						<div class="features-row">
 							<section>
-								<span class="icon major fa-warning accent3"></span>
+								<span class="icon major fa-search accent3"></span>
 								<h3>比較キーでの対象行選択</h3>
 								<p>
 									比較時のキー項目を設定して、ソート順の異なるファイルから、対象行を探して比較できます。
 								</p>
 							</section>
 							<section>
-								<span class="icon major fa-bars accent4"></span>
+								<span class="icon major fa-gear accent4"></span>
 								<h3>比較条件</h3>
 								<p>
 									比較結果をOKと判断する条件は、項目単位に、文字列の完全一致・不一致、数値・時刻の大小比較、除外などを設定できます。
@@ -79,14 +79,14 @@
 						</div>
 						<div class="features-row">
 							<section>
-								<span class="icon major fa-gear accent5"></span>
+								<span class="icon major fa-bars accent5"></span>
 								<h3>項目単位の差分出力</h3>
 								<p>
 									比較結果は、レイアウトに従ったCSV形式です。各セルには比較結果がOKの場合「左の値」、NGの場合「左右の値を並べて」出力します。
 								</p>
 							</section>
 							<section>
-								<span class="icon major fa-clock-o accent2"></span>
+								<span class="icon major fa-file-text-o accent2"></span>
 								<h3>対応ファイル形式</h3>
 								<p>
 									Json / JsonList / ヘッダーあり・なしのCSV・TSV / 固定長テキスト / PlainText 形式に対応しています。
@@ -117,7 +117,7 @@
 								</p>
 							</section>
 							<section>
-								<span class="icon major fa-clock-o accent2"></span>
+								<span class="icon major fa-location-arrow accent2"></span>
 								<h3>差分のマーカー出力</h3>
 								<p>
 									比較結果は、2枚の画像を並べた画像です。比較結果がOKの場合「比較除外エリアをマスクした画像」、NGの場合「差分エリアをマーキングした画像」を出力します。
@@ -126,14 +126,14 @@
 						</div>
 						<div class="features-row">
 							<section>
-								<span class="icon major fa-bars accent4"></span>
+								<span class="icon major fa-gear accent4"></span>
 								<h3>結果ファイルのスタイル設定</h3>
 								<p>
 									結果ファイルのラベル文言、フォントサイズ、配色などを指定できます。
 								</p>
 							</section>
 							<section>
-								<span class="icon major fa-gear accent5"></span>
+								<span class="icon major fa-file-image-o accent5"></span>
 								<h3>対応フォーマット</h3>
 								<p>
 									jpeg / png / gif / bmp / wbmp 形式に対応しています。
@@ -150,7 +150,7 @@
 								<h3>ディレクトリ比較</h3>
 								<p>
 									構成が同じ2つのディレクトリを再帰的に比較できます。
-									ファイル名、拡張子から、比較レイアウトを判断して、テキストファイル比較・画像ファイル比較を自動判断します。
+									ファイル名、拡張子から、比較レイアウトを判断して、テキストファイル比較・画像ファイル比較を自動で切り替えます。
 									結果は、比較対象のファイル単位以外に、一括比較結果の一覧が出力されます。
 								</p>
 								<ul class="actions">
@@ -166,7 +166,7 @@
 								<h3>正規表現での指定比較</h3>
 								<p>
 									タイムスタンプが含まれる場合など、可変のファイル名の比較ができます。
-									ファイル名、拡張子から、比較レイアウトを判断して、テキストファイル比較・画像ファイル比較を自動判断します。
+									ファイル名、拡張子から、比較レイアウトを判断して、テキストファイル比較・画像ファイル比較を自動で切り替えます。
 									結果は、比較対象のファイル単位以外に、一括比較結果の一覧が出力されます。
 								</p>
 								<ul class="actions">
@@ -195,7 +195,7 @@
 								<h2>Getting Started</h2>
 
 								<h3>デプロイ</h3>
-								<p>解凍して、権限を付与すればすぐに利用できます。</p>
+								<p>配布アーカイブを展開して、すぐに利用できます。</p>
 								<pre>
 # 配置ディレクトリで展開
 cd ${DIR_PARENT}
@@ -204,37 +204,82 @@ rm -f ./compare-files_*.tar.gz
 
 # 最新版にシンボリックリンクを作成
 ln -s ${DIR_PARENT}/compare_files_${VERSION} ${DIR_PARENT}/compare_files
-
-# 実行権限を付与
-chmod 755 ./compare_files/bin/*.sh
 </pre>
 
 								<h3>テキストファイル比較</h3>
-								<p>サンプルファイルを利用して、テキストファイルの比較を実行してみます。詳細な起動方法はヘルプを参照して下さい。</p>
+								<p>サンプルファイルを利用して、テキストファイルの比較を実行します。</p>
 								<pre>
-cd ./compare_files/bin/
-./compare_files.sh ../sample/left/list.json ../sample/right/list.json
+# カレントディレクトリからの相対パスで対象を指定できます。
+cd compare_files/
+
+# 比較レイアウトは config/compareFilesLayout/sample_text.json を参照してください。
+bin/compare_files.sh sample/left/TEXT_JSONLIST/jsonlist_ng.json sample/right/TEXT_JSONLIST/jsonlist_ng.json
+
+# 比較結果がOKの場合：0、NGの場合：3、エラーが発生した場合：6を返します。
+echo $?
+
+# デフォルトの出力ディレクトリは、result に設定されています。設定と起動パラメータで指定できます。
+ls -l result/
+
+# 出力ディレクトリの初期化は行いません。任意のタイミングで削除してください。
+rm -fr result/
 </pre>
 
 								<h3>画像ファイル比較</h3>
-								<p>サンプルファイルを利用して、画像ファイルの比較を実行してみます。詳細な起動方法はヘルプを参照して下さい。</p>
+								<p>サンプルファイルを利用して、画像ファイルの比較を実行します。</p>
 								<pre>
-cd ./compare_files/bin/
-./compare_files.sh ../sample/left/image01.jpg ../sample/right/image01.jpg
+# カレントディレクトリからの相対パスで対象を指定できます。
+cd compare_files/
+
+# 比較レイアウトは config/compareFilesLayout/sample_image.json を参照してください。
+bin/compare_files.sh sample/left/IMAGE_JPG/jpg_ng.jpg sample/right/IMAGE_JPG/jpg_ng.jpg
+
+# 比較結果がOKの場合：0、NGの場合：3、エラーが発生した場合：6を返します。
+echo $?
+
+# デフォルトの出力ディレクトリは、result に設定されています。設定と起動パラメータで指定できます。
+ls -l result/
+
+# 出力ディレクトリの初期化は行いません。任意のタイミングで削除してください。
+rm -fr result/
 </pre>
 
 								<h3>ディレクトリ比較</h3>
-								<p>サンプルファイルを利用してディレクトリ同士の比較を実行してみます。</p>
+								<p>サンプルファイルを利用して、ディレクトリの比較を実行します。</p>
 								<pre>
-cd ./compare_files/bin/
-./compare_files.sh ../sample/left ../sample/right
+# カレントディレクトリからの相対パスで対象を指定できます。
+cd compare_files/
+
+# 構成が同じ、2つのディレクトリを再帰的に比較します。
+bin/compare_files.sh sample/left sample/right
+
+# 比較結果がOKの場合：0、NGの場合：3、エラーが発生した場合：6を返します。
+echo $?
+
+# デフォルトの出力ディレクトリは、result に設定されています。設定と起動パラメータで指定できます。
+ls -l result/
+
+# 出力ディレクトリの初期化は行いません。任意のタイミングで削除してください。
+rm -fr result/
 </pre>
 
-								<h3>ファイル名正規表現指定比較</h3>
-								<p>サンプルファイルを利用して、比較対象ファイルを正規表現で指定する比較を実行してみます。</p>
+								<h3>正規表現での指定比較</h3>
+								<p>サンプルファイルを利用して、対象ファイルを正規表現で指定する比較を実行します。</p>
 								<pre>
-cd ./compare_files/bin/
-./compare_regex.sh ../sample/target_regex.csv
+# カレントディレクトリからの相対パスで比較対象設定ファイルを指定できます。
+cd compare_files/
+
+# ファイル名が動的に変わる場合は、正規表現で指定できます。
+bin/compare_regex.sh sample/compare_target.csv
+
+# 比較結果がOKの場合：0、NGの場合：3、エラーが発生した場合：6を返します。
+echo $?
+
+# デフォルトの出力ディレクトリは、result に設定されています。設定と起動パラメータで指定できます。
+ls -l result/
+
+# 出力ディレクトリの初期化は行いません。任意のタイミングで削除してください。
+rm -fr result/
 </pre>
 
 							</section>

@@ -112,7 +112,7 @@ public class CsvRowReader&lt;R extends BaseRow&gt; extends BaseFlatRowReader&lt;
         // データ開始の前行まで読み進める
         // --------------------------------------------------------------------------------
 <span class="fc bfc" id="L114" title="All 2 branches covered.">        if (FileFormat.CSV_withHeader.equals(fileLayout.getFileFormat()) ||</span>
-<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            FileFormat.TSV_withHeader.equals(fileLayout.getFileFormat())) {</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">            FileFormat.TSV_withHeader.equals(fileLayout.getFileFormat())) {</span>
             try {
 <span class="fc bfc" id="L117" title="All 2 branches covered.">                while (cReader.getLineNumber() &lt; csvDataStartRow - 1) {</span>
 <span class="fc" id="L118">                    final List&lt;String&gt; curLine = cReader.readValues();</span>

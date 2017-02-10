@@ -11,8 +11,8 @@ import me.suwash.util.CompareUtils.CompareStatus;
 @Getter
 public class TextFileItemCompareResult {
 
-    /** 項目名。 */
-<span class="fc" id="L15">    private final String name;</span>
+    /** 項目ID。 */
+<span class="fc" id="L15">    private final String id;</span>
 
     /** 左ファイルの値。 */
 <span class="fc" id="L18">    private final String leftValue;</span>
@@ -29,7 +29,7 @@ public class TextFileItemCompareResult {
     /**
      * 固定値の項目比較結果を返します。
      *
-     * @param name 項目名
+     * @param id 項目ID
      * @param leftValue 左ファイルの値
      * @param rightValue 右ファイルの値
      * @param criteria 比較条件
@@ -37,51 +37,51 @@ public class TextFileItemCompareResult {
      * @return 比較結果
      */
     protected static TextFileItemCompareResult getFixedResult(
-        final String name,
+        final String id,
         final String leftValue,
         final String rightValue,
         final CompareCriteria criteria,
         final CompareStatus status) {
 
-<span class="fc" id="L46">        return new TextFileItemCompareResult(name, leftValue, rightValue, criteria, status);</span>
+<span class="fc" id="L46">        return new TextFileItemCompareResult(id, leftValue, rightValue, criteria, status);</span>
     }
 
     /**
      * 固定値取得用コンストラクタ。
      *
-     * @param name 項目名
+     * @param id 項目ID
      * @param leftValue 左ファイルの値
      * @param rightValue 右ファイルの値
      * @param criteria 比較条件
      * @param status 比較ステータス
      */
     private TextFileItemCompareResult(
-        final String name,
+        final String id,
         final String leftValue,
         final String rightValue,
         final CompareCriteria criteria,
         final CompareStatus status) {
 
-<span class="fc" id="L65">        this(name, leftValue, rightValue, criteria);</span>
+<span class="fc" id="L65">        this(id, leftValue, rightValue, criteria);</span>
 <span class="fc" id="L66">        this.status = status;</span>
 <span class="fc" id="L67">    }</span>
 
     /**
      * コンストラクタ。
      *
-     * @param name 項目名
+     * @param id 項目ID
      * @param leftValue 左ファイルの値
      * @param rightValue 右ファイルの値
      * @param criteria 比較条件
      */
     protected TextFileItemCompareResult(
-        final String name,
+        final String id,
         final String leftValue,
         final String rightValue,
         final CompareCriteria criteria) {
 
 <span class="fc" id="L83">        super();</span>
-<span class="fc" id="L84">        this.name = name;</span>
+<span class="fc" id="L84">        this.id = id;</span>
 <span class="fc" id="L85">        this.leftValue = leftValue;</span>
 <span class="fc" id="L86">        this.rightValue = rightValue;</span>
 <span class="fc" id="L87">        this.criteria = criteria;</span>

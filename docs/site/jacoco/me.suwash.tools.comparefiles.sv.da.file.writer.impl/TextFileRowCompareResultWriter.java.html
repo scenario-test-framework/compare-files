@@ -181,7 +181,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter&lt;TextFile
                 // 単一レコードタイプの場合、出力行から項目名を設定
 <span class="fc bfc" id="L182" title="All 2 branches covered.">                for (final TextFileItemCompareResult item : result.getItemList()) {</span>
 <span class="fc" id="L183">                    final RecordType recordType = result.getRecordType();</span>
-<span class="fc" id="L184">                    final String columnName = getDynamicColumnName(fileLayout, recordType, item.getName());</span>
+<span class="fc" id="L184">                    final String columnName = getDynamicColumnId(fileLayout, recordType, item.getId());</span>
 <span class="fc" id="L185">                    headerMap.put(columnName, columnName);</span>
 <span class="fc" id="L186">                }</span>
             } else {
@@ -189,7 +189,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter&lt;TextFile
 <span class="fc bfc" id="L189" title="All 2 branches covered.">                for (final RecordLayout recordLayout : fileLayout.getRecordList()) {</span>
 <span class="fc bfc" id="L190" title="All 2 branches covered.">                    for (final ItemLayout itemLayout : recordLayout.getItemList()) {</span>
 <span class="fc" id="L191">                        final RecordType recordType = recordLayout.getType();</span>
-<span class="fc" id="L192">                        final String columnName = getDynamicColumnName(fileLayout, recordType, itemLayout.getName());</span>
+<span class="fc" id="L192">                        final String columnName = getDynamicColumnId(fileLayout, recordType, itemLayout.getId());</span>
 <span class="fc" id="L193">                        headerMap.put(columnName, columnName);</span>
 <span class="fc" id="L194">                    }</span>
 <span class="fc" id="L195">                }</span>
@@ -221,7 +221,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter&lt;TextFile
 
             // 差分項目名リスト
 <span class="fc bfc" id="L223" title="All 2 branches covered.">            if (CompareStatus.NG.equals(status)) {</span>
-<span class="fc" id="L224">                map.put(COLUMN_NAME_DIFFITEMS, result.getDiffItemNameList().toString());</span>
+<span class="fc" id="L224">                map.put(COLUMN_NAME_DIFFITEMS, result.getDiffItemIdList().toString());</span>
             } else {
 <span class="fc" id="L226">                map.put(COLUMN_NAME_DIFFITEMS, Const.DUMMY_VALUE);</span>
             }
@@ -232,7 +232,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter&lt;TextFile
 <span class="fc" id="L232">            final FileLayout fileLayout = result.getFileLayout();</span>
 <span class="fc" id="L233">            final RecordType recordType = result.getRecordType();</span>
 <span class="fc bfc" id="L234" title="All 2 branches covered.">            for (final TextFileItemCompareResult item : result.getItemList()) {</span>
-<span class="fc" id="L235">                final String columnName = getDynamicColumnName(fileLayout, recordType, item.getName());</span>
+<span class="fc" id="L235">                final String columnName = getDynamicColumnId(fileLayout, recordType, item.getId());</span>
 <span class="pc bpc" id="L236" title="1 of 3 branches missed.">                switch (item.getStatus()) {</span>
                     case OK:
 <span class="fc" id="L238">                        map.put(columnName, item.getLeftValue());</span>
@@ -257,15 +257,15 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter&lt;TextFile
          *
          * @param fileLayout ファイルレイアウト
          * @param recordType レコードタイプ
-         * @param itemName 項目名
+         * @param itemId 項目ID
          * @return カラム名
          */
-        private static String getDynamicColumnName(final FileLayout fileLayout, final RecordType recordType, final String itemName) {
+        private static String getDynamicColumnId(final FileLayout fileLayout, final RecordType recordType, final String itemId) {
 <span class="fc" id="L264">            String columnName = null;</span>
 <span class="fc bfc" id="L265" title="All 4 branches covered.">            if (fileLayout == null || fileLayout.getRecordList().size() &lt;= 1) {</span>
-<span class="fc" id="L266">                columnName = itemName;</span>
+<span class="fc" id="L266">                columnName = itemId;</span>
             } else {
-<span class="fc" id="L268">                columnName = recordType.name() + &quot;.&quot; + itemName;</span>
+<span class="fc" id="L268">                columnName = recordType.name() + &quot;.&quot; + itemId;</span>
             }
 <span class="fc" id="L270">            return columnName;</span>
         }
@@ -286,7 +286,7 @@ public class TextFileRowCompareResultWriter extends BaseResultWriter&lt;TextFile
             }
 
 <span class="fc" id="L288">            String right = &quot;null&quot;;</span>
-<span class="pc bpc" id="L289" title="1 of 2 branches missed.">            if (rightValue != null) {</span>
+<span class="fc bfc" id="L289" title="All 2 branches covered.">            if (rightValue != null) {</span>
 <span class="fc" id="L290">                right = rightValue.toString();</span>
             }
 

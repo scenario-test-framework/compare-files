@@ -1,0 +1,4 @@
+"Status","RowNum","DiffItems","keyObj.key1","keyObj.key2","valueList.content.month","valueList.content.amount","valueList.content.number","valueList.content.lastUpdateTime"
+"OK","期待値:1
+実績値:1","-","100","AAA","[201701, 201702, 201703]","[1000, 1000, 1000]","[1, 1, 1]","期待値:[2017/01/01 00:00:00.000, 2017/01/01 00:00:00.000, 2017/01/01 00:00:00.000]
+実績値:[2017/01/01 00:00:00.000, 2017/01/01 00:00:00.000, 2017/01/01 00:00:00.000]"

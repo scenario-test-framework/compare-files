@@ -7,6 +7,8 @@ import me.suwash.util.constant.UtilMessageConst;
  */
 public interface MessageConst extends UtilMessageConst {
 
+    /** 処理を開始しました。 */
+    String MSGCD_PROCESS_START = "process.start";
     /** 処理が終了しました。 */
     String MSGCD_EXIT_SUCCESS = "exit.success";
     /** 処理が警告終了しました。 */

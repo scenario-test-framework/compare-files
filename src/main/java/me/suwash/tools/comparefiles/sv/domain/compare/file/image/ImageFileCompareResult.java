@@ -3,12 +3,12 @@ package me.suwash.tools.comparefiles.sv.domain.compare.file.image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;
 import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
 import me.suwash.tools.comparefiles.sv.da.file.repository.impl.ImageFileRepository;
 import me.suwash.tools.comparefiles.sv.domain.compare.file.FileCompareResult;
@@ -92,9 +92,9 @@ public class ImageFileCompareResult extends FileCompareResult {
         FileLayout fileLayout = input.getFileLayout();
         if (fileLayout == null) {
             // 指定されていない場合、画像ファイルのデフォルトを設定
-            fileLayout = FileLayout.getDefaultImageLayout();
-            this.fileLayout = fileLayout;
+            fileLayout = FileLayoutManager.getDefaultImageLayout(systemConfig);
         }
+        this.fileLayout = fileLayout;
 
         // 実行開始時刻
         this.startTime = new Date();
@@ -145,14 +145,8 @@ public class ImageFileCompareResult extends FileCompareResult {
         // 右ファイル
         final File rightFile = new File(rightFilePath);
 
-        // ファイルレイアウトの除外エリアと、システム設定の除外エリアをマージ
-        final List<Rectangle> mergedIgnoreAreaList = new ArrayList<Rectangle>();
-        if (fileLayout != null && fileLayout.getIgnoreAreaList() != null) {
-            mergedIgnoreAreaList.addAll(fileLayout.getIgnoreAreaList());
-        }
-        if (systemConfig.getIgnoreAreaList() != null) {
-            mergedIgnoreAreaList.addAll(systemConfig.getIgnoreAreaList());
-        }
+        // 除外エリア
+        final List<Rectangle> ignoreAreaList = fileLayout.getIgnoreAreaList();
 
         // 左ファイル
         final ImageFileRepository leftRepo = new ImageFileRepository(leftFile, inputExt);
@@ -167,10 +161,10 @@ public class ImageFileCompareResult extends FileCompareResult {
         rightRepo.commit();
 
         // 比較
-        final DiffAreas diffAreas = ImageCompareUtils.compare(leftImage, rightImage, mergedIgnoreAreaList);
+        final DiffAreas diffAreas = ImageCompareUtils.compare(leftImage, rightImage, ignoreAreaList);
 
         // 結果出力
-        this.ignoreRowCount = mergedIgnoreAreaList.size();
+        this.ignoreRowCount = ignoreAreaList.size();
         this.ngRowCount = diffAreas.size();
 
         final ImageFileRepository resultRepo = new ImageFileRepository(new File(outputFilePath), outputExt);
@@ -195,7 +189,7 @@ public class ImageFileCompareResult extends FileCompareResult {
                 final BufferedImage result = ImageCompareUtils.getOkImage(
                     leftImage,
                     rightImage,
-                    mergedIgnoreAreaList,
+                    ignoreAreaList,
                     systemConfig.getLeftPrefix(),
                     systemConfig.getRightPrefix(),
                     systemConfig.getOkImageStyle());

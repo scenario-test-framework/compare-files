@@ -53,6 +53,12 @@ public class CompareFileRegex extends BaseCompareFiles {
         // 設定ファイルパスが指定されていない場合、「比較対象設定ファイルパス」が指定されていないければエラー
         if (StringUtils.isEmpty(option.getConfigFilePath()) && paramList.size() != PARAM_SIZE_NO_CONFIG) {
             isValid = false;
+            final StringBuilder usageBuilder = new StringBuilder();
+            usageBuilder
+                .append("Usage: compare_regex [Options] TARGET_FILE_PATH").append(StringUtils.LF)
+                .append(StringUtils.LF)
+                .append(option.usage());
+            System.err.println(usageBuilder.toString());
         }
 
         return isValid;

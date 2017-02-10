@@ -189,7 +189,7 @@
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                 <em class="jxr_comment">// 単一レコードタイプの場合、出力行から項目名を設定</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> TextFileItemCompareResult item : result.getItemList()) {
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>                     <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/classification/RecordType.html">RecordType</a> recordType = result.getRecordType();
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     <strong class="jxr_keyword">final</strong> String columnName = getDynamicColumnName(fileLayout, recordType, item.getName());
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                     <strong class="jxr_keyword">final</strong> String columnName = getDynamicColumnId(fileLayout, recordType, item.getId());
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>                     headerMap.put(columnName, columnName);
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>                 }
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>             } <strong class="jxr_keyword">else</strong> {
@@ -197,7 +197,7 @@
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> RecordLayout recordLayout : fileLayout.getRecordList()) {
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> ItemLayout itemLayout : recordLayout.getItemList()) {
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>                         <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/classification/RecordType.html">RecordType</a> recordType = recordLayout.getType();
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                         <strong class="jxr_keyword">final</strong> String columnName = getDynamicColumnName(fileLayout, recordType, itemLayout.getName());
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>                         <strong class="jxr_keyword">final</strong> String columnName = getDynamicColumnId(fileLayout, recordType, itemLayout.getId());
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>                         headerMap.put(columnName, columnName);
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>                     }
 <a class="jxr_linenumber" name="L195" href="#L195">195</a>                 }
@@ -229,7 +229,7 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a> 
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>             <em class="jxr_comment">// 差分項目名リスト</em>
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">if</strong> (CompareStatus.NG.equals(status)) {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 map.put(COLUMN_NAME_DIFFITEMS, result.getDiffItemNameList().toString());
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>                 map.put(COLUMN_NAME_DIFFITEMS, result.getDiffItemIdList().toString());
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>             } <strong class="jxr_keyword">else</strong> {
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>                 map.put(COLUMN_NAME_DIFFITEMS, Const.DUMMY_VALUE);
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>             }
@@ -240,7 +240,7 @@
 <a class="jxr_linenumber" name="L232" href="#L232">232</a>             <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/config/FileLayout.html">FileLayout</a> fileLayout = result.getFileLayout();
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>             <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/classification/RecordType.html">RecordType</a> recordType = result.getRecordType();
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> TextFileItemCompareResult item : result.getItemList()) {
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 <strong class="jxr_keyword">final</strong> String columnName = getDynamicColumnName(fileLayout, recordType, item.getName());
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 <strong class="jxr_keyword">final</strong> String columnName = getDynamicColumnId(fileLayout, recordType, item.getId());
 <a class="jxr_linenumber" name="L236" href="#L236">236</a>                 <strong class="jxr_keyword">switch</strong> (item.getStatus()) {
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>                     <strong class="jxr_keyword">case</strong> OK:
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>                         map.put(columnName, item.getLeftValue());
@@ -265,15 +265,15 @@
 <a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">         *</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">         * @param fileLayout ファイルレイアウト</em>
 <a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">         * @param recordType レコードタイプ</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">         * @param itemName 項目名</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">         * @param itemId 項目ID</em>
 <a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">         * @return カラム名</em>
 <a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getDynamicColumnName(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/config/FileLayout.html">FileLayout</a> fileLayout, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/classification/RecordType.html">RecordType</a> recordType, <strong class="jxr_keyword">final</strong> String itemName) {
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String getDynamicColumnId(<strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/config/FileLayout.html">FileLayout</a> fileLayout, <strong class="jxr_keyword">final</strong> <a href="../../../../../../../../../me/suwash/tools/comparefiles/infra/classification/RecordType.html">RecordType</a> recordType, <strong class="jxr_keyword">final</strong> String itemId) {
 <a class="jxr_linenumber" name="L264" href="#L264">264</a>             String columnName = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>             <strong class="jxr_keyword">if</strong> (fileLayout == <strong class="jxr_keyword">null</strong> || fileLayout.getRecordList().size() &lt;= 1) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 columnName = itemName;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 columnName = itemId;
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 columnName = recordType.name() + <span class="jxr_string">"."</span> + itemName;
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 columnName = recordType.name() + <span class="jxr_string">"."</span> + itemId;
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>             }
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">return</strong> columnName;
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>         }

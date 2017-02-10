@@ -188,8 +188,13 @@ public class FileCompareResult extends BaseFileCompareResult implements Aggregat
         FileFormat fileFormat = null;
         final String ext = getExt(leftFileName);
         log.debug("      ・拡張子：" + ext);
-        if (this.fileLayout == null && ImageCompareUtils.isAllowedExt(ext)) {
-            fileFormat = FileFormat.Image;
+        if (this.fileLayout == null) {
+            if (ImageCompareUtils.isAllowedExt(ext)) {
+                fileFormat = FileFormat.Image;
+            }
+
+        } else {
+            fileFormat = this.fileLayout.getFileFormat();
         }
 
         // ファイルフォーマットに合わせて比較実行

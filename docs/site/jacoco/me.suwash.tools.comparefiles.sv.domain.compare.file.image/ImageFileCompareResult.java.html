@@ -3,12 +3,12 @@
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;
 import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
 import me.suwash.tools.comparefiles.sv.da.file.repository.impl.ImageFileRepository;
 import me.suwash.tools.comparefiles.sv.domain.compare.file.FileCompareResult;
@@ -90,11 +90,11 @@ public class ImageFileCompareResult extends FileCompareResult {
 <span class="fc" id="L90">        final String outputExt = this.outputExt;</span>
         // ファイルレイアウト
 <span class="fc" id="L92">        FileLayout fileLayout = input.getFileLayout();</span>
-<span class="pc bpc" id="L93" title="1 of 2 branches missed.">        if (fileLayout == null) {</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (fileLayout == null) {</span>
             // 指定されていない場合、画像ファイルのデフォルトを設定
-<span class="fc" id="L95">            fileLayout = FileLayout.getDefaultImageLayout();</span>
-<span class="fc" id="L96">            this.fileLayout = fileLayout;</span>
+<span class="fc" id="L95">            fileLayout = FileLayoutManager.getDefaultImageLayout(systemConfig);</span>
         }
+<span class="fc" id="L97">        this.fileLayout = fileLayout;</span>
 
         // 実行開始時刻
 <span class="fc" id="L100">        this.startTime = new Date();</span>
@@ -145,70 +145,64 @@ public class ImageFileCompareResult extends FileCompareResult {
         // 右ファイル
 <span class="fc" id="L146">        final File rightFile = new File(rightFilePath);</span>
 
-        // ファイルレイアウトの除外エリアと、システム設定の除外エリアをマージ
-<span class="fc" id="L149">        final List&lt;Rectangle&gt; mergedIgnoreAreaList = new ArrayList&lt;Rectangle&gt;();</span>
-<span class="pc bpc" id="L150" title="2 of 4 branches missed.">        if (fileLayout != null &amp;&amp; fileLayout.getIgnoreAreaList() != null) {</span>
-<span class="nc" id="L151">            mergedIgnoreAreaList.addAll(fileLayout.getIgnoreAreaList());</span>
-        }
-<span class="fc bfc" id="L153" title="All 2 branches covered.">        if (systemConfig.getIgnoreAreaList() != null) {</span>
-<span class="fc" id="L154">            mergedIgnoreAreaList.addAll(systemConfig.getIgnoreAreaList());</span>
-        }
+        // 除外エリア
+<span class="fc" id="L149">        final List&lt;Rectangle&gt; ignoreAreaList = fileLayout.getIgnoreAreaList();</span>
 
         // 左ファイル
-<span class="fc" id="L158">        final ImageFileRepository leftRepo = new ImageFileRepository(leftFile, inputExt);</span>
-<span class="fc" id="L159">        leftRepo.begin();</span>
-<span class="fc" id="L160">        final BufferedImage leftImage = leftRepo.next();</span>
-<span class="fc" id="L161">        leftRepo.commit();</span>
+<span class="fc" id="L152">        final ImageFileRepository leftRepo = new ImageFileRepository(leftFile, inputExt);</span>
+<span class="fc" id="L153">        leftRepo.begin();</span>
+<span class="fc" id="L154">        final BufferedImage leftImage = leftRepo.next();</span>
+<span class="fc" id="L155">        leftRepo.commit();</span>
 
         // 左ファイル
-<span class="fc" id="L164">        final ImageFileRepository rightRepo = new ImageFileRepository(rightFile, inputExt);</span>
-<span class="fc" id="L165">        rightRepo.begin();</span>
-<span class="fc" id="L166">        final BufferedImage rightImage = rightRepo.next();</span>
-<span class="fc" id="L167">        rightRepo.commit();</span>
+<span class="fc" id="L158">        final ImageFileRepository rightRepo = new ImageFileRepository(rightFile, inputExt);</span>
+<span class="fc" id="L159">        rightRepo.begin();</span>
+<span class="fc" id="L160">        final BufferedImage rightImage = rightRepo.next();</span>
+<span class="fc" id="L161">        rightRepo.commit();</span>
 
         // 比較
-<span class="fc" id="L170">        final DiffAreas diffAreas = ImageCompareUtils.compare(leftImage, rightImage, mergedIgnoreAreaList);</span>
+<span class="fc" id="L164">        final DiffAreas diffAreas = ImageCompareUtils.compare(leftImage, rightImage, ignoreAreaList);</span>
 
         // 結果出力
-<span class="fc" id="L173">        this.ignoreRowCount = mergedIgnoreAreaList.size();</span>
-<span class="fc" id="L174">        this.ngRowCount = diffAreas.size();</span>
+<span class="fc" id="L167">        this.ignoreRowCount = ignoreAreaList.size();</span>
+<span class="fc" id="L168">        this.ngRowCount = diffAreas.size();</span>
 
-<span class="fc" id="L176">        final ImageFileRepository resultRepo = new ImageFileRepository(new File(outputFilePath), outputExt);</span>
-<span class="fc" id="L177">        resultRepo.begin();</span>
-<span class="fc" id="L178">        CompareStatus comparedStatus = null;</span>
-<span class="fc bfc" id="L179" title="All 2 branches covered.">        if (diffAreas.hasDiff()) {</span>
-<span class="fc" id="L180">            comparedStatus = CompareStatus.NG;</span>
+<span class="fc" id="L170">        final ImageFileRepository resultRepo = new ImageFileRepository(new File(outputFilePath), outputExt);</span>
+<span class="fc" id="L171">        resultRepo.begin();</span>
+<span class="fc" id="L172">        CompareStatus comparedStatus = null;</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">        if (diffAreas.hasDiff()) {</span>
+<span class="fc" id="L174">            comparedStatus = CompareStatus.NG;</span>
             // 比較結果を出力
-<span class="fc" id="L182">            final BufferedImage result = ImageCompareUtils.getNgImage(</span>
+<span class="fc" id="L176">            final BufferedImage result = ImageCompareUtils.getNgImage(</span>
                 leftImage,
                 rightImage,
                 diffAreas,
-<span class="fc" id="L186">                systemConfig.getLeftPrefix(),</span>
-<span class="fc" id="L187">                systemConfig.getRightPrefix(),</span>
-<span class="fc" id="L188">                systemConfig.getNgImageStyle());</span>
-<span class="fc" id="L189">            resultRepo.write(result);</span>
+<span class="fc" id="L180">                systemConfig.getLeftPrefix(),</span>
+<span class="fc" id="L181">                systemConfig.getRightPrefix(),</span>
+<span class="fc" id="L182">                systemConfig.getNgImageStyle());</span>
+<span class="fc" id="L183">            resultRepo.write(result);</span>
 
-<span class="fc" id="L191">        } else {</span>
-<span class="fc" id="L192">            comparedStatus = CompareStatus.OK;</span>
-<span class="pc bpc" id="L193" title="1 of 2 branches missed.">            if (!systemConfig.isWriteDiffOnly()) {</span>
+<span class="fc" id="L185">        } else {</span>
+<span class="fc" id="L186">            comparedStatus = CompareStatus.OK;</span>
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">            if (!systemConfig.isWriteDiffOnly()) {</span>
                 // 差分なしでも出力する場合、比較結果を出力
-<span class="fc" id="L195">                final BufferedImage result = ImageCompareUtils.getOkImage(</span>
+<span class="fc" id="L189">                final BufferedImage result = ImageCompareUtils.getOkImage(</span>
                     leftImage,
                     rightImage,
-                    mergedIgnoreAreaList,
-<span class="fc" id="L199">                    systemConfig.getLeftPrefix(),</span>
-<span class="fc" id="L200">                    systemConfig.getRightPrefix(),</span>
-<span class="fc" id="L201">                    systemConfig.getOkImageStyle());</span>
-<span class="fc" id="L202">                resultRepo.write(result);</span>
+                    ignoreAreaList,
+<span class="fc" id="L193">                    systemConfig.getLeftPrefix(),</span>
+<span class="fc" id="L194">                    systemConfig.getRightPrefix(),</span>
+<span class="fc" id="L195">                    systemConfig.getOkImageStyle());</span>
+<span class="fc" id="L196">                resultRepo.write(result);</span>
             }
 
         }
 
         // ファイル操作を確定
-<span class="fc" id="L208">        resultRepo.commit();</span>
+<span class="fc" id="L202">        resultRepo.commit();</span>
 
         // 比較結果を返す
-<span class="fc" id="L211">        return comparedStatus;</span>
+<span class="fc" id="L205">        return comparedStatus;</span>
     }
 
 }

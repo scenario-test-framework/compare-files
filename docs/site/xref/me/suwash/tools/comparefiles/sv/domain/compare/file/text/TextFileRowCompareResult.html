@@ -290,15 +290,15 @@
 <a class="jxr_linenumber" name="L282" href="#L282">282</a>     }
 <a class="jxr_linenumber" name="L283" href="#L283">283</a> 
 <a class="jxr_linenumber" name="L284" href="#L284">284</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * 差分を検出した項目名のリストを返します。</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * 差分を検出した項目IDのリストを返します。</em>
 <a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     *</em>
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * @return 差分を検出した項目名のリスト</em>
 <a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">public</strong> List&lt;String&gt; getDiffItemNameList() {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <strong class="jxr_keyword">public</strong> List&lt;String&gt; getDiffItemIdList() {
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">final</strong> List&lt;String&gt; list = <strong class="jxr_keyword">new</strong> ArrayList&lt;String&gt;();
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> TextFileItemCompareResult item : itemList) {
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>             <strong class="jxr_keyword">if</strong> (!CompareStatus.OK.equals(item.getStatus()) &amp;&amp; !CompareStatus.Ignore.equals(item.getStatus())) {
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                 list.add(item.getName());
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>                 list.add(item.getId());
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>             }
 <a class="jxr_linenumber" name="L295" href="#L295">295</a>         }
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">return</strong> list;

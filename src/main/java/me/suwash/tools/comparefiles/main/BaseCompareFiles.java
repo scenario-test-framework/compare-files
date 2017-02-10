@@ -7,6 +7,7 @@ import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;
 import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
 import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
 import me.suwash.util.ConfigUtils;
 
@@ -17,6 +18,7 @@ import com.beust.jcommander.JCommander;
 /**
  * CUIバウンダリ基底クラス。
  */
+@lombok.extern.slf4j.Slf4j
 public abstract class BaseCompareFiles {
 
     /**
@@ -27,6 +29,8 @@ public abstract class BaseCompareFiles {
      * @return 比較結果
      */
     protected ProcessStatus execute(final String... args) {
+        log.info(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_PROCESS_START));
+
         // -----------------------------------------------------------------------------------------
         // シャットダウンフック追加
         // -----------------------------------------------------------------------------------------
@@ -127,15 +131,18 @@ public abstract class BaseCompareFiles {
     protected static void exitScript(final ProcessStatus processStatus) {
         switch (processStatus) {
             case Success:
+                log.info(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_EXIT_SUCCESS));
                 System.exit(Const.EXITCODE_SUCCESS);
                 break;
 
             case Warning:
+                log.warn(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_EXIT_WARN));
                 System.exit(Const.EXITCODE_WARN);
                 break;
 
             case Failure:
             default:
+                log.error(CompareFilesMessageSource.getInstance().getMessage(Const.MSGCD_EXIT_FAIL));
                 System.exit(Const.EXITCODE_ERROR);
                 break;
         }

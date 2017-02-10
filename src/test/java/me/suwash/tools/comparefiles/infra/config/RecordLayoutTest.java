@@ -16,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
-@lombok.extern.slf4j.Slf4j
 public class RecordLayoutTest {
 
     @Rule

@@ -41,10 +41,10 @@ public class FileSortResult implements AggregateEntity {
     private static final int LINENUM_FIRST = 1;
 
     /** マージフェーズのステータス。 */
-<span class="pc" id="L44">    private enum MergePhaseStatus {</span>
-<span class="fc" id="L45">        Compare,</span>
-<span class="fc" id="L46">        Sep1GotoUnsortedPos,</span>
-<span class="fc" id="L47">        Sep2GotoUnsortedPos</span>
+<span class="nc" id="L44">    private enum MergePhaseStatus {</span>
+<span class="nc" id="L45">        Compare,</span>
+<span class="nc" id="L46">        Sep1GotoUnsortedPos,</span>
+<span class="nc" id="L47">        Sep2GotoUnsortedPos</span>
     }
 
     /** ソート入力データモデル。 */
@@ -192,7 +192,7 @@ public class FileSortResult implements AggregateEntity {
     private boolean hasHeader(final FileFormat fileFormat) {
 <span class="fc" id="L193">        boolean hasHeader = false;</span>
 <span class="fc bfc" id="L194" title="All 2 branches covered.">        if (FileFormat.CSV_withHeader.equals(fileFormat) ||</span>
-<span class="pc bpc" id="L195" title="1 of 2 branches missed.">            FileFormat.TSV_withHeader.equals(fileFormat)) {</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">            FileFormat.TSV_withHeader.equals(fileFormat)) {</span>
 <span class="fc" id="L196">            hasHeader = true;</span>
         }
 <span class="fc" id="L198">        return hasHeader;</span>
@@ -458,19 +458,19 @@ public class FileSortResult implements AggregateEntity {
 <span class="fc" id="L458">            phaseCount++;</span>
 
             // 分割フェーズ
-<span class="fc bfc" id="L461" title="All 2 branches covered.">            if (!mergeSortSeparatePhase(mergedFile, sep1File, sep2File, charset, fileLayout, systemConfig, chunkSize)) {</span>
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">            if (!mergeSortSeparatePhase(mergedFile, sep1File, sep2File, charset, fileLayout, systemConfig, chunkSize)) {</span>
                 // 分割を実施しなかった場合、処理を終了
 <span class="fc" id="L463">                return;</span>
             }
 
             // マージフェーズ
-<span class="fc" id="L467">            mergeSortMergePhase(sep1File, sep2File, mergedFile, charset, fileLayout, systemConfig, chunkSize);</span>
+<span class="nc" id="L467">            mergeSortMergePhase(sep1File, sep2File, mergedFile, charset, fileLayout, systemConfig, chunkSize);</span>
 
             // 進捗表示
-<span class="pc bpc" id="L470" title="1 of 2 branches missed.">            if (phaseCount % 10 == 0) {</span>
+<span class="nc bnc" id="L470" title="All 2 branches missed.">            if (phaseCount % 10 == 0) {</span>
 <span class="nc" id="L471">                log.debug(phaseCount + &quot; 回目：&quot; + RuntimeUtils.getMemoryInfo());</span>
             }
-<span class="pc bpc" id="L473" title="1 of 2 branches missed.">            if (phaseCount % Const.RANGE_REPORT == 0) {</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">            if (phaseCount % Const.RANGE_REPORT == 0) {</span>
 <span class="nc" id="L474">                log.info(&quot;    &quot; + phaseCount + &quot; merge-sort phase finished.&quot;);</span>
             }
         }
@@ -538,20 +538,20 @@ public class FileSortResult implements AggregateEntity {
             }
 
             // 出力先に合わせて、前行をファイル出力
-<span class="fc bfc" id="L541" title="All 2 branches covered.">            if (isWriteSep1) {</span>
+<span class="pc bpc" id="L541" title="1 of 2 branches missed.">            if (isWriteSep1) {</span>
 <span class="fc" id="L542">                sep1Repo.write(beforeLine.getRawLine());</span>
             } else {
-<span class="fc" id="L544">                sep2Repo.write(beforeLine.getRawLine());</span>
+<span class="nc" id="L544">                sep2Repo.write(beforeLine.getRawLine());</span>
             }
 
             // 前行と現在行を比較
-<span class="fc bfc" id="L548" title="All 2 branches covered.">            if (beforeLine.compareTo(curLine) &gt; 0) {</span>
+<span class="pc bpc" id="L548" title="1 of 2 branches missed.">            if (beforeLine.compareTo(curLine) &gt; 0) {</span>
                 // 現在行の方が小さい場合
                 // 出力先ファイルを切替
-<span class="fc bfc" id="L551" title="All 2 branches covered.">                isWriteSep1 = !isWriteSep1;</span>
+<span class="nc bnc" id="L551" title="All 2 branches missed.">                isWriteSep1 = !isWriteSep1;</span>
                 // 分割実施フラグをON
-<span class="fc" id="L553">                isSeparated = true;</span>
-<span class="pc bpc" id="L554" title="1 of 2 branches missed.">                if (log.isTraceEnabled()) {</span>
+<span class="nc" id="L553">                isSeparated = true;</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">                if (log.isTraceEnabled()) {</span>
 <span class="nc bnc" id="L555" title="All 2 branches missed.">                    if (isWriteSep1) {</span>
 <span class="nc" id="L556">                        log.trace(&quot;　　・write sep1&quot;);</span>
                     } else {
@@ -567,10 +567,10 @@ public class FileSortResult implements AggregateEntity {
         }
 
         // 最終行の出力
-<span class="fc bfc" id="L570" title="All 2 branches covered.">        if (isWriteSep1) {</span>
+<span class="pc bpc" id="L570" title="1 of 2 branches missed.">        if (isWriteSep1) {</span>
 <span class="fc" id="L571">            sep1Repo.write(beforeLine.getRawLine());</span>
         } else {
-<span class="fc" id="L573">            sep2Repo.write(beforeLine.getRawLine());</span>
+<span class="nc" id="L573">            sep2Repo.write(beforeLine.getRawLine());</span>
         }
 
         // ファイル操作を確定
@@ -601,102 +601,102 @@ public class FileSortResult implements AggregateEntity {
         final CompareFilesConfig systemConfig,
         final int chunkSize) {
 
-<span class="fc" id="L604">        log.trace(&quot;　・merge phase&quot;);</span>
+<span class="nc" id="L604">        log.trace(&quot;　・merge phase&quot;);</span>
 
         // マージ元ファイル1リポジトリ（分割ファイル1）
-<span class="fc" id="L607">        final FileRepository&lt;SortableRow&gt; sep1Repo = getRowReadRepository(sep1File.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
+<span class="nc" id="L607">        final FileRepository&lt;SortableRow&gt; sep1Repo = getRowReadRepository(sep1File.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
         // マージ元ファイル2リポジトリ（分割ファイル2）
-<span class="fc" id="L609">        final FileRepository&lt;SortableRow&gt; sep2Repo = getRowReadRepository(sep2File.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
+<span class="nc" id="L609">        final FileRepository&lt;SortableRow&gt; sep2Repo = getRowReadRepository(sep2File.getAbsolutePath(), charset, fileLayout, systemConfig);</span>
 
-<span class="fc" id="L611">        final LineSp lineSp = getLineSp(fileLayout);</span>
+<span class="nc" id="L611">        final LineSp lineSp = getLineSp(fileLayout);</span>
 
         // マージファイルリポジトリ
-<span class="fc" id="L614">        final FileRepository&lt;String&gt; mergedRepo = new StringFileRepository(mergedFile, charset, lineSp, chunkSize);</span>
-<span class="fc" id="L615">        mergedRepo.begin();</span>
+<span class="nc" id="L614">        final FileRepository&lt;String&gt; mergedRepo = new StringFileRepository(mergedFile, charset, lineSp, chunkSize);</span>
+<span class="nc" id="L615">        mergedRepo.begin();</span>
 
         // sep1用変数
-<span class="fc" id="L618">        SortableRow sep1CurLine = null;</span>
-<span class="fc" id="L619">        SortableRow sep1BeforeLine = null;</span>
+<span class="nc" id="L618">        SortableRow sep1CurLine = null;</span>
+<span class="nc" id="L619">        SortableRow sep1BeforeLine = null;</span>
         // sep2用変数
-<span class="fc" id="L621">        SortableRow sep2CurLine = null;</span>
-<span class="fc" id="L622">        SortableRow sep2BeforeLine = null;</span>
+<span class="nc" id="L621">        SortableRow sep2CurLine = null;</span>
+<span class="nc" id="L622">        SortableRow sep2BeforeLine = null;</span>
 
         // マージフェーズステータス
-<span class="fc" id="L625">        MergePhaseStatus status = MergePhaseStatus.Compare;</span>
+<span class="nc" id="L625">        MergePhaseStatus status = MergePhaseStatus.Compare;</span>
 
         // 分割ファイルの1行目を読み込み
-<span class="fc" id="L628">        sep1CurLine = sep1Repo.next();</span>
-<span class="fc" id="L629">        sep2CurLine = sep2Repo.next();</span>
+<span class="nc" id="L628">        sep1CurLine = sep1Repo.next();</span>
+<span class="nc" id="L629">        sep2CurLine = sep2Repo.next();</span>
 
         // 2つの分割ファイル両方を読み込みきるまでループ
         while (true) {
 
             // マージフェーズステータスを確認
-<span class="fc bfc" id="L635" title="All 2 branches covered.">            if (MergePhaseStatus.Sep1GotoUnsortedPos.equals(status)) {</span>
+<span class="nc bnc" id="L635" title="All 2 branches missed.">            if (MergePhaseStatus.Sep1GotoUnsortedPos.equals(status)) {</span>
                 // --------------------------------------------------
                 // 分割ファイル1のソート未済位置まで出力中
                 // --------------------------------------------------
                 // 読み込み
-<span class="fc" id="L640">                sep1BeforeLine = sep1CurLine;</span>
-<span class="fc" id="L641">                sep1CurLine = sep1Repo.next();</span>
+<span class="nc" id="L640">                sep1BeforeLine = sep1CurLine;</span>
+<span class="nc" id="L641">                sep1CurLine = sep1Repo.next();</span>
 
                 // 前行をファイル出力
-<span class="fc" id="L644">                mergedRepo.write(sep1BeforeLine.getRawLine());</span>
+<span class="nc" id="L644">                mergedRepo.write(sep1BeforeLine.getRawLine());</span>
 
                 // 空行をスキップ
-<span class="pc bpc" id="L647" title="1 of 4 branches missed.">                while (sep1CurLine != null &amp;&amp; StringUtils.EMPTY.equals(sep1CurLine.getRawLine())) {</span>
+<span class="nc bnc" id="L647" title="All 4 branches missed.">                while (sep1CurLine != null &amp;&amp; StringUtils.EMPTY.equals(sep1CurLine.getRawLine())) {</span>
 <span class="nc" id="L648">                    sep1CurLine = sep1Repo.next();</span>
                 }
 
                 // 現在行がnullの場合、出力を中断
-<span class="fc bfc" id="L652" title="All 2 branches covered.">                if (sep1CurLine == null) {</span>
+<span class="nc bnc" id="L652" title="All 2 branches missed.">                if (sep1CurLine == null) {</span>
                     // ソートされていない場合、出力を中断
-<span class="fc" id="L654">                    status = MergePhaseStatus.Compare;</span>
+<span class="nc" id="L654">                    status = MergePhaseStatus.Compare;</span>
                 }
 
                 // 現在行と分割ファイル2の現在行を比較
-<span class="pc bpc" id="L658" title="1 of 6 branches missed.">                if (sep1CurLine != null &amp;&amp; sep2CurLine != null &amp;&amp; sep1CurLine.compareTo(sep2CurLine) &gt; 0) {</span>
+<span class="nc bnc" id="L658" title="All 6 branches missed.">                if (sep1CurLine != null &amp;&amp; sep2CurLine != null &amp;&amp; sep1CurLine.compareTo(sep2CurLine) &gt; 0) {</span>
                     // 分割ファイル2の方が小さい場合、分割ファイル2のソート未済位置まで出力開始
-<span class="fc" id="L660">                    status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
+<span class="nc" id="L660">                    status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
 
                 } else {
                     // 現在行の方が小さい or 一致する場合、前行と現在行を比較
-<span class="fc bfc" id="L664" title="All 2 branches covered.">                    if (sep1BeforeLine.compareTo(sep1CurLine) &gt; 0) {</span>
+<span class="nc bnc" id="L664" title="All 2 branches missed.">                    if (sep1BeforeLine.compareTo(sep1CurLine) &gt; 0) {</span>
                         // ソートされていない場合、出力を中断
-<span class="fc" id="L666">                        status = MergePhaseStatus.Compare;</span>
+<span class="nc" id="L666">                        status = MergePhaseStatus.Compare;</span>
                     }
                 }
 
-<span class="fc bfc" id="L670" title="All 2 branches covered.">            } else if (MergePhaseStatus.Sep2GotoUnsortedPos.equals(status)) {</span>
+<span class="nc bnc" id="L670" title="All 2 branches missed.">            } else if (MergePhaseStatus.Sep2GotoUnsortedPos.equals(status)) {</span>
                 // --------------------------------------------------
                 // 分割ファイル2のソート未済位置まで出力中
                 // --------------------------------------------------
                 // 読み込み
-<span class="fc" id="L675">                sep2BeforeLine = sep2CurLine;</span>
-<span class="fc" id="L676">                sep2CurLine = sep2Repo.next();</span>
+<span class="nc" id="L675">                sep2BeforeLine = sep2CurLine;</span>
+<span class="nc" id="L676">                sep2CurLine = sep2Repo.next();</span>
 
                 // 前行をファイル出力
-<span class="fc" id="L679">                mergedRepo.write(sep2BeforeLine.getRawLine());</span>
+<span class="nc" id="L679">                mergedRepo.write(sep2BeforeLine.getRawLine());</span>
 
                 // 空行をスキップ
-<span class="pc bpc" id="L682" title="1 of 4 branches missed.">                while (sep2CurLine != null &amp;&amp; StringUtils.EMPTY.equals(sep2CurLine.getRawLine())) {</span>
+<span class="nc bnc" id="L682" title="All 4 branches missed.">                while (sep2CurLine != null &amp;&amp; StringUtils.EMPTY.equals(sep2CurLine.getRawLine())) {</span>
 <span class="nc" id="L683">                    sep2CurLine = sep2Repo.next();</span>
                 }
 
                 // 現在行がnullの場合、出力を中断
-<span class="fc bfc" id="L687" title="All 2 branches covered.">                if (sep2CurLine == null) {</span>
+<span class="nc bnc" id="L687" title="All 2 branches missed.">                if (sep2CurLine == null) {</span>
                     // ソートされていない場合、出力を中断
-<span class="fc" id="L689">                    status = MergePhaseStatus.Compare;</span>
+<span class="nc" id="L689">                    status = MergePhaseStatus.Compare;</span>
                 }
 
                 // 現在行と分割ファイル1の現在行を比較
-<span class="fc bfc" id="L693" title="All 6 branches covered.">                if (sep1CurLine != null &amp;&amp; sep2CurLine != null &amp;&amp; sep2CurLine.compareTo(sep1CurLine) &gt; 0) {</span>
+<span class="nc bnc" id="L693" title="All 6 branches missed.">                if (sep1CurLine != null &amp;&amp; sep2CurLine != null &amp;&amp; sep2CurLine.compareTo(sep1CurLine) &gt; 0) {</span>
                     // 分割ファイル1の方が小さい場合、分割ファイル1のソート未済位置まで出力開始
-<span class="fc" id="L695">                    status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
+<span class="nc" id="L695">                    status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
 
                 } else {
                     // 現在行の方が小さい or 一致する場合、前行と現在行を比較
-<span class="pc bpc" id="L699" title="1 of 2 branches missed.">                    if (sep2BeforeLine.compareTo(sep2CurLine) &gt; 0) {</span>
+<span class="nc bnc" id="L699" title="All 2 branches missed.">                    if (sep2BeforeLine.compareTo(sep2CurLine) &gt; 0) {</span>
                         // ソートされていない場合、出力を中断
 <span class="nc" id="L701">                        status = MergePhaseStatus.Compare;</span>
                     }
@@ -707,38 +707,38 @@ public class FileSortResult implements AggregateEntity {
                 // 分割ファイル1 / 分割ファイル2の比較中
                 // --------------------------------------------------
                 // 分割ファイル1現在行 と 分割ファイル2現在行 のデータ存在確認
-<span class="fc bfc" id="L710" title="All 2 branches covered.">                if (sep1CurLine == null) {</span>
-<span class="fc bfc" id="L711" title="All 2 branches covered.">                    if (sep2CurLine == null) {</span>
+<span class="nc bnc" id="L710" title="All 2 branches missed.">                if (sep1CurLine == null) {</span>
+<span class="nc bnc" id="L711" title="All 2 branches missed.">                    if (sep2CurLine == null) {</span>
                         // ------------------------------
                         // どちらも行データが存在しない場合
                         // ------------------------------
                         // ループを終了
-<span class="fc" id="L716">                        break;</span>
+<span class="nc" id="L716">                        break;</span>
 
                     } else {
                         // ------------------------------
                         // 分割ファイル2の行データが存在する場合
                         // ------------------------------
                         // 分割ファイル2のソート未済位置まで出力開始
-<span class="fc" id="L723">                        status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
+<span class="nc" id="L723">                        status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
                     }
 
                 } else {
-<span class="fc bfc" id="L727" title="All 2 branches covered.">                    if (sep2CurLine == null) {</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">                    if (sep2CurLine == null) {</span>
                         // ------------------------------
                         // 分割ファイル1の行データだけが存在する場合
                         // ------------------------------
                         // 分割ファイル1のソート未済位置まで出力開始
-<span class="fc" id="L732">                        status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
+<span class="nc" id="L732">                        status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
 
                     } else {
                         // ------------------------------
                         // どちらも行データが存在する場合
                         // ------------------------------
                         // 分割ファイル1現在行 と 分割ファイル2現在行 の比較
-<span class="pc bpc" id="L739" title="1 of 2 branches missed.">                        if (sep1CurLine.compareTo(sep2CurLine) &lt;= 0) {</span>
+<span class="nc bnc" id="L739" title="All 2 branches missed.">                        if (sep1CurLine.compareTo(sep2CurLine) &lt;= 0) {</span>
                             // 分割ファイル1現在行の方が小さい場合、分割ファイル1のソート未済位置まで出力開始
-<span class="fc" id="L741">                            status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
+<span class="nc" id="L741">                            status = MergePhaseStatus.Sep1GotoUnsortedPos;</span>
                         } else {
                             // 分割ファイル2現在行の方が小さい場合、分割ファイル2のソート未済位置まで出力開始
 <span class="nc" id="L744">                            status = MergePhaseStatus.Sep2GotoUnsortedPos;</span>
@@ -750,10 +750,10 @@ public class FileSortResult implements AggregateEntity {
         } // END 2つの分割ファイル両方を読み込みきるまでループ
 
         // ファイル操作を確定
-<span class="fc" id="L753">        sep1Repo.commit();</span>
-<span class="fc" id="L754">        sep2Repo.commit();</span>
-<span class="fc" id="L755">        mergedRepo.commit();</span>
-<span class="fc" id="L756">    }</span>
+<span class="nc" id="L753">        sep1Repo.commit();</span>
+<span class="nc" id="L754">        sep2Repo.commit();</span>
+<span class="nc" id="L755">        mergedRepo.commit();</span>
+<span class="nc" id="L756">    }</span>
 
     /**
      * ヘッダーファイルと、マージソート済ファイルを結合して結果ファイルを出力します。

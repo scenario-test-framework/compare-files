@@ -58,18 +58,19 @@ public class JsonRowReader&lt;R extends BaseRow&gt; extends JsonListRowReader&lt
 <span class="fc" id="L58">                curLine = bufferedReader.readLine();</span>
             }
 <span class="fc" id="L60">            content = contentBuilder.toString();</span>
-<span class="nc" id="L61">        } catch (IOException e) {</span>
-<span class="nc" id="L62">            throw new CompareFilesException(</span>
+
+<span class="nc" id="L62">        } catch (IOException e) {</span>
+<span class="nc" id="L63">            throw new CompareFilesException(</span>
                 Const.FILE_CANTREAD,
                 new Object[] {filePath + &quot;#&quot; + curRowNum},
                 e);
-<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">        }</span>
 
-<span class="fc" id="L68">        final Map&lt;String, Object&gt; returnMap = JsonUtils.parseString(content, Map.class);</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (returnMap != null) {</span>
-<span class="fc" id="L70">            returnMap.put(KEY_RAWLINE, content);</span>
+<span class="fc" id="L69">        final Map&lt;String, Object&gt; returnMap = JsonUtils.parseString(content, Map.class);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (returnMap != null) {</span>
+<span class="fc" id="L71">            returnMap.put(KEY_RAWLINE, content);</span>
         }
-<span class="fc" id="L72">        return returnMap;</span>
+<span class="fc" id="L73">        return returnMap;</span>
     }
 
     /*
@@ -78,7 +79,7 @@ public class JsonRowReader&lt;R extends BaseRow&gt; extends JsonListRowReader&lt
      */
     @Override
     protected boolean isMatchRecordType(final RecordLayout curRecordConfig, final Map&lt;String, ?&gt; targetLineMap) {
-<span class="nc" id="L81">        throw new CompareFilesException(Const.MSGCD_ERROR_READER_UNSUPPORTED_RECORDPATTERN, new Object[] {FileFormat.Json.ddId(), RecordPattern.DataOnly.ddId()});</span>
+<span class="nc" id="L82">        throw new CompareFilesException(Const.MSGCD_ERROR_READER_UNSUPPORTED_RECORDPATTERN, new Object[] {FileFormat.Json.ddId(), RecordPattern.DataOnly.ddId()});</span>
     }
 
 }

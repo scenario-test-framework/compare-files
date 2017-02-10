@@ -215,8 +215,8 @@ import me.suwash.util.FileUtils;
 <span class="nc" id="L215">            throw new CompareFilesException(Const.MSGCD_ERROR_REPOSITORY_TX_NOTEXIST, new Object[] {filePath});</span>
         }
 <span class="fc" id="L217">        chunk.add(row);</span>
-<span class="fc bfc" id="L218" title="All 2 branches covered.">        if (chunk.size() &gt;= chunkSize) {</span>
-<span class="fc" id="L219">            writeChunk();</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if (chunk.size() &gt;= chunkSize) {</span>
+<span class="nc" id="L219">            writeChunk();</span>
         }
 <span class="fc" id="L221">    }</span>
 

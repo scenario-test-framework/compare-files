@@ -36,8 +36,8 @@ public class TsvRowReader&lt;R extends BaseRow&gt; extends CsvRowReader&lt;R&gt;
      */
     @SafeVarargs
     public TsvRowReader(final String filePath, final String charset, final FileLayout layout, final int csvHeaderRow, final int csvDataStartRow, final R... dummy) throws FileNotFoundException {
-<span class="nc" id="L39">        super(filePath, charset, layout, csvHeaderRow, csvDataStartRow, dummy);</span>
-<span class="nc" id="L40">    }</span>
+<span class="fc" id="L39">        super(filePath, charset, layout, csvHeaderRow, csvDataStartRow, dummy);</span>
+<span class="fc" id="L40">    }</span>
 
     /*
      * (非 Javadoc)
@@ -45,7 +45,7 @@ public class TsvRowReader&lt;R extends BaseRow&gt; extends CsvRowReader&lt;R&gt;
      */
     @Override
     protected CsvConfig getCsvConfig() {
-<span class="nc" id="L48">        return CsvUtils.getTsvConfig();</span>
+<span class="fc" id="L48">        return CsvUtils.getTsvConfig();</span>
     }
 
 }
