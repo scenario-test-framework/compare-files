@@ -50,7 +50,7 @@ Compare Files,me.suwash.tools.comparefiles.infra.config,CompareRegexTargetList,0
 Compare Files,me.suwash.tools.comparefiles.infra.config,CompareRegexTarget,0,90,0,6,0,19,0,8,0,5
 Compare Files,me.suwash.tools.comparefiles.infra.config,FileLayout,0,146,6,18,0,28,6,23,0,17
 Compare Files,me.suwash.tools.comparefiles.infra.config,FileLayoutManager,75,384,7,37,12,89,7,28,1,12
-Compare Files,me.suwash.tools.comparefiles.main,CompareFilesOption,3,453,3,35,1,136,4,37,1,21
+Compare Files,me.suwash.tools.comparefiles.main,CompareFilesOption,3,457,3,35,1,136,4,37,1,21
 Compare Files,me.suwash.tools.comparefiles.main,BaseCompareFiles.new Object() {...},26,0,0,0,1,0,1,0,1,0
 Compare Files,me.suwash.tools.comparefiles.main,BaseCompareFiles.new Thread() {...},3,12,1,1,1,4,1,2,0,2
 Compare Files,me.suwash.tools.comparefiles.main,CompareFiles,11,184,1,5,4,50,2,8,1,6

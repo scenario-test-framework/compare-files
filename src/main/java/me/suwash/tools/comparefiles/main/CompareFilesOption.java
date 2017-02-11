@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Getter;
+import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 
 import org.apache.commons.lang3.StringUtils;
@@ -231,7 +232,7 @@ public class CompareFilesOption {
             .append("      レイアウト定義の設定を上書きして、指定された項目の比較を除外します。").append(StringUtils.LF)
             .append(StringUtils.LF)
             .append("    -layout, --overwriteLayoutDir").append(StringUtils.LF)
-            .append("      ${comparefiles_root}/config/compareFilesLayout 配下のレイアウト定義に加えて、指定したディレクトリ配下のレイアウト定義を読込みます。").append(StringUtils.LF)
+            .append("      ${comparefiles_root}/config/").append(Const.CLASSPATH_LAYOUT_DIR_NAME).append(" 配下のレイアウト定義に加えて、指定したディレクトリ配下のレイアウト定義を読込みます。").append(StringUtils.LF)
             .append("      同一の物理ファイル名正規表現を持つレイアウトが存在する場合、後勝ち で上書きします。").append(StringUtils.LF)
             .append("      ※例）config配下に「定義書から自動生成したレイアウト」を配置。").append(StringUtils.LF)
             .append("         テストで「共通適用するレイアウト」、「今回のケースだけに適用するレイアウト」").append(StringUtils.LF)

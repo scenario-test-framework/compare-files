@@ -57,7 +57,7 @@
 								どの行の、どの項目に差分があるのかを確認できます。
 							</p>
 						</header>
-						<span class="image featured"><img src="images/pic01.jpg" alt="" /></span>
+						<span class="image featured"><img src="images/text.jpg" alt="" /></span>
 					</section>
 
 					<section class="box special features">
@@ -104,7 +104,7 @@
 								どこのピクセル位置に差分があるのかを確認できます。
 							</p>
 						</header>
-						<span class="image featured"><img src="images/pic01.jpg" alt="" /></span>
+						<span class="image featured"><img src="images/image.jpg" alt="" /></span>
 					</section>
 
 					<section class="box special features">
@@ -146,7 +146,7 @@
 						<div class="6u 12u(narrower)">
 
 							<section class="box special">
-								<span class="image featured"><img src="images/pic02.jpg" alt="" /></span>
+								<span class="image featured"><img src="images/directory.jpg" alt="" /></span>
 								<h3>ディレクトリ比較</h3>
 								<p>
 									構成が同じ2つのディレクトリを再帰的に比較できます。
@@ -162,7 +162,7 @@
 						<div class="6u 12u(narrower)">
 
 							<section class="box special">
-								<span class="image featured"><img src="images/pic03.jpg" alt="" /></span>
+								<span class="image featured"><img src="images/regex.jpg" alt="" /></span>
 								<h3>正規表現での指定比較</h3>
 								<p>
 									タイムスタンプが含まれる場合など、可変のファイル名の比較ができます。
@@ -212,7 +212,7 @@ ln -s ${DIR_PARENT}/compare_files_${VERSION} ${DIR_PARENT}/compare_files
 # カレントディレクトリからの相対パスで対象を指定できます。
 cd compare_files/
 
-# 比較レイアウトは config/compareFilesLayout/sample_text.json を参照してください。
+# 比較レイアウトは config/compare_layout/sample_text.json を参照してください。
 bin/compare_files.sh sample/left/TEXT_JSONLIST/jsonlist_ng.json sample/right/TEXT_JSONLIST/jsonlist_ng.json
 
 # 比較結果がOKの場合：0、NGの場合：3、エラーが発生した場合：6を返します。
@@ -231,7 +231,7 @@ rm -fr result/
 # カレントディレクトリからの相対パスで対象を指定できます。
 cd compare_files/
 
-# 比較レイアウトは config/compareFilesLayout/sample_image.json を参照してください。
+# 比較レイアウトは config/compare_layout/sample_image.json を参照してください。
 bin/compare_files.sh sample/left/IMAGE_JPG/jpg_ng.jpg sample/right/IMAGE_JPG/jpg_ng.jpg
 
 # 比較結果がOKの場合：0、NGの場合：3、エラーが発生した場合：6を返します。

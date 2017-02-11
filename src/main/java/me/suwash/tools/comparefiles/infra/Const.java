@@ -11,7 +11,7 @@ public interface Const extends MessageConst {
     String CHARSET_DEFAULT_CONFIG = "UTF-8";
 
     /** ファイルレイアウト定義配置ディレクトリ（classpath内）。 */
-    String CLASSPATH_LAYOUT_DIR_NAME = "compareFilesLayout";
+    String CLASSPATH_LAYOUT_DIR_NAME = "compare_layout";
 
     /** デフォルトの項目ID。 */
     String DEFAULT_ITEM_ID = "value";
