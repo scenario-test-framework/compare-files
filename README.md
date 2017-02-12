@@ -98,14 +98,14 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
   | 項目                          | 説明                                                                                                                                                                                                                                                                                                    |
   |:------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-  | overwriteLayoutDir            | 上書き比較レイアウトディレクトリ<br/>クラスパスの比較レイアウトを上書きしたい場合、ディレクトリを指定できます。<br/>ディレクトリ直下の全てのファイルを読み込みます。レイアウトは、比較レイアウトを参照してください。                                                                                    |
+  | overwriteLayoutDir            | 上書き比較レイアウトディレクトリ<br/>クラスパスの比較レイアウトを上書きしたい場合、ディレクトリを指定できます。<br/>ディレクトリ直下の全てのファイルを読み込みます。レイアウトは、比較レイアウトを参照してください。                                                                                    |
   | deleteWorkDir                 | 一時ファイルを削除するか?<br/>テキストファイル比較の場合、左右のファイルをソートしてから比較を実施します。<br/>ソート後の、実際に比較するファイルを保持する場合は、falseを指定します。                                                                                                                  |
-  | sorted                        | 比較対象ファイルはソート済か?<br/>テキストファイル比較のソートをスキップして比較を実施します。<br/>左右のファイルが同じ条件でソートされている場合、高速化が見込めます。                                                                                                                                 |
-  | csvHeaderRow                  | 何行目を゙ヘッダー行として扱うか<br/>ヘッダー付きCSV/TSVの比較時に利用されます。                                                                                                                                                                                                                          |
-  | csvDataStartRow               | 何行目からデータが始まるか<br/>ヘッダー付きCSV/TSVの比較時に利用されます。                                                                                                                                                                                                                              |
-  | codeValueForOnlyOneRecordType | レコードタイプが1つのみの場合に設定する、レコードタイプの判別文字列<br/>固定長テキストの比較時に利用されます。<br/>「レコードタイプを判別する文字列」が対象ファイルに出力されない場合など、1種類のレコードタイプを強制的に利用したい 場合は、この値のレコードタイプを比較レイアウトに記載してください。 |
-  | outputDir                     | 結果ファイル出力ディレクトリ                                                                                                                                                                                                                                                                            |
-  | outputCharset                 | 結果ファイル文字コード                                                                                                                                                                                                                                                                                  |
+  | sorted                        | 比較対象ファイルはソート済か?<br/>テキストファイル比較のソートをスキップして比較を実施します。<br/>左右のファイルが同じ条件でソートされている場合、高速化が見込めます。                                                                                                                                 |
+  | csvHeaderRow                  | 何行目を゙ヘッダー行として扱うか<br/>ヘッダー付きCSV/TSVの比較時に利用されます。                                                                                                                                                                                                                          |
+  | csvDataStartRow               | 何行目からデータが始まるか<br/>ヘッダー付きCSV/TSVの比較時に利用されます。                                                                                                                                                                                                                              |
+  | codeValueForOnlyOneRecordType | レコードタイプが1つのみの場合に設定する、レコードタイプの判別文字列<br/>固定長テキストの比較時に利用されます。<br/>「レコードタイプを判別する文字列」が対象ファイルに出力されない場合など、1種類のレコードタイプを強制的に利用したい 場合は、この値のレコードタイプを比較レイアウトに記載してください。 |
+  | outputDir                     | 結果ファイル出力ディレクトリ                                                                                                                                                                                                                                                                            |
+  | outputCharset                 | 結果ファイル文字コード                                                                                                                                                                                                                                                                                  |
   | compareResultFileName         | 一括比較結果ファイル名<br/>ディレクトリ比較、正規表現指定比較を実施した場合に出力されます。                                                                                                                                                                                                             |
   | compareDetailFilePrefix       | ファイル比較結果ファイル名プリフィックス<br/>テキストファイル比較：{プリフィックス}_{右ファイル名}_{右ディレクトリ}.csv<br/>画像ファイル比較：{プリフィックス}_{右ファイル名}_{右ディレクトリ}.png                                                                                                      |
   | writeDiffOnly                 | 結果ファイルに出力する内容を、差分のみにするか？<br/>比較結果がOKの場合、ファイルに出力されなくなります。                                                                                                                                                                                               |
@@ -182,14 +182,14 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
   | ファイル情報 | logicalFileName | 論理ファイル名 |
   || fileRegexPattern | 物理ファイル名正規表現 |
   || fileFormat | ファイル形式<br/>CSV_noHeader/CSV_withHeader/TSV_noHeader/TSV_withHeader/Json/JsonList/Fixed/Text/Image |
-  || charset | 文字コード<br/>テキストファイル比較時に利用されます。 |
-  || lineSp | 改行コード<br/>CR/LF/CRLF/None<br/>テキストファイル比較時に利用されます。 |
+  || charset | 文字コード<br/>テキストファイル比較時に利用されます。 |
+  || lineSp | 改行コード<br/>CR/LF/CRLF/None<br/>テキストファイル比較時に利用されます。 |
   || ignoreAreaList | 比較除外エリアリスト<br/> x, y, width, height を jsonオブジェクトで指定します。<br/>画像ファイル比較時に利用されます。 |
-  | テキストファイル.レコード情報 | type | レコードタイプ<br/>Header/Data/Trailer/End |
-  || codeValue | レコードタイプを判別する文字列<br/>※例：Header=0, Data=1, Trailer=8, End=9 |
+  | テキストファイル.レコード情報 | type | レコードタイプ<br/>Header/Data/Trailer/End |
+  || codeValue | レコードタイプを判別する文字列<br/>※例：Header=0, Data=1, Trailer=8, End=9 |
   | テキストファイル.レコード.項目情報 | id | 項目ID<br/>※比較結果には、この値が出力されます。 |
   || name | 項目名 |
-  || byteLength | バイト長 |
+  || byteLength | バイト長 |
   || criteria | 比較条件 ※詳細は、後述を参照してください。 |
   || compareKey | 対象行を選択する比較キーとして利用する場合にtrueを設定します。 |
 
@@ -294,35 +294,35 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
 #### 比較条件
 
-比較レイアウトで指定できる条件です。 左右の値を比較して、下記の条件にマッチする場合に「比較結果=OK」と判断します。
+比較レイアウトで指定できる条件です。 左右の値を比較して、下記の条件にマッチする場合に「比較結果=OK」と判断します。
 
 - 条件一覧
 
-  | コード                      | 比較内容                                                                                                                    |
+  | コード                      | 比較内容                                                                                                                    |
   |:----------------------------|:----------------------------------------------------------------------------------------------------------------------------|
   | Ignore                      | 比較を除外。                                                                                                                |
-  | Equal                       | 文字列としての比較結果が、一致の場合、OKと判断。                                                                            |
-  | NotEqual                    | 文字列としての比較結果が、不一致の場合、OKと判断。                                                                          |
-  | Number_GraterEqualThan_Left   | 数値としての比較結果が、左以上の場合、OKと判断。                                                                            |
-  | Number_GraterThan_Left        | 数値としての比較結果が、左より大きい場合、OKと判断。                                                                        |
-  | Number_LessEqualThan_Left     | 数値としての比較結果が、左以下の場合、OKと判断。                                                                            |
-  | Number_LessThan_Left          | 数値としての比較結果が、左より小さい場合、OKと判断。                                                                        |
-  | Year_GraterEqualThan_Left     | 年(yyyy)としての比較結果が、左以上の場合、OKと判断。                                                                        |
-  | Year_GraterThan_Left          | 年(yyyy)としての比較結果が、左より大きい場合、OKと判断。                                                                    |
-  | Year_LessEqualThan_Left       | 年(yyyy)としての比較結果が、左以下の場合、OKと判断。                                                                        |
-  | Year_LessThan_Left            | 年(yyyy)としての比較結果が、左より小さい場合、OKと判断。                                                                    |
-  | Month_GraterEqualThan_Left    | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
-  | Month_GraterThan_Left         | 年月(yyyyMM)としての比較結果が、左より大きい場合、OKと判断。                                                                |
-  | Month_LessEqualThan_Left      | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
-  | Month_LessThan_Left           | 年月(yyyyMM)としての比較結果が、左より小さい場合、OKと判断。                                                                |
-  | Date_GraterEqualThan_Left     | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以上の場合、OKと判断。                                        |
-  | Date_GraterThan_Left          | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より大きい場合、OKと判断。                                    |
-  | Date_LessEqualThan_Left       | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以下の場合、OKと判断。                                        |
-  | Date_LessThan_Left            | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より小さい場合、OKと判断。                                    |
-  | Datetime_GraterEqualThan_Left | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以上の 場合、OKと判断。     |
-  | Datetime_GraterThan_Left      | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より大 きい場合、OKと判断。 |
-  | Datetime_LessEqualThan_Left   | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以下の 場合、OKと判断。     |
-  | Datetime_LessThan_Left        | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より小 さい場合、OKと判断。 |
+  | Equal                       | 文字列としての比較結果が、一致の場合、OKと判断。                                                                            |
+  | NotEqual                    | 文字列としての比較結果が、不一致の場合、OKと判断。                                                                          |
+  | Number_GraterEqualThan_Left   | 数値としての比較結果が、左以上の場合、OKと判断。                                                                            |
+  | Number_GraterThan_Left        | 数値としての比較結果が、左より大きい場合、OKと判断。                                                                        |
+  | Number_LessEqualThan_Left     | 数値としての比較結果が、左以下の場合、OKと判断。                                                                            |
+  | Number_LessThan_Left          | 数値としての比較結果が、左より小さい場合、OKと判断。                                                                        |
+  | Year_GraterEqualThan_Left     | 年(yyyy)としての比較結果が、左以上の場合、OKと判断。                                                                        |
+  | Year_GraterThan_Left          | 年(yyyy)としての比較結果が、左より大きい場合、OKと判断。                                                                    |
+  | Year_LessEqualThan_Left       | 年(yyyy)としての比較結果が、左以下の場合、OKと判断。                                                                        |
+  | Year_LessThan_Left            | 年(yyyy)としての比較結果が、左より小さい場合、OKと判断。                                                                    |
+  | Month_GraterEqualThan_Left    | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
+  | Month_GraterThan_Left         | 年月(yyyyMM)としての比較結果が、左より大きい場合、OKと判断。                                                                |
+  | Month_LessEqualThan_Left      | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
+  | Month_LessThan_Left           | 年月(yyyyMM)としての比較結果が、左より小さい場合、OKと判断。                                                                |
+  | Date_GraterEqualThan_Left     | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以上の場合、OKと判断。                                        |
+  | Date_GraterThan_Left          | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より大きい場合、OKと判断。                                    |
+  | Date_LessEqualThan_Left       | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以下の場合、OKと判断。                                        |
+  | Date_LessThan_Left            | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より小さい場合、OKと判断。                                    |
+  | Datetime_GraterEqualThan_Left | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以上の 場合、OKと判断。     |
+  | Datetime_GraterThan_Left      | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より大 きい場合、OKと判断。 |
+  | Datetime_LessEqualThan_Left   | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以下の 場合、OKと判断。     |
+  | Datetime_LessThan_Left        | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より小 さい場合、OKと判断。 |
 
 
 
@@ -359,7 +359,9 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
   | Length        | 比較処理時間 |
 
 - サンプル
+
   ![compare_summary](docs/images/compare_summary.png "compare_summary.png")
+
 
 ### テキストファイル比較結果
 
@@ -383,7 +385,9 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 | 比較レイアウトの項目群 | 比較レイアウトで定義した項目を、定義順に全て出力します。<br/>レコードタイプが複数ある場合「レコードタイプ.項目ID」で全ての項目を列挙<br/>ファイル形式=Textの場合「value」の一項目に行全体を出力 |
 
 - サンプル
+
   ![compare_detail_text](docs/images/compare_detail_text.png "compare_detail_text.png")
+
 
 ### 画像ファイル比較結果
 
@@ -409,7 +413,7 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 ### テキスト比較
 
 - ソートの挙動
-下記のレイアウトの場合、内部的なソートは実施しません。出力行にずれがある場合、ずれたままの比較結果になるのでご注意ください。
+下記のレイアウトの場合、内部的なソートは実施しません。出力行にずれがある場合、ずれたままの比較結果になるのでご注意ください。
   - 比較レイアウトなし
   - fileFormat = Text
   - fileFormat = Json
