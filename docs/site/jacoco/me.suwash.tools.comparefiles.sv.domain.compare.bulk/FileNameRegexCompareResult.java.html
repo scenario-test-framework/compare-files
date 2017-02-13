@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>FileNameRegexCompareResult.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Compare Files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.domain.compare.bulk</a> &gt; <span class="el_source">FileNameRegexCompareResult.java</span></div><h1>FileNameRegexCompareResult.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.domain.compare.bulk;
+
+import java.io.File;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
+import me.suwash.tools.comparefiles.infra.config.CompareRegexTarget;
+import me.suwash.tools.comparefiles.infra.config.CompareRegexTargetList;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
+import me.suwash.tools.comparefiles.infra.policy.AggregateEntity;
+import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
+import me.suwash.tools.comparefiles.sv.da.file.repository.impl.FileCompareResultRepositoryImpl;
+import me.suwash.tools.comparefiles.sv.domain.compare.BaseCompareInput;
+import me.suwash.tools.comparefiles.sv.domain.compare.file.FileCompareResult;
+import me.suwash.util.CompareUtils.CompareStatus;
+import me.suwash.util.FileUtils;
+import me.suwash.util.validation.constraints.ExistPath;
+
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.NotEmpty;
+
+/**
+ * 対象ファイル名正規表現指定の比較結果。
+ */
+@Getter
+<span class="fc" id="L32">@lombok.extern.slf4j.Slf4j</span>
+public class FileNameRegexCompareResult extends BaseBulkCompareResult implements AggregateEntity {
+
+    private static final String MSG_DIR_NOT_EXIST = &quot;[DirNotExist]&quot;;
+    private static final String MSG_FILE_UNMATCHED = &quot;[FileUnmatched]&quot;;
+
+<span class="nc" id="L38">    private final FileNameRegexCompareInput input;</span>
+
+    /**
+     * コンストラクタ。
+     *
+     * @param targetConfigFilePath 比較対象設定ファイルパス
+     * @param outputDirPath 出力ディレクトリパス
+     * @param systemConfig システム設定
+     */
+    public FileNameRegexCompareResult(
+        final String targetConfigFilePath,
+        final String outputDirPath,
+        final CompareFilesConfig systemConfig) {
+
+<span class="fc" id="L52">        super();</span>
+<span class="fc" id="L53">        final FileNameRegexCompareInput input = new FileNameRegexCompareInput();</span>
+<span class="fc" id="L54">        input.setTargetConfigFilePath(targetConfigFilePath);</span>
+<span class="fc" id="L55">        input.setOutputDirPath(outputDirPath);</span>
+<span class="fc" id="L56">        input.setSystemConfig(systemConfig);</span>
+<span class="fc" id="L57">        this.input = input;</span>
+<span class="fc" id="L58">    }</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.domain.compare.CompareResult#compare()
+     */
+    @Override
+    public void compare() {
+        // --------------------------------------------------------------------------------
+        // 事前処理
+        // --------------------------------------------------------------------------------
+<span class="fc" id="L69">        final String targetConfigFilePath = input.getTargetConfigFilePath();</span>
+<span class="fc" id="L70">        final String outputDirPath = input.getOutputDirPath();</span>
+<span class="fc" id="L71">        final CompareFilesConfig systemConfig = input.getSystemConfig();</span>
+
+        // 単項目チェック
+<span class="fc" id="L74">        ValidateUtils.validate(input);</span>
+
+        // 出力ディレクトリ
+<span class="fc" id="L77">        FileUtils.initDir(outputDirPath);</span>
+
+        // --------------------------------------------------------------------------------
+        // 本処理
+        // --------------------------------------------------------------------------------
+        // 実行開始時刻
+<span class="fc" id="L83">        final Date startTime = new Date();</span>
+
+        // ファイル比較結果リポジトリ
+<span class="fc" id="L86">        final FileCompareResultRepositoryImpl resultRepo = new FileCompareResultRepositoryImpl(</span>
+<span class="fc" id="L87">            outputDirPath + &quot;/&quot; + systemConfig.getCompareResultFileName(),</span>
+<span class="fc" id="L88">            systemConfig.getOutputCharset(),</span>
+            null,
+<span class="fc" id="L90">            systemConfig.getChunkSize()</span>
+            );
+<span class="fc" id="L92">        resultRepo.begin();</span>
+
+        // 比較対象設定の読込み
+<span class="fc" id="L95">        log.info(&quot;・比較対象設定の読込み&quot;);</span>
+<span class="fc" id="L96">        final CompareRegexTargetList targetList = new CompareRegexTargetList(targetConfigFilePath, Const.CHARSET_DEFAULT_CONFIG);</span>
+
+        // 比較
+<span class="fc" id="L99">        log.info(&quot;・比較&quot;);</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        for (final CompareRegexTarget target : targetList) {</span>
+<span class="fc" id="L101">            compareTargetConfig(target, systemConfig, resultRepo, startTime);</span>
+<span class="fc" id="L102">        }</span>
+
+        // サマリーファイルwriterをclose
+<span class="fc" id="L105">        resultRepo.commit();</span>
+
+        // --------------------------------------------------------------------------------
+        // 事後処理
+        // --------------------------------------------------------------------------------
+        // workディレクトリの削除
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (systemConfig.isDeleteWorkDir()) {</span>
+<span class="fc" id="L112">            final String workDirPath = systemConfig.getOutputDir() + &quot;/&quot; + Const.DIRNAME_WORK;</span>
+<span class="fc" id="L113">            FileUtils.rmdirs(workDirPath);</span>
+        }
+<span class="fc" id="L115">    }</span>
+
+    /**
+     * 比較対象設定に従ってファイルを比較します。
+     *
+     * @param target 比較対象設定
+     * @param systemConfig システム設定
+     * @param resultRepo ファイル比較結果リポジトリ
+     * @param startTime 処理開始時刻
+     */
+    private void compareTargetConfig(
+        final CompareRegexTarget target,
+        final CompareFilesConfig systemConfig,
+        final FileCompareResultRepositoryImpl resultRepo,
+        final Date startTime) {
+
+        // ファイル名正規表現
+<span class="fc" id="L132">        final Pattern pattern = target.getPattern();</span>
+
+        // ----------------------------------------------------------------------
+        // 左定義チェック
+        // ----------------------------------------------------------------------
+        // 左ディレクトリ
+<span class="fc" id="L138">        final File leftDir = target.getLeftDir();</span>
+<span class="fc" id="L139">        final boolean isExistLeftDir = leftDir.isDirectory();</span>
+
+        // 左ファイル
+<span class="fc" id="L142">        File leftFile = null;</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (isExistLeftDir) {</span>
+<span class="fc" id="L144">            leftFile = getMatchedTargetFile(leftDir, pattern);</span>
+        }
+<span class="fc" id="L146">        boolean isLeftFileMatched = false;</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (leftFile != null) {</span>
+<span class="fc" id="L148">            isLeftFileMatched = true;</span>
+        }
+
+        // ----------------------------------------------------------------------
+        // 右定義チェック
+        // ----------------------------------------------------------------------
+        // 右ディレクトリ
+<span class="fc" id="L155">        final File rightDir = target.getRightDir();</span>
+<span class="fc" id="L156">        final boolean isExistRightDir = rightDir.isDirectory();</span>
+
+        // 右ファイル
+<span class="fc" id="L159">        File rightFile = null;</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        if (isExistRightDir) {</span>
+<span class="fc" id="L161">            rightFile = getMatchedTargetFile(rightDir, pattern);</span>
+        }
+<span class="fc" id="L163">        boolean isRightFileMatched = false;</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        if (rightFile != null) {</span>
+<span class="fc" id="L165">            isRightFileMatched = true;</span>
+        }
+
+        // ----------------------------------------------------------------------
+        // 比較実行
+        // ----------------------------------------------------------------------
+<span class="fc bfc" id="L171" title="All 4 branches covered.">        if (isLeftFileMatched &amp;&amp; isRightFileMatched) {</span>
+            // 左右どちらも比較チェックを通過した場合、比較を実行
+<span class="fc" id="L173">            compareFile(leftFile, rightFile, systemConfig.getOutputDir(), systemConfig, resultRepo);</span>
+
+        } else {
+            // 比較チェックにNGが存在する場合、サマリー出力
+<span class="fc" id="L177">            final String fileRegex = target.getFileNameRegex();</span>
+<span class="fc" id="L178">            writeNgResult(isExistLeftDir, isExistRightDir, leftDir, leftFile, rightDir, rightFile, fileRegex, resultRepo, startTime);</span>
+        }
+<span class="fc" id="L180">    }</span>
+
+    /**
+     * 指定ディレクトリ直下で、はじめに正規表現にマッチしたファイルを返します。
+     *
+     * @param targetDir 対象ディレクトリ
+     * @param pattern 正規表現
+     * @return はじめにマッチしたファイル
+     */
+    private File getMatchedTargetFile(final File targetDir, final Pattern pattern) {
+        // 全ファイルループ
+<span class="fc" id="L191">        final File[] files = targetDir.listFiles();</span>
+<span class="pc bpc" id="L192" title="1 of 2 branches missed.">        if (files != null) {</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">            for (final File curFile : files) {</span>
+                // 正規表現のマッチを確認
+<span class="fc" id="L195">                final Matcher matcher = pattern.matcher(curFile.getName());</span>
+<span class="fc bfc" id="L196" title="All 2 branches covered.">                if (matcher.matches()) {</span>
+                    // はじめにマッチしたファイルを比較対象に設定
+<span class="fc" id="L198">                    return curFile;</span>
+                }
+            }
+        }
+<span class="fc" id="L202">        return null;</span>
+    }
+
+    /**
+     * チェックNGの結果を出力します。
+     *
+     * @param isExistLeftDir 左ディレクトリが存在するか
+     * @param isExistRightDir 右ディレクトリが存在するか
+     * @param leftDir 左ディレクトリ
+     * @param leftFile 左ファイル
+     * @param rightDir 右ディレクトリ
+     * @param rightFile 右ファイル
+     * @param fileRegex 正規表現
+     * @param resultRepo ファイル比較結果リポジトリ
+     * @param startTime 処理開始時刻
+     */
+    private void writeNgResult(
+        final boolean isExistLeftDir,
+        final boolean isExistRightDir,
+        final File leftDir,
+        final File leftFile,
+        final File rightDir,
+        final File rightFile,
+        final String fileRegex,
+        final FileCompareResultRepositoryImpl resultRepo,
+        final Date startTime) {
+
+<span class="fc" id="L229">        String leftFilePath = null;</span>
+<span class="fc" id="L230">        String rightFilePath = null;</span>
+<span class="fc" id="L231">        CompareStatus compareStatus = null;</span>
+
+        // ----------------------------------------------------------------------
+        // 左チェック結果確認
+        // ----------------------------------------------------------------------
+<span class="fc bfc" id="L236" title="All 2 branches covered.">        if (isExistLeftDir) {</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">            if (isExistRightDir) {</span>
+                // 左Dir：○、右Dir：○
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">                if (leftFile == null) {</span>
+<span class="fc" id="L240">                    leftFilePath = MSG_FILE_UNMATCHED + leftDir.getAbsolutePath() + File.separator + fileRegex;</span>
+
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">                    if (rightFile == null) {</span>
+                        // 左Dir：○、右Dir：○、左File：×、右ファイル：×
+<span class="fc" id="L244">                        rightFilePath = MSG_FILE_UNMATCHED + rightDir.getAbsolutePath() + File.separator + fileRegex;</span>
+<span class="fc" id="L245">                        compareStatus = CompareStatus.Error;</span>
+
+                    } else {
+                        // 左Dir：○、右Dir：○、左File：×、右ファイル：○
+<span class="nc" id="L249">                        rightFilePath = rightFile.getAbsolutePath();</span>
+<span class="nc" id="L250">                        compareStatus = CompareStatus.RightOnly;</span>
+                    }
+
+                } else {
+<span class="nc" id="L254">                    leftFilePath = leftFile.getAbsolutePath();</span>
+
+<span class="nc bnc" id="L256" title="All 2 branches missed.">                    if (rightFile == null) {</span>
+                        // 左Dir：○、右Dir：○、左File：○、右ファイル：×
+<span class="nc" id="L258">                        rightFilePath = MSG_FILE_UNMATCHED + rightDir.getAbsolutePath() + File.separator + fileRegex;</span>
+<span class="nc" id="L259">                        compareStatus = CompareStatus.LeftOnly;</span>
+
+                    } else {
+                        // 左Dir：○、右Dir：○、左File：○、右ファイル：○ の場合、この処理は呼ばれない想定
+<span class="nc" id="L263">                        rightFilePath = rightFile.getAbsolutePath();</span>
+<span class="nc" id="L264">                        throw new CompareFilesException(Const.UNSUPPORTED);</span>
+                    }
+                }
+
+            } else {
+                // 左Dir：○、右Dir：×
+<span class="fc" id="L270">                rightFilePath = MSG_DIR_NOT_EXIST + rightDir.getAbsolutePath();</span>
+<span class="fc" id="L271">                compareStatus = CompareStatus.LeftOnly;</span>
+<span class="pc bpc" id="L272" title="1 of 2 branches missed.">                if (leftFile == null) {</span>
+                    // 左Dir：○、右Dir：×、左File：×、右ファイル：-
+<span class="nc" id="L274">                    leftFilePath = leftDir.getAbsolutePath();</span>
+                } else {
+                    // 左Dir：○、右Dir：×、左File：○、右ファイル：-
+<span class="fc" id="L277">                    leftFilePath = leftFile.getAbsolutePath();</span>
+                }
+            }
+
+        } else {
+<span class="fc" id="L282">            leftFilePath = MSG_DIR_NOT_EXIST + leftDir.getAbsolutePath();</span>
+
+<span class="fc bfc" id="L284" title="All 2 branches covered.">            if (isExistRightDir) {</span>
+                // 左Dir：×、右Dir：○
+<span class="fc" id="L286">                compareStatus = CompareStatus.RightOnly;</span>
+<span class="pc bpc" id="L287" title="1 of 2 branches missed.">                if (rightFile == null) {</span>
+                    // 左Dir：×、右Dir：○、左File：-、右ファイル：×
+<span class="nc" id="L289">                    rightFilePath = rightDir.getAbsolutePath();</span>
+                } else {
+                    // 左Dir：×、右Dir：○、左File：-、右ファイル：○
+<span class="fc" id="L292">                    rightFilePath = rightFile.getAbsolutePath();</span>
+                }
+
+            } else {
+                // 左Dir：×、右Dir：×、左File：-、右ファイル：-
+<span class="fc" id="L297">                rightFilePath = MSG_DIR_NOT_EXIST + rightDir.getAbsolutePath();</span>
+<span class="fc" id="L298">                compareStatus = CompareStatus.Error;</span>
+            }
+        }
+
+        // ----------------------------------------------------------------------
+        // サマリー出力
+        // ----------------------------------------------------------------------
+<span class="fc" id="L305">        final FileCompareResult result = FileCompareResult.getFixedResult(compareStatus, leftFilePath, rightFilePath, startTime, startTime);</span>
+<span class="fc" id="L306">        resultRepo.write(result);</span>
+
+        // ----------------------------------------------------------------------
+        // DTO更新
+        // ----------------------------------------------------------------------
+<span class="pc bfc" id="L311" title="All 2 branches covered.">        switch (compareStatus) {</span>
+            case LeftOnly:
+            case RightOnly:
+<span class="fc" id="L314">                this.addFileResult(compareStatus);</span>
+<span class="fc" id="L315">                break;</span>
+            default:
+<span class="fc" id="L317">                this.addFileError();</span>
+                break;
+        }
+<span class="fc" id="L320">    }</span>
+
+    /**
+     * ファイル比較を実行します。
+     *
+     * @param leftFile 左ファイル
+     * @param rightFile 右ファイル
+     * @param outputDirPath 出力ディレクトリパス
+     * @param systemConfig システム設定
+     * @param resultRepo ファイル比較結果リポジトリ
+     */
+    private void compareFile(
+        final File leftFile,
+        final File rightFile,
+        final String outputDirPath,
+        final CompareFilesConfig systemConfig,
+        final FileCompareResultRepositoryImpl resultRepo) {
+
+        // 左ファイルパス
+<span class="fc" id="L339">        final String leftFilePath = leftFile.getPath();</span>
+        // 右ファイルパス
+<span class="fc" id="L341">        final String rightFilePath = rightFile.getPath();</span>
+
+        // ファイル比較時の設定上書き項目を退避
+<span class="fc" id="L344">        final boolean isSorted = systemConfig.isSorted();</span>
+
+        // ファイル比較実行
+        try {
+<span class="fc" id="L348">            final FileCompareResult result = new FileCompareResult(leftFilePath, rightFilePath, outputDirPath, systemConfig);</span>
+<span class="fc" id="L349">            result.compare();</span>
+
+            // 結果を一括結果ファイルに出力
+<span class="fc" id="L352">            resultRepo.write(result);</span>
+
+            // 結果確認
+<span class="fc" id="L355">            this.addFileResult(result.getStatus());</span>
+
+<span class="nc" id="L357">        } catch (Exception e) {</span>
+<span class="nc" id="L358">            log.error(</span>
+<span class="nc" id="L359">                CompareFilesMessageSource.getInstance().getMessage(Const.ERRORHANDLE, new Object[] {&quot;FileCompare&quot;, &quot;left=&quot; + leftFilePath + &quot;, right=&quot; + rightFilePath}),</span>
+                e);
+
+            // 妥当性チェックエラー表示
+<span class="nc" id="L363">            final String violationMessage = ValidateUtils.getViolationMessage();</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">            if (! StringUtils.isEmpty(violationMessage)) {</span>
+<span class="nc" id="L365">                log.error(violationMessage);</span>
+            }
+
+            // エラー追加
+<span class="nc" id="L369">            final FileCompareResult result = FileCompareResult.getFixedResult(CompareStatus.Error, leftFilePath, rightFilePath, startTime, startTime);</span>
+<span class="nc" id="L370">            this.addFileResult(result.getStatus());</span>
+<span class="nc" id="L371">            resultRepo.write(result);</span>
+<span class="fc" id="L372">        }</span>
+
+        // 退避した設定上書き項目をリストア
+<span class="fc" id="L375">        systemConfig.setSorted(isSorted);</span>
+<span class="fc" id="L376">    }</span>
+
+    /**
+     * 対象ファイル名正規表現指定の比較入力データモデル。
+     */
+    @Getter
+<span class="fc" id="L382">    @Setter</span>
+//    @EqualsAndHashCode(callSuper = true)
+//    @ToString(callSuper = true)
+<span class="fc" id="L385">    private static class FileNameRegexCompareInput extends BaseCompareInput {</span>
+
+        /** 比較対象設定ファイルパス。 */
+        @NotEmpty
+        @me.suwash.util.validation.constraints.File
+        @ExistPath
+<span class="fc" id="L391">        private String targetConfigFilePath;</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>
