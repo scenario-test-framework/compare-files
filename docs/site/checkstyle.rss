@@ -19,9 +19,9 @@ under the License.
 -->
 <rss version="0.91">
   <channel>
-    <title>Compare Files - Checkstyle report</title>
+    <title>compare-files - Checkstyle report</title>
     <link>https://suwa-sh.github.io/compare-files</link>
-    <description>Compare Files - Checkstyle report</description>
+    <description>compare-files - Checkstyle report</description>
     <language>en-us</language>
     <copyright>&#169;2017 Private</copyright>
     <item>
