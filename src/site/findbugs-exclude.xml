@@ -1,6 +1,0 @@
-<FindBugsFilter>
-  <Match>
-    <Class name="~me\.suwash\.tools\.comparefiles\.sv\.da\.file\..*\.*Base.*"/>
-    <Bug pattern="DM_DEFAULT_ENCODING"/>
-  </Match>
-</FindBugsFilter>

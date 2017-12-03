@@ -34,12 +34,12 @@ echo  build
 echo --------------------------------------------------
 if [[ "${SONAR_TOKEN}x" = "x" ]]; then
   echo "SONAR_TOKEN が定義されていません。sonar解析をスキップします。"
-  readonly CMD_BUILD="mvn clean package site:site -P ${PROFILE} -DPID=$$"
+  readonly CMD_BUILD="mvn clean package -P ${PROFILE} -DPID=$$"
   echo ${CMD_BUILD}
   ${CMD_BUILD}
 
 else
-  readonly CMD_BUILD="mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package site:site sonar:sonar -P ${PROFILE} -DPID=$$"
+  readonly CMD_BUILD="mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -P ${PROFILE} -DPID=$$"
   echo ${CMD_BUILD}
   ${CMD_BUILD}                                                                                     \
     -Dsonar.host.url=${SONAR_URL}                                                                  \

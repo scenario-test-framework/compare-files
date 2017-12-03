@@ -440,9 +440,9 @@ config/ ディレクトリは、Javaのclasspathを通してあるため、こ�
 
 ## Contact
 
-- [要望を伝える](https://github.com/suwa-sh/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
-- [バグを報告する](https://github.com/suwa-sh/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
-- [質問する](https://github.com/suwa-sh/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Aquestion)
+- [要望を伝える](https://github.com/scenario-test-framework/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
+- [バグを報告する](https://github.com/scenario-test-framework/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
+- [質問する](https://github.com/scenario-test-framework/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Aquestion)
 - [その他](mailto:suwash01@gmail.com)
 
 

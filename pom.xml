@@ -88,25 +88,6 @@
                                 </lifecycleMappingMetadata>
                             </configuration>
                         </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-eclipse-plugin</artifactId>
-                            <version>2.8</version>
-                            <configuration>
-                                <additionalBuildcommands>
-                                    <buildcommand>net.sf.eclipsecs.core.CheckstyleBuilder</buildcommand>
-                                </additionalBuildcommands>
-                                <additionalProjectnatures>
-                                    <projectnature>net.sf.eclipsecs.core.CheckstyleNature</projectnature>
-                                </additionalProjectnatures>
-                                <additionalConfig>
-                                    <file>
-                                        <name>.checkstyle</name>
-                                        <location>/eclipse/checkstyle.xml</location>
-                                    </file>
-                                </additionalConfig>
-                            </configuration>
-                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
@@ -344,70 +325,18 @@
         </dependency>
     </dependencies>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-                <configuration>
-                    <targetJdk>${java.version}</targetJdk>
-                    <linkXref>true</linkXref>
-                    <minimumTokens>100</minimumTokens>
-                    <excludes>
-                        <exclude>**/dto/*.java</exclude>
-                        <exclude>**/infra/Config.java</exclude>
-                        <exclude>**/infra/Context.java</exclude>
-                        <exclude>**/*Exception.java</exclude>
-                        <exclude>**/Errors.java</exclude>
-                        <exclude>**/BaseFacade.java</exclude>
-                    </excludes>
-                    <rulesets>
-                        <ruleset>src/site/pmd.xml</ruleset>
-                    </rulesets>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>**/ap/dto/*</exclude>
-                        <exclude>**/infra/classification/*</exclude>
-                        <exclude>**/infra/exception/*</exclude>
-                        <exclude>**/infra/i18n/*</exclude>
-                        <exclude>**/infra/policy/*</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs-maven-plugin.version}</version>
-                <configuration>
-                    <xmlOutput>true</xmlOutput>
-                    <effort>Max</effort>
-                    <excludeFilterFile>src/site/findbugs-exclude.xml</excludeFilterFile>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </reporting>
-
     <scm>
-        <url>https://github.com/suwa-sh/compare-files</url>
-        <connection>scm:git:git://github.com/suwa-sh/compare-files.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/suwa-sh/compare-files.git</developerConnection>
+        <url>https://github.com/scenario-test/compare-files</url>
+        <connection>scm:git:git://github.com/scenario-test/compare-files.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/scenario-test/compare-files.git</developerConnection>
     </scm>
-    <url>https://suwa-sh.github.io/compare-files</url>
+    <url>https://scenario-test-framework.github.io/compare-files</url>
     <organization>
-        <url>https://suwa-sh.github.io/compare-files</url>
-        <name>Private</name>
+        <url>https://scenario-test-framework.github.io/compare-files</url>
+        <name>scenario-test-framework</name>
     </organization>
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/suwa-sh/compare-files/issues</url>
+        <url>https://github.com/scenario-test/compare-files/issues</url>
     </issueManagement>
 </project>
