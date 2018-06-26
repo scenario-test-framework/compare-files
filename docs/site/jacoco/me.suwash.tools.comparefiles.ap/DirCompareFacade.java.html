@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>DirCompareFacade.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">compare-files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.ap</a> &gt; <span class="el_source">DirCompareFacade.java</span></div><h1>DirCompareFacade.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.ap;
+
+import me.suwash.tools.comparefiles.ap.dto.DirCompareFacadeInput;
+import me.suwash.tools.comparefiles.ap.dto.DirCompareFacadeOutput;
+import me.suwash.tools.comparefiles.sv.domain.compare.bulk.DirCompareResult;
+
+/**
+ * ディレクトリ同士の比較制御。
+ */
+// @lombok.extern.slf4j.Slf4j
+<span class="fc" id="L11">public class DirCompareFacade extends BaseFacade&lt;DirCompareFacadeInput, DirCompareFacadeOutput&gt; {</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.ddd.policy.GenericLayerSuperType#preExecute(me.suwash.ddd.policy.Input)
+     */
+    @Override
+    protected DirCompareFacadeOutput preExecute(final DirCompareFacadeInput input) {
+        // 出力データモデルの初期化
+<span class="fc" id="L20">        final DirCompareFacadeOutput outDto = new DirCompareFacadeOutput();</span>
+<span class="fc" id="L21">        outDto.setInput(input);</span>
+<span class="fc" id="L22">        return outDto;</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.ddd.policy.GenericLayerSuperType#mainExecute(me.suwash.ddd.policy.Input, me.suwash.ddd.policy.Output)
+     */
+    @Override
+    protected DirCompareFacadeOutput mainExecute(final DirCompareFacadeInput input, final DirCompareFacadeOutput output) {
+        // 比較実行
+<span class="fc" id="L32">        final DirCompareResult result = new DirCompareResult(</span>
+<span class="fc" id="L33">            input.getLeftDirPath(),</span>
+<span class="fc" id="L34">            input.getRightDirPath(),</span>
+<span class="fc" id="L35">            input.getOutputDir(),</span>
+<span class="fc" id="L36">            input.getConfig()</span>
+            );
+<span class="fc" id="L38">        result.compare();</span>
+
+<span class="fc" id="L40">        output.setResult(result);</span>
+<span class="fc" id="L41">        return output;</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.ddd.policy.GenericLayerSuperType#postExecute(me.suwash.ddd.policy.Input, me.suwash.ddd.policy.Output)
+     */
+    @Override
+    protected DirCompareFacadeOutput postExecute(final DirCompareFacadeInput input, final DirCompareFacadeOutput output) {
+        // 処理ステータスの確定
+<span class="fc" id="L51">        output.fixProcessStatus();</span>
+<span class="fc" id="L52">        return output;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

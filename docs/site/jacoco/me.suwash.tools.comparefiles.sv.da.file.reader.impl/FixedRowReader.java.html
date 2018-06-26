@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>FixedRowReader.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">compare-files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.da.file.reader.impl</a> &gt; <span class="el_source">FixedRowReader.java</span></div><h1>FixedRowReader.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.da.file.reader.impl;
+
+import java.io.BufferedInputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.classification.LineSp;
+import me.suwash.tools.comparefiles.infra.config.FileLayout;
+import me.suwash.tools.comparefiles.infra.config.ItemLayout;
+import me.suwash.tools.comparefiles.infra.config.RecordLayout;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.sv.domain.BaseRow;
+
+/**
+ * Fixed形式のファイルを、行データに変換するReader。
+ * 固定長テキスト形式。レイアウト定義が必須です。
+ *
+ * @param &lt;R&gt; 行データ
+ */
+<span class="fc" id="L28">@lombok.extern.slf4j.Slf4j</span>
+public class FixedRowReader&lt;R extends BaseRow&gt; extends BaseFlatRowReader&lt;R&gt; {
+
+    private String charset;
+    private final String codeValueForOnlyOneRecordType;
+
+    /**
+     * コンストラクタ。
+     *
+     * @param filePath ファイルパス
+     * @param charset 文字コード
+     * @param layout ファイルレイアウト
+     * @param codeValueForOnlyOneRecordType レコードタイプが1種類の場合の判定コード
+     * @param dummy 型引数ダミー値
+     * @throws FileNotFoundException ファイルが存在しない場合
+     */
+    @SafeVarargs
+    public FixedRowReader(final String filePath, final String charset, final FileLayout layout, final String codeValueForOnlyOneRecordType, final R... dummy) throws FileNotFoundException {
+<span class="fc" id="L46">        super(filePath, charset, layout, dummy);</span>
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">        if (layout == null) {</span>
+<span class="nc" id="L48">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;layout&quot;});</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">        } else if (layout.getRecordList().size() == 0) {</span>
+<span class="nc" id="L50">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;layout.recordList&quot;});</span>
+        }
+
+        // レコードタイプが１つのみの場合のレコードタイプ判別値
+<span class="fc" id="L54">        this.codeValueForOnlyOneRecordType = codeValueForOnlyOneRecordType;</span>
+<span class="fc" id="L55">    }</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.da.file.reader.impl.BaseRowReader#getReader(java.io.File, java.lang.String)
+     */
+    @Override
+    protected Closeable getReader(final File file, final String charset) {
+<span class="fc" id="L63">        Closeable reader = null;</span>
+        try {
+<span class="fc" id="L65">            reader = new BufferedInputStream(new FileInputStream(file));</span>
+<span class="fc" id="L66">            this.charset = charset;</span>
+<span class="nc" id="L67">        } catch (Exception e) {</span>
+<span class="nc" id="L68">            throw new CompareFilesException(</span>
+                Const.STREAM_CANTOPEN_INPUT,
+<span class="nc" id="L70">                new Object[] {file.getPath()},</span>
+                e);
+<span class="fc" id="L72">        }</span>
+<span class="fc" id="L73">        return reader;</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see tool.comparefiles.dataaccess.BaseRowReader#next()
+     */
+    @Override
+    public R next() {
+<span class="fc" id="L82">        final BufferedInputStream stream = (BufferedInputStream) reader;</span>
+
+        // 1件目のレコードタイプから、レコードバイト長を取得
+<span class="fc" id="L85">        final int recordByteLength = fileLayout.getFirstRecordByteLength();</span>
+
+        // レコードバイト長分読み込み
+<span class="fc" id="L88">        final byte[] lineBytes = new byte[recordByteLength];</span>
+        int readLength;
+        try {
+<span class="fc" id="L91">            readLength = stream.read(lineBytes);</span>
+<span class="nc" id="L92">        } catch (IOException e) {</span>
+<span class="nc" id="L93">            throw new CompareFilesException(</span>
+                Const.FILE_CANTREAD,
+                new Object[] {filePath + &quot;#&quot; + curRowNum},
+                e);
+<span class="fc" id="L97">        }</span>
+
+        // EOF判定
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (readLength &lt;= 0) {</span>
+            // EOFの場合、nullを返却
+<span class="fc" id="L102">            return null;</span>
+
+        } else {
+            // EOF以外の場合
+            // レコードタイプに合わせてbyteで分割
+<span class="fc" id="L107">            final RecordLayout recordLayout = getRecordLayout(lineBytes);</span>
+<span class="fc" id="L108">            final Map&lt;String, Object&gt; recordMap = getRecordMap(lineBytes, recordLayout);</span>
+<span class="fc" id="L109">            final String rawLine = getRawLine(lineBytes, recordLayout);</span>
+
+            // 改行コード分読み進める
+<span class="fc" id="L112">            skipLineSp(stream);</span>
+            // 読み込み行番号をインクリメント
+<span class="fc" id="L114">            curRowNum++;</span>
+
+            // 行データに変換
+<span class="fc" id="L117">            return parse(recordMap, rawLine);</span>
+        }
+    }
+
+    /**
+     * 入力ストリームから改行コード分読み捨てます。
+     *
+     * @param stream 入力ストリーム
+     */
+    private void skipLineSp(final BufferedInputStream stream) {
+        try {
+<span class="fc" id="L128">            int readed = Integer.MIN_VALUE;</span>
+<span class="pc bpc" id="L129" title="2 of 4 branches missed.">            if (LineSp.CR.equals(fileLayout.getLineSp()) || LineSp.LF.equals(fileLayout.getLineSp())) {</span>
+<span class="fc" id="L130">                readed = stream.read(new byte[1]);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            } else if (LineSp.CRLF.equals(fileLayout.getLineSp())) {</span>
+<span class="nc" id="L132">                readed = stream.read(new byte[2]);</span>
+            }
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">            if (log.isTraceEnabled()) {</span>
+<span class="nc" id="L135">                log.trace(&quot;レイアウトの改行コード:&quot; + fileLayout.getLineSp() + &quot;, 読み捨てた改行コード:&quot; + readed);</span>
+            }
+<span class="nc" id="L137">        } catch (IOException e) {</span>
+<span class="nc" id="L138">            throw new CompareFilesException(</span>
+                Const.MSGCD_ERROR_READER_FIXED_CANT_SKIP_LINESP,
+<span class="nc" id="L140">                new Object[] {fileLayout.getLineSp()},</span>
+                e);
+<span class="fc" id="L142">        }</span>
+<span class="fc" id="L143">    }</span>
+
+    /**
+     * レコードレイアウトを返します。
+     *
+     * @param lineBytes バイト配列の行データ
+     * @return レコードレイアウト
+     */
+    private RecordLayout getRecordLayout(final byte[] lineBytes) {
+<span class="fc" id="L152">        RecordLayout recordLayout = null;</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        for (final RecordLayout curRecordLayout : fileLayout.getRecordList()) {</span>
+            // 現在行から、レコードタイプコードと同じ文字数分、先頭から文字列変換
+<span class="fc" id="L155">            final String recordTypeCode = getRecordTypeCode(lineBytes, curRecordLayout);</span>
+
+            // レイアウト定義と現在行の、レコードタイプコードの一致を確認
+<span class="fc bfc" id="L158" title="All 2 branches covered.">            if (recordTypeCode.equals(curRecordLayout.getCodeValue())) {</span>
+                // System.out.println(this.filePath + &quot;, 行番号:&quot; + (curRowNum +1) + &quot;, レコードタイプコード:&quot; + recordTypeCode + &quot;, レコードタイプ:&quot; + curRecordLayout.getType());
+<span class="fc" id="L160">                recordLayout = curRecordLayout;</span>
+<span class="fc" id="L161">                break;</span>
+            }
+<span class="fc" id="L163">        }</span>
+        // 判別できず、レコードタイプが1種類だけ登録されていてコード値が存在しない(&quot;-&quot;)場合、それを利用
+<span class="pc bpc" id="L165" title="5 of 6 branches missed.">        if (recordLayout == null &amp;&amp; fileLayout.getRecordList().size() == 1 &amp;&amp; fileLayout.getRecordList().get(0).getCodeValue().equals(codeValueForOnlyOneRecordType)) {</span>
+<span class="nc" id="L166">            recordLayout = fileLayout.getRecordList().get(0);</span>
+        }
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">        if (recordLayout == null) {</span>
+<span class="nc" id="L169">            throw new CompareFilesException(</span>
+                Const.MSGCD_ERROR_COMPARE_FILE_TEXT_ROW_LAYOUT_NOTFOUND,
+<span class="nc" id="L171">                new Object[] {fileLayout.getLogicalFileName(), &quot;#&quot; + (curRowNum + 1) });</span>
+        }
+<span class="fc" id="L173">        return recordLayout;</span>
+    }
+
+    /**
+     * レコードタイプ判定コードを返します。
+     *
+     * @param lineBytes バイト配列の行データ
+     * @param curRecordLayout レコードレイアウト
+     * @return 判定コード
+     */
+    private String getRecordTypeCode(final byte[] lineBytes, final RecordLayout curRecordLayout) {
+<span class="fc" id="L184">        final int curCodeValueLength = curRecordLayout.getCodeValue().length();</span>
+<span class="fc" id="L185">        final StringBuilder recordTypeCodeBuilder = new StringBuilder();</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">        for (int i = 0; i &lt; curCodeValueLength; i++) {</span>
+<span class="fc" id="L187">            recordTypeCodeBuilder.append(parseBytes2String(lineBytes, i, i + 1));</span>
+        }
+<span class="fc" id="L189">        return recordTypeCodeBuilder.toString();</span>
+    }
+
+    /**
+     * バイト配列の行データを項目をキーにしたMapに変換します。
+     *
+     * @param lineBytes バイト配列の行データ
+     * @param recordLayout レコードレイアウト
+     * @return 行データMap
+     */
+    private Map&lt;String, Object&gt; getRecordMap(final byte[] lineBytes, final RecordLayout recordLayout) {
+<span class="fc" id="L200">        final Map&lt;String, Object&gt; recordMap = new LinkedHashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L201">        int readedPos = 0;</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">        for (final ItemLayout curItemLayout : recordLayout.getItemList()) {</span>
+<span class="fc" id="L203">            final int endPos = readedPos + curItemLayout.getByteLength();</span>
+<span class="fc" id="L204">            recordMap.put(curItemLayout.getId(), parseBytes2String(lineBytes, readedPos, endPos));</span>
+<span class="fc" id="L205">            readedPos = endPos;</span>
+<span class="fc" id="L206">        }</span>
+<span class="fc" id="L207">        return recordMap;</span>
+    }
+
+    /**
+     * バイト配列の行データを文字列に変換します。
+     *
+     * @param lineBytes バイト配列の行データ
+     * @param recordLayout レコードレイアウト
+     * @return 行文字列
+     */
+    private String getRawLine(final byte[] lineBytes, final RecordLayout recordLayout) {
+<span class="fc" id="L218">        final StringBuilder rawLineBuilder = new StringBuilder();</span>
+<span class="fc" id="L219">        int readedPos = 0;</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">        for (final ItemLayout curItemLayout : recordLayout.getItemList()) {</span>
+<span class="fc" id="L221">            final int endPos = readedPos + curItemLayout.getByteLength();</span>
+<span class="fc" id="L222">            rawLineBuilder.append(parseBytes2String(lineBytes, readedPos, endPos));</span>
+<span class="fc" id="L223">            readedPos = endPos;</span>
+<span class="fc" id="L224">        }</span>
+<span class="fc" id="L225">        return rawLineBuilder.toString();</span>
+    }
+
+    /**
+     * バイト配列の指定インデックス間を文字列に変換します。
+     *
+     * @param lineBytes バイト配列
+     * @param startPos 変換開始インデックス
+     * @param endPos 変換終了インデックス
+     * @return 変換後文字列
+     */
+    private String parseBytes2String(final byte[] lineBytes, final int startPos, final int endPos) {
+<span class="fc" id="L237">        final byte[] targetBytes = Arrays.copyOfRange(lineBytes, startPos, endPos);</span>
+        try {
+<span class="fc" id="L239">            return new String(targetBytes, charset);</span>
+<span class="nc" id="L240">        } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L241">            throw new CompareFilesException(</span>
+                Const.MSGCD_ERROR_READER_FIXED_CANT_PARSE_BYTES,
+<span class="nc" id="L243">                new Object[] {charset, Arrays.toString(targetBytes)},</span>
+                e);
+        }
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.da.file.reader.impl.BaseRowReader#readLine()
+     */
+    @Override
+    protected Map&lt;String, ?&gt; readLine() {
+<span class="nc" id="L254">        throw new CompareFilesException(Const.UNSUPPORTED);</span>
+    }
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.sv.da.file.reader.impl.BaseRowReader#isMatchRecordType(me.suwash.tools.comparefiles.infra.config.RecordLayout, java.util.Map)
+     */
+    @Override
+    protected boolean isMatchRecordType(final RecordLayout curRecordConfig, final Map&lt;String, ?&gt; targetLineMap) {
+        // 1項目目の値を取得
+<span class="fc" id="L264">        final String firstValue = targetLineMap.entrySet().iterator().next().getValue().toString();</span>
+
+        // 1項目目から、レコードタイプコードと同じ文字数分抽出
+<span class="fc" id="L267">        final String recordTypeCode = firstValue.substring(0, curRecordConfig.getCodeValue().length());</span>
+<span class="fc" id="L268">        return recordTypeCode.equals(curRecordConfig.getCodeValue());</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

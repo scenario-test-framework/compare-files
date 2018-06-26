@@ -1,10 +1,13 @@
 package me.suwash.tools.comparefiles.infra.config;
 
 import java.awt.Rectangle;
+import java.util.Collections;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import me.suwash.tools.comparefiles.infra.Const;
@@ -22,6 +25,7 @@ import org.hibernate.validator.constraints.NotEmpty;
  */
 @Getter
 @Setter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileLayout {
 
     private static final int LIST_SIZE_DATA_ONLY = 1;
@@ -52,6 +56,35 @@ public class FileLayout {
 
     /** 画像比較用 比較除外エリアリスト。 */
     private List<Rectangle> ignoreAreaList;
+
+    /**
+     * デフォルトコンストラクタ。
+     */
+    public FileLayout() {}
+
+    /**
+     * インスタンスのコピーを返します。
+     *
+     * @param fileLayout コピー元
+     * @return コピーしたFileLayout
+     */
+    public static FileLayout copy(final FileLayout fileLayout) {
+        List recordList = fileLayout.recordList;
+        if (recordList != null) recordList = Collections.unmodifiableList(recordList);
+
+        List ignoreAreaList = fileLayout.ignoreAreaList;
+        if (ignoreAreaList != null) recordList = Collections.unmodifiableList(ignoreAreaList);
+
+        return new FileLayout(
+                fileLayout.fileRegexPattern,
+                fileLayout.logicalFileName,
+                fileLayout.fileFormat,
+                fileLayout.charset,
+                fileLayout.lineSp,
+                recordList,
+                ignoreAreaList
+        );
+    }
 
     /**
      * レコードレイアウト1件目のバイト長を返します。

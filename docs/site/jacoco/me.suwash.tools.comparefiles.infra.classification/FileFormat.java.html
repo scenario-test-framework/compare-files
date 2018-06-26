@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>FileFormat.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">compare-files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.infra.classification</a> &gt; <span class="el_source">FileFormat.java</span></div><h1>FileFormat.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.infra.classification;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import me.suwash.util.classification.Classification;
+
+/**
+ * ファイルフォーマット。
+ */
+<span class="pc" id="L12">public enum FileFormat implements Classification {</span>
+    /** プレーンテキスト。 */
+<span class="fc" id="L14">    Text(&quot;TXT&quot;),</span>
+    /** 項目名付きCSV。 */
+<span class="fc" id="L16">    CSV_withHeader(&quot;CSVH&quot;),</span>
+    /** CSV。 */
+<span class="fc" id="L18">    CSV_noHeader(&quot;CSV&quot;),</span>
+    /** 項目名付きTSV。 */
+<span class="fc" id="L20">    TSV_withHeader(&quot;TSVH&quot;),</span>
+    /** TSV。 */
+<span class="fc" id="L22">    TSV_noHeader(&quot;TSV&quot;),</span>
+    /** JSON。 */
+<span class="fc" id="L24">    Json(&quot;JSN&quot;),</span>
+    /** 改行区切りのJSONリスト。 */
+<span class="fc" id="L26">    JsonList(&quot;JSNL&quot;),</span>
+    /** YAML。 */
+<span class="fc" id="L28">    Yaml(&quot;YML&quot;),</span>
+    /** XML。 */
+<span class="fc" id="L30">    XML(&quot;XML&quot;),</span>
+    /** 固定長テキスト。 */
+<span class="fc" id="L32">    Fixed(&quot;FIX&quot;),</span>
+    /** 画像。 */
+<span class="fc" id="L34">    Image(&quot;IMG&quot;);</span>
+
+    /** グループ名配列。 */
+    private static final String[] groups;
+    /** 区分値グループMap。 */
+    private static final Map&lt;String, FileFormat[]&gt; groupValuesMap;
+    /** グループ内デフォルト区分値Map。 */
+    private static final Map&lt;String, FileFormat&gt; groupDefaultMap;
+
+    /** グループ：デフォルト。 */
+    public static final String GROUP_DEFAULT = &quot;default&quot;;
+    /** グループ：テキスト。 */
+    public static final String GROUP_TEXT = &quot;text&quot;;
+    /** グループ：画像。 */
+    public static final String GROUP_IMAGE = &quot;image&quot;;
+
+    /** データディクショナリID。 */
+    private String ddId;
+    /** 永続化値。 */
+    private String storeValue;
+
+    static {
+        // グループMap
+<span class="fc" id="L57">        groupValuesMap = new HashMap&lt;String, FileFormat[]&gt;();</span>
+<span class="fc" id="L58">        groupValuesMap.put(GROUP_DEFAULT, new FileFormat[]{</span>
+            Text,
+            CSV_withHeader,
+            CSV_noHeader,
+            TSV_withHeader,
+            TSV_noHeader,
+            Json,
+            JsonList,
+            Yaml,
+            XML,
+            Fixed,
+            Image
+            });
+<span class="fc" id="L71">        groupValuesMap.put(GROUP_TEXT, new FileFormat[]{</span>
+            Text,
+            CSV_withHeader,
+            CSV_noHeader,
+            TSV_withHeader,
+            TSV_noHeader,
+            Json,
+            JsonList,
+            Yaml,
+            XML,
+            Fixed
+            });
+<span class="fc" id="L83">        groupValuesMap.put(GROUP_IMAGE, new FileFormat[]{</span>
+            Image
+            });
+
+        // グループ内デフォルト値Map
+<span class="fc" id="L88">        groupDefaultMap = new HashMap&lt;String, FileFormat&gt;();</span>
+<span class="fc" id="L89">        groupDefaultMap.put(GROUP_DEFAULT, Text);</span>
+<span class="fc" id="L90">        groupDefaultMap.put(GROUP_TEXT, Text);</span>
+<span class="fc" id="L91">        groupDefaultMap.put(GROUP_IMAGE, Image);</span>
+
+        // グループ名配列
+<span class="fc" id="L94">        groups = groupValuesMap.keySet().toArray(new String[0]);</span>
+<span class="fc" id="L95">    }</span>
+
+    /**
+     * デフォルト区分値を返します。
+     *
+     * @return デフォルト区分値
+     */
+    public static FileFormat defaultValue() {
+<span class="nc" id="L103">        return groupDefaultMap.get(GROUP_DEFAULT);</span>
+    }
+
+    /**
+     * グループ内のデフォルト区分値を返します。
+     *
+     * @param group グループ名
+     * @return デフォルトの区分値
+     */
+    public static FileFormat defaultValue(final String group) {
+<span class="nc" id="L113">        return groupDefaultMap.get(group);</span>
+    }
+
+    /**
+     * 区分が持つグループ群を返します。
+     *
+     * @return グループ名配列
+     */
+    public static String[] groups() {
+<span class="nc" id="L122">        return Arrays.copyOf(groups, groups.length);</span>
+    }
+
+    /**
+     * 指定したグループ名に属する区分値を返します。
+     *
+     * @param group グループ名
+     * @return 区分値配列
+     */
+    public static FileFormat[] values(final String group) {
+<span class="nc" id="L132">        return groupValuesMap.get(group);</span>
+    }
+
+    /**
+     * データディクショナリIDから区分値を返します。
+     * 見つからない場合はnullを返します。
+     *
+     * @param ddId データディクショナリID
+     * @return 区分値
+     */
+    public static FileFormat valueOfByDdId(final String ddId) {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values()) {</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">            if (curEnum.ddId().equals(ddId)) {</span>
+<span class="nc" id="L145">                return curEnum;</span>
+            }
+        }
+<span class="nc" id="L148">        return null;</span>
+    }
+
+    /**
+     * 永続化値から区分値を返します。
+     * 見つからない場合はnullを返します。
+     *
+     * @param storeValue 永続化値
+     * @return 区分値
+     */
+    public static FileFormat valueOfByStoreValue(final String storeValue) {
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values()) {</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">            if (curEnum.storeValue().equals(storeValue)) {</span>
+<span class="nc" id="L161">                return curEnum;</span>
+            }
+        }
+<span class="nc" id="L164">        return null;</span>
+    }
+
+    /**
+     * 区分内に、指定した区分値名が存在するか確認します。
+     *
+     * @param name 区分値名
+     * @return 存在する場合 true
+     */
+    public static boolean containsName(final String name) {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values()) {</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">            if (curEnum.name().equals(name)) {</span>
+<span class="nc" id="L176">                return true;</span>
+            }
+        }
+<span class="nc" id="L179">        return false;</span>
+    }
+
+    /**
+     * 区分内の、指定したグループに、指定した区分値名が存在するか確認します。
+     *
+     * @param group グループ名
+     * @param name 区分値名
+     * @return 存在する場合 true
+     */
+    public static boolean containsName(final String group, final String name) {
+<span class="nc bnc" id="L190" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values(group)) {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            if (curEnum.name().equals(name)) {</span>
+<span class="nc" id="L192">                return true;</span>
+            }
+        }
+<span class="nc" id="L195">        return false;</span>
+    }
+
+    /**
+     * 区分内に、指定したデータディクショナリIDが存在するか確認します。
+     *
+     * @param ddId データディクショナリID
+     * @return 存在する場合 true
+     */
+    public static boolean containsDdId(final String ddId) {
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values()) {</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">            if (curEnum.ddId().equals(ddId)) {</span>
+<span class="nc" id="L207">                return true;</span>
+            }
+        }
+<span class="nc" id="L210">        return false;</span>
+    }
+
+    /**
+     * 区分内の、指定したグループに、指定したデータディクショナリIDが存在するか確認します。
+     *
+     * @param group グループ名
+     * @param ddId データディクショナリID
+     * @return 存在する場合 true
+     */
+    public static boolean containsDdId(final String group, final String ddId) {
+<span class="nc bnc" id="L221" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values(group)) {</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">            if (curEnum.ddId().equals(ddId)) {</span>
+<span class="nc" id="L223">                return true;</span>
+            }
+        }
+<span class="nc" id="L226">        return false;</span>
+    }
+
+    /**
+     * 区分内に、指定した永続化値が存在するか確認します。
+     *
+     * @param storeValue 永続化値
+     * @return 存在する場合 true
+     */
+    public static boolean containsStoreValue(final String storeValue) {
+<span class="nc bnc" id="L236" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values()) {</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            if (curEnum.storeValue().equals(storeValue)) {</span>
+<span class="nc" id="L238">                return true;</span>
+            }
+        }
+<span class="nc" id="L241">        return false;</span>
+    }
+
+    /**
+     * 区分内の、指定したグループに、指定した永続化値が存在するか確認します。
+     *
+     * @param group グループ名
+     * @param storeValue 永続化値
+     * @return 存在する場合 true
+     */
+    public static boolean containsStoreValue(final String group, final String storeValue) {
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        for (final FileFormat curEnum : FileFormat.values(group)) {</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            if (curEnum.storeValue().equals(storeValue)) {</span>
+<span class="nc" id="L254">                return true;</span>
+            }
+        }
+<span class="nc" id="L257">        return false;</span>
+    }
+
+    /**
+     * コンストラクタ。
+     *
+     * @param storeValue 永続化値
+     */
+<span class="fc" id="L265">    private FileFormat(final String storeValue) {</span>
+<span class="fc" id="L266">        this.ddId = this.getClass().getSimpleName() + &quot;.&quot; + name();</span>
+<span class="fc" id="L267">        this.storeValue = storeValue;</span>
+<span class="fc" id="L268">    }</span>
+
+    /* (非 Javadoc)
+     * @see me.suwash.util.classification.Classification#ddId()
+     */
+    @Override
+    public String ddId() {
+<span class="nc" id="L275">        return ddId;</span>
+    }
+
+    /* (非 Javadoc)
+     * @see me.suwash.util.classification.Classification#storeValue()
+     */
+    @Override
+    public String storeValue() {
+<span class="nc" id="L283">        return storeValue;</span>
+    }
+
+    /* (非 Javadoc)
+     * @see java.lang.Enum#toString()
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L291">        return ddId() + &quot;(&quot; + storeValue() + &quot;)&quot;;</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

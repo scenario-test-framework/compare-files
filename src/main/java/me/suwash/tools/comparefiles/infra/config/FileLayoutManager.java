@@ -168,9 +168,9 @@ public final class FileLayoutManager {
                 final Matcher matcher = pattern.matcher(physicalFileName);
                 log.trace("        ・check regex:" + curLayoutEntry.getKey());
                 if (matcher.matches()) {
-                    // マッチした場合、返却用レイアウト定義に設定
+                    // マッチした場合、コピーしたオブジェクトを返却用レイアウト定義に設定
                     log.info("      ・[MATCH  ]レイアウト:" + curLayoutEntry.getValue().getLogicalFileName() + ", 正規表現:" + curLayoutEntry.getKey());
-                    returnLayout = curLayoutEntry.getValue();
+                    returnLayout = FileLayout.copy(curLayoutEntry.getValue());
                     break;
                 }
             } catch (Exception e) {

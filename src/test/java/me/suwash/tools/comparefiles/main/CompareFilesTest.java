@@ -59,7 +59,7 @@ public class CompareFilesTest {
 
     @Test
     public final void testExecute() {
-        String[] args = new String[] {};
+        String[] args = new String[]{};
         CompareFiles compareFiles = new CompareFiles();
         ProcessStatus processStatus = null;
 
@@ -77,10 +77,10 @@ public class CompareFilesTest {
         //------------------------------------------------------------------------------------------
         // ファイル比較（レイアウトなし）
         //------------------------------------------------------------------------------------------
-        args = new String[] {
-            "-od", DIR_ACTUAL + "/file",
-            DIR_INPUT + "/left/TEXT_PLAINTEXT/compare_layout_undefined.csv",
-            DIR_INPUT + "/right/TEXT_PLAINTEXT/compare_layout_undefined.csv"};
+        args = new String[]{
+                "-od", DIR_ACTUAL + "/file",
+                DIR_INPUT + "/left/TEXT_PLAINTEXT/compare_layout_undefined.csv",
+                DIR_INPUT + "/right/TEXT_PLAINTEXT/compare_layout_undefined.csv"};
 
         processStatus = compareFiles.execute(args);
         assertEquals("", ProcessStatus.Warning, processStatus);
@@ -89,10 +89,10 @@ public class CompareFilesTest {
         //------------------------------------------------------------------------------------------
         // ファイル比較（レイアウトあり）
         //------------------------------------------------------------------------------------------
-        args = new String[] {
-            "-od", DIR_ACTUAL + "/file",
-            DIR_INPUT + "/left/TEXT_CSV/csv_with-header_ng.csv",
-            DIR_INPUT + "/right/TEXT_CSV/csv_with-header_ng.csv"};
+        args = new String[]{
+                "-od", DIR_ACTUAL + "/file",
+                DIR_INPUT + "/left/TEXT_CSV/csv_with-header_ng.csv",
+                DIR_INPUT + "/right/TEXT_CSV/csv_with-header_ng.csv"};
 
         processStatus = compareFiles.execute(args);
         assertEquals("", ProcessStatus.Warning, processStatus);
@@ -102,35 +102,35 @@ public class CompareFilesTest {
         //------------------------------------------------------------------------------------------
         // ディレクトリ比較
         //------------------------------------------------------------------------------------------
-        args = new String[] {
-            "-od", DIR_ACTUAL + "/dir",
-            DIR_INPUT + "/left",
-            DIR_INPUT + "/right"};
+        args = new String[]{
+                "-od", DIR_ACTUAL + "/dir",
+                DIR_INPUT + "/left",
+                DIR_INPUT + "/right"};
         processStatus = compareFiles.execute(args);
         assertEquals("", ProcessStatus.Warning, processStatus);
         CompareFilesTestUtils.assertCompareResultFiles(DIR_EXPECT + "/dir", DIR_ACTUAL + "/dir", "CompareSummary.csv");
 
 
-        args = new String[] {
-            "-od", DIR_ACTUAL + "/dir_left_only",
-            DIR_INPUT + "/left",
-            DIR_INPUT + "/not_exist"};
+        args = new String[]{
+                "-od", DIR_ACTUAL + "/dir_left_only",
+                DIR_INPUT + "/left",
+                DIR_INPUT + "/not_exist"};
         processStatus = compareFiles.execute(args);
         assertEquals("", ProcessStatus.Warning, processStatus);
         CompareFilesTestUtils.assertCompareResultFiles(DIR_EXPECT + "/dir_left_only", DIR_ACTUAL + "/dir_left_only", "CompareSummary.csv");
 
-        args = new String[] {
-            "-od", DIR_ACTUAL + "/dir_right_only",
-            DIR_INPUT + "/not_exist",
-            DIR_INPUT + "/right"};
+        args = new String[]{
+                "-od", DIR_ACTUAL + "/dir_right_only",
+                DIR_INPUT + "/not_exist",
+                DIR_INPUT + "/right"};
         processStatus = compareFiles.execute(args);
         assertEquals("", ProcessStatus.Warning, processStatus);
         CompareFilesTestUtils.assertCompareResultFiles(DIR_EXPECT + "/dir_right_only", DIR_ACTUAL + "/dir_right_only", "CompareSummary.csv");
 
-        args = new String[] {
-            "-od", DIR_ACTUAL + "/dir_both_not_exist",
-            DIR_INPUT + "/not_exist",
-            DIR_INPUT + "/not_exist"};
+        args = new String[]{
+                "-od", DIR_ACTUAL + "/dir_both_not_exist",
+                DIR_INPUT + "/not_exist",
+                DIR_INPUT + "/not_exist"};
         try {
             compareFiles.execute(args);
             fail();
@@ -141,6 +141,7 @@ public class CompareFilesTest {
         // 空ファイルが作成されること
         CompareFilesTestUtils.assertCompareResultFiles(DIR_EXPECT + "/dir_both_not_exist", DIR_ACTUAL + "/dir_both_not_exist", "CompareSummary.csv");
     }
+
 
 //    @Test
     public void generateDiffImage() throws IOException {

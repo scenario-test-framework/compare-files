@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>GenericFileRepository.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">compare-files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.sv.da.file.repository.impl</a> &gt; <span class="el_source">GenericFileRepository.java</span></div><h1>GenericFileRepository.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.sv.da.file.repository.impl;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.Context;
+import me.suwash.tools.comparefiles.infra.classification.LineSp;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
+import me.suwash.tools.comparefiles.infra.policy.FileRepository;
+import me.suwash.util.FileUtils;
+
+/**
+ * ファイルリポジトリ基底クラス。
+ *&lt;pre&gt;
+ * 新規ファイル：
+ * 　読み込み：空ファイル。
+ * 　書き出し：トランザクション中は、一時ファイル。
+ * 　　　　　　トランザクション確定で、対象ファイルにリネーム。
+ * 既存ファイル：
+ * 　読み込み：既存ファイル。
+ * 　書き出し：トランザクション中は、一時ファイル。
+ * 　　　　　　トランザクション確定で、対象ファイルにリネーム。
+ * 　　　　　　※compare-filesでは追記の用途がないため、上書きだけを実装しています。
+ *&lt;/pre&gt;
+ *
+ * @param &lt;E&gt; データモデル
+ */
+<span class="fc" id="L34">@lombok.extern.slf4j.Slf4j</span>
+<span class="fc" id="L35">public abstract class GenericFileRepository&lt;E&gt; implements FileRepository&lt;E&gt; {</span>
+
+    protected String filePath;
+    protected String charset;
+    protected LineSp lineSp;
+
+    protected boolean isBegin;
+
+    protected String txFilePath;
+
+    protected Reader reader;
+    protected Writer writer;
+
+    protected int chunkSize;
+<span class="fc" id="L49">    protected List&lt;E&gt; chunk = new ArrayList&lt;E&gt;();</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.infra.policy.Repository#begin()
+     */
+    @Override
+    public void begin() {
+        // すでにトランザクションを開始している場合、処理をスキップ
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (isBegin) {</span>
+<span class="fc" id="L59">            return;</span>
+        } else {
+<span class="fc" id="L61">            isBegin = true;</span>
+        }
+
+        // ファイルの存在確認
+<span class="fc" id="L65">        final File file = new File(filePath);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (!file.exists()) {</span>
+            // 存在しない場合、親ディレクトリ作成
+<span class="fc" id="L68">            final File parentDir = file.getParentFile();</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">            if (!parentDir.exists()) {</span>
+<span class="nc" id="L70">                FileUtils.mkdirs(parentDir.getAbsolutePath());</span>
+            }
+            // 空ファイル作成
+            try {
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">                if (!file.createNewFile()) {</span>
+<span class="nc" id="L75">                    throw new CompareFilesException(Const.FILE_CANTWRITE, new Object[] {file});</span>
+                }
+<span class="nc" id="L77">            } catch (IOException e) {</span>
+<span class="nc" id="L78">                throw new CompareFilesException(Const.FILE_CANTWRITE, new Object[] {file}, e);</span>
+<span class="fc" id="L79">            }</span>
+        }
+
+<span class="fc" id="L82">        FileUtils.readCheck(filePath, charset);</span>
+<span class="fc" id="L83">        reader = getReader();</span>
+
+<span class="fc" id="L85">        FileUtils.writeCheck(txFilePath, charset);</span>
+        try {
+<span class="fc" id="L87">            writer = getWriter();</span>
+<span class="nc" id="L88">        } catch (Exception e) {</span>
+            try {
+<span class="nc" id="L90">                reader.close();</span>
+<span class="nc" id="L91">            } catch (Exception e1) {</span>
+<span class="nc" id="L92">                log.error(</span>
+<span class="nc" id="L93">                    CompareFilesMessageSource.getInstance().getMessage(</span>
+                        Const.STREAM_CANTCLOSE_INPUT,new Object[] {file}),e1);
+<span class="nc" id="L95">            }</span>
+<span class="nc" id="L96">            throw e;</span>
+<span class="fc" id="L97">        }</span>
+
+        // コンテキストに追加
+<span class="fc" id="L100">        Context.getInstance().addRepository(this.toString(), this);</span>
+
+        // chunkSizeの初期化
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (chunkSize &lt;= 0) {</span>
+<span class="fc" id="L104">            chunkSize = Const.DEFAULT_CHUNK_SIZE;</span>
+        }
+<span class="fc" id="L106">    }</span>
+
+    /**
+     * Readerを返します。
+     *
+     * @return Reader
+     */
+    protected abstract Reader getReader();
+
+    /**
+     * Writerを返します。
+     *
+     * @return Writer
+     */
+    protected abstract Writer getWriter();
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.infra.policy.Repository#commit()
+     */
+    @Override
+    public void commit() {
+        // トランザクションが開始していない場合、エラー
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (!isBegin) {</span>
+<span class="fc" id="L130">            throw new CompareFilesException(Const.MSGCD_ERROR_REPOSITORY_TX_NOTEXIST, new Object[] {filePath});</span>
+        }
+
+        // chunkを書き出し
+<span class="fc" id="L134">        writeChunk();</span>
+
+        // ストリームを閉じる
+<span class="fc" id="L137">        closeStream();</span>
+
+        // トランザクションファイルへの書き込みを確認
+<span class="fc" id="L140">        final File file = new File(filePath);</span>
+<span class="fc" id="L141">        final File txFile = new File(txFilePath);</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">        if (txFile.length() &gt; 0) {</span>
+            // 書き込みがある場合、対象ファイルを置き換え
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">            if (!file.delete()) {</span>
+<span class="nc" id="L145">                throw new CompareFilesException(Const.FILE_CANTDELETE, new Object[] {filePath});</span>
+            }
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">            if (!txFile.renameTo(file)) {</span>
+<span class="nc" id="L148">                throw new CompareFilesException(Const.FILE_CANTWRITE, new Object[] {filePath});</span>
+            }
+
+        } else {
+            // 書き込みがない場合、トランザクションファイルを削除
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">            if (txFile.exists() &amp;&amp; !txFile.delete()) {</span>
+<span class="nc" id="L154">                throw new CompareFilesException(Const.FILE_CANTDELETE, new Object[] {txFilePath});</span>
+            }
+        }
+
+        // コンテキストから削除
+<span class="fc" id="L159">        Context.getInstance().removeRepository(this.toString());</span>
+<span class="fc" id="L160">    }</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.infra.policy.Repository#rollback()
+     */
+    @Override
+    public void rollback() {
+        // トランザクションが開始していない場合、処理なし
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (!isBegin) {</span>
+<span class="fc" id="L170">            return;</span>
+        }
+
+        // ストリームを閉じる
+<span class="fc" id="L174">        closeStream();</span>
+
+        // トランザクションファイルを削除
+<span class="fc" id="L177">        final File txFile = new File(txFilePath);</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">        if (!txFile.delete()) {</span>
+<span class="nc" id="L179">            throw new CompareFilesException(Const.FILE_CANTDELETE, new Object[] {txFilePath});</span>
+        }
+
+        // コンテキストから削除
+<span class="fc" id="L183">        Context.getInstance().removeRepository(this.toString());</span>
+<span class="fc" id="L184">    }</span>
+
+    /**
+     * ストリームを閉じます。
+     */
+    private void closeStream() {
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        if (reader != null) {</span>
+            try {
+<span class="fc" id="L192">                reader.close();</span>
+<span class="nc" id="L193">            } catch (IOException e) {</span>
+<span class="nc" id="L194">                throw new CompareFilesException(Const.STREAM_CANTCLOSE_INPUT, new Object[] {filePath}, e);</span>
+<span class="fc" id="L195">            }</span>
+        }
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (writer != null) {</span>
+            try {
+<span class="fc" id="L200">                writer.close();</span>
+<span class="nc" id="L201">            } catch (IOException e) {</span>
+<span class="nc" id="L202">                throw new CompareFilesException(Const.STREAM_CANTCLOSE_OUTPUT, new Object[] {txFilePath}, e);</span>
+<span class="fc" id="L203">            }</span>
+        }
+<span class="fc" id="L205">    }</span>
+
+    /*
+     * (非 Javadoc)
+     * @see me.suwash.tools.comparefiles.infra.policy.FileRepository#write(java.lang.Object)
+     */
+    @Override
+    public void write(final E row) {
+        // トランザクションが開始していない場合、エラー
+<span class="pc bpc" id="L214" title="1 of 2 branches missed.">        if (!isBegin) {</span>
+<span class="nc" id="L215">            throw new CompareFilesException(Const.MSGCD_ERROR_REPOSITORY_TX_NOTEXIST, new Object[] {filePath});</span>
+        }
+<span class="fc" id="L217">        chunk.add(row);</span>
+<span class="pc bpc" id="L218" title="1 of 2 branches missed.">        if (chunk.size() &gt;= chunkSize) {</span>
+<span class="nc" id="L219">            writeChunk();</span>
+        }
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * 出力バッファの内容を全て書き出します。
+     */
+    protected void writeChunk() {
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        for (final E row : chunk) {</span>
+<span class="fc" id="L228">            writeRow(row);</span>
+<span class="fc" id="L229">        }</span>
+<span class="fc" id="L230">        chunk.clear();</span>
+<span class="fc" id="L231">    }</span>
+
+    /**
+     * 行データを書き出します。
+     *
+     * @param row 行データ
+     */
+    protected void writeRow(final E row) {
+        try {
+            // 文字列を出力
+<span class="fc" id="L241">            writer.write(row.toString());</span>
+
+            // 改行コードを出力
+<span class="fc bfc" id="L244" title="All 2 branches covered.">            if (lineSp == null) {</span>
+                // 改行コードが設定されていない場合、システムに合わせる
+<span class="fc" id="L246">                writer.write(System.getProperty(&quot;line.separator&quot;));</span>
+
+            } else {
+                // 設定されている場合、ファイルフォーマットに合わせて改行コードを追記 ※改行なしも考慮
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">                if (LineSp.CR.equals(lineSp)) {</span>
+<span class="nc" id="L251">                    writer.write('\r');</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">                } else if (LineSp.LF.equals(lineSp)) {</span>
+<span class="fc" id="L253">                    writer.write('\n');</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">                } else if (LineSp.CRLF.equals(lineSp)) {</span>
+<span class="nc" id="L255">                    writer.write(&quot;\r\n&quot;);</span>
+                }
+            }
+
+<span class="nc" id="L259">        } catch (IOException e) {</span>
+<span class="nc" id="L260">            throw new CompareFilesException(Const.FILE_CANTWRITE, new Object[] {txFilePath}, e);</span>
+<span class="fc" id="L261">        }</span>
+<span class="fc" id="L262">    }</span>
+
+    /*
+     * (非 Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+<span class="fc" id="L270">        return filePath;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

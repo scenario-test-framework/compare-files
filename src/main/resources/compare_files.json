@@ -1,39 +1,41 @@
 {
-    "overwriteLayoutDir" : "",
-    "deleteWorkDir" : "true",
-    "sorted" : "false",
-    "csvHeaderRow" : 1,
-    "csvDataStartRow" : 2,
-    "codeValueForOnlyOneRecordType":"-",
-    "outputDir" : "result",
-    "outputCharset" : "utf8",
-    "compareResultFileName" : "CompareSummary.csv",
-    "compareDetailFilePrefix" : "CompareDetail_",
-    "writeDiffOnly" : "false",
-    "leftPrefix" : "期待値:",
-    "rightPrefix" : "実績値:",
-    "chunkSize" : 1000,
-    "ignoreFileRegexList" : ["^\\..*"],
-    "ignoreItemList" : ["last_update_time", "LAST_UPDATE_TIME"],
-    "ignoreAreaList" : [{"x": 0, "y":0, "width":1024, "height":128}],
-    "okImageStyle": {
-      "border": 4,
-      "labelFontSize": 24,
-      "labelHeight": 36,
-      "labelPaddingLeft": 12,
-      "labelPaddingTop": 28,
-      "labelColor":   {"r": 255, "g": 255, "b": 255, "a": 200},
-      "leftBgColor":  {"r": 52,  "g": 152, "b": 219, "a": 255},
-      "rightBgColor": {"r": 26,  "g": 188, "b": 156, "a": 255}
-    },
-    "ngImageStyle": {
-      "border": 4,
-      "labelFontSize": 24,
-      "labelHeight": 36,
-      "labelPaddingLeft": 12,
-      "labelPaddingTop": 28,
-      "labelColor":   {"r": 255, "g": 255, "b": 255, "a": 200},
-      "leftBgColor":  {"r": 52,  "g": 152, "b": 219, "a": 255},
-      "rightBgColor": {"r": 231, "g": 76,  "b": 60,  "a": 255}
-    }
+  "overwriteLayoutDir" : "",
+  "deleteWorkDir" : "true",
+  "sorted" : "false",
+  "csvHeaderRow" : 1,
+  "csvDataStartRow" : 2,
+  "codeValueForOnlyOneRecordType":"-",
+  "outputDir" : "result",
+  "outputCharset" : "utf8",
+  "compareResultFileName" : "CompareSummary.csv",
+  "compareDetailFilePrefix" : "CompareDetail_",
+  "writeDiffOnly" : "false",
+  "leftPrefix" : "期待値:",
+  "rightPrefix" : "実績値:",
+  "chunkSize" : 1000,
+  "ignoreFileRegexList" : ["^\\..*"],
+  "ignoreItemList" : ["last_update_time", "LAST_UPDATE_TIME"],
+  "ignoreAreaList" : [
+    {"x": 0, "y":0, "width":1024, "height":128}
+  ],
+  "okImageStyle": {
+    "border": 4,
+    "labelFontSize": 24,
+    "labelHeight": 36,
+    "labelPaddingLeft": 12,
+    "labelPaddingTop": 28,
+    "labelColor":   {"r": 255, "g": 255, "b": 255, "a": 200},
+    "leftBgColor":  {"r": 52,  "g": 152, "b": 219, "a": 255},
+    "rightBgColor": {"r": 26,  "g": 188, "b": 156, "a": 255}
+  },
+  "ngImageStyle": {
+    "border": 4,
+    "labelFontSize": 24,
+    "labelHeight": 36,
+    "labelPaddingLeft": 12,
+    "labelPaddingTop": 28,
+    "labelColor":   {"r": 255, "g": 255, "b": 255, "a": 200},
+    "leftBgColor":  {"r": 52,  "g": 152, "b": 219, "a": 255},
+    "rightBgColor": {"r": 231, "g": 76,  "b": 60,  "a": 255}
+  }
 }

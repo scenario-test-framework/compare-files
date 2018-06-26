@@ -65,11 +65,6 @@ public class DirCompareResult extends BaseBulkCompareResult implements Aggregate
         // --------------------------------------------------------------------------------
         // 事前処理
         // --------------------------------------------------------------------------------
-        final String leftDirPath = input.getLeftDirPath();
-        final String rightDirPath = input.getRightDirPath();
-        final String outputDirPath = input.getOutputDirPath();
-        final CompareFilesConfig systemConfig = input.getSystemConfig();
-
         // ----------------------------------------
         // 単項目チェック
         // ----------------------------------------
@@ -78,12 +73,19 @@ public class DirCompareResult extends BaseBulkCompareResult implements Aggregate
         // ----------------------------------------
         // 相関チェック
         // ----------------------------------------
-        // 出力ディレクトリ
-        FileUtils.initDir(outputDirPath);
+        // なし
 
         // --------------------------------------------------------------------------------
         // 本処理
         // --------------------------------------------------------------------------------
+        final String leftDirPath = input.getLeftDirPath();
+        final String rightDirPath = input.getRightDirPath();
+        final String outputDirPath = input.getOutputDirPath();
+        final CompareFilesConfig systemConfig = input.getSystemConfig();
+
+        // 出力ディレクトリ
+        FileUtils.initDir(outputDirPath);
+
         // ----------------------------------------------------------------------
         // 設定取得
         // ----------------------------------------------------------------------

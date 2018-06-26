@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>CompareRegexTarget.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">compare-files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.infra.config</a> &gt; <span class="el_source">CompareRegexTarget.java</span></div><h1>CompareRegexTarget.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.infra.config;
+
+import java.io.File;
+import java.util.regex.Pattern;
+
+import lombok.Getter;
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * ファイル名正規表現指定の比較対象設定。
+ */
+@Getter
+public class CompareRegexTarget {
+
+    /** 左ディレクトリ。 */
+<span class="fc" id="L19">    private final File leftDir;</span>
+
+    /** 右ディレクトリ。 */
+<span class="fc" id="L22">    private final File rightDir;</span>
+
+    /** ファイル名正規表現。 */
+<span class="fc" id="L25">    private final String fileNameRegex;</span>
+
+    /** ファイル名正規表現Pattern。 */
+<span class="fc" id="L28">    private Pattern pattern;</span>
+
+    /**
+     * コンストラクタ。
+     *
+     * @param leftDirPath 左ディレクトリパス
+     * @param rightDirPath 右ディレクトリパス
+     * @param fileNameRegex ファイル名正規表現
+     */
+<span class="fc" id="L37">    public CompareRegexTarget(final String leftDirPath, final String rightDirPath, final String fileNameRegex) {</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (StringUtils.isEmpty(leftDirPath)) {</span>
+<span class="fc" id="L39">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;leftDirPath&quot;});</span>
+        }
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (StringUtils.isEmpty(rightDirPath)) {</span>
+<span class="fc" id="L42">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;rightDirPath&quot;});</span>
+        }
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (StringUtils.isEmpty(fileNameRegex)) {</span>
+<span class="fc" id="L45">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;fileNameRegex&quot;});</span>
+        }
+        try {
+<span class="fc" id="L48">            this.pattern = Pattern.compile(fileNameRegex);</span>
+<span class="fc" id="L49">        } catch (Exception e) {</span>
+<span class="fc" id="L50">            throw new CompareFilesException(Const.MSGCD_ERROR_REGEX_PARSE, new Object[] {fileNameRegex}, e);</span>
+<span class="fc" id="L51">        }</span>
+
+<span class="fc" id="L53">        this.leftDir = new File(leftDirPath);</span>
+<span class="fc" id="L54">        this.rightDir = new File(rightDirPath);</span>
+<span class="fc" id="L55">        this.fileNameRegex = fileNameRegex;</span>
+<span class="fc" id="L56">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

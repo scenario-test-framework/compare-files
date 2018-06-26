@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ja"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../resources/report.css" type="text/css"/><link rel="shortcut icon" href="../resources/report.gif" type="image/gif"/><title>FileLayoutManager.java</title><link rel="stylesheet" href="../resources/prettify.css" type="text/css"/><script type="text/javascript" src="../resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">compare-files</a> &gt; <a href="index.source.html" class="el_package">me.suwash.tools.comparefiles.infra.config</a> &gt; <span class="el_source">FileLayoutManager.java</span></div><h1>FileLayoutManager.java</h1><pre class="source lang-java linenums">package me.suwash.tools.comparefiles.infra.config;
+
+import java.awt.Rectangle;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import me.suwash.tools.comparefiles.infra.Const;
+import me.suwash.tools.comparefiles.infra.classification.FileFormat;
+import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.util.CompareUtils.CompareCriteria;
+import me.suwash.util.FileUtils;
+import me.suwash.util.JsonUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * ファイルレイアウト定義マネージャ。
+ */
+<span class="fc" id="L24">@lombok.extern.slf4j.Slf4j</span>
+public final class FileLayoutManager {
+
+    /** インスタンス。 */
+<span class="fc" id="L28">    private static final FileLayoutManager instance = new FileLayoutManager();</span>
+
+    /** ファイルレイアウト定義Map。 */
+<span class="fc" id="L31">    private final Map&lt;String, FileLayout&gt; layoutMap = new TreeMap&lt;String, FileLayout&gt;();</span>
+
+    /**
+     * Singletonパターンでインスタンスを返します。
+     *
+     * @return インスタンス
+     */
+    public static FileLayoutManager getInstance() {
+<span class="fc" id="L39">        return instance;</span>
+    }
+
+    /**
+     * コンストラクタ。
+     */
+<span class="fc" id="L45">    private FileLayoutManager() {</span>
+<span class="fc" id="L46">        addLayoutClasspath();</span>
+<span class="fc" id="L47">    }</span>
+
+    /**
+     * クラスパスから、デフォルトのファイルレイアウト定義ファイルを登録します。
+     */
+    private void addLayoutClasspath() {
+<span class="fc" id="L53">        log.debug(&quot;  ・addLayoutClasspath&quot;);</span>
+
+        // 実行中のclasspath定義
+<span class="fc" id="L56">        final String classpathes = System.getProperty(&quot;java.class.path&quot;);</span>
+        // 環境ごとのclasspath区切り文字
+<span class="fc" id="L58">        final String pathSeparator = System.getProperty(&quot;path.separator&quot;);</span>
+
+        // classpathを全件ループ
+<span class="fc bfc" id="L61" title="All 2 branches covered.">        for (final String curClasspath : classpathes.split(pathSeparator)) {</span>
+            // 当該classpathがディレクトリの場合、含まれるレイアウト定義ファイルを全て登録
+<span class="fc" id="L63">            addLayoutClasspath(curClasspath);</span>
+        }
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * 指定クラスパス配下のレイアウト配置ディレクトリから、全てのレイアウトファイルを登録します。
+     *
+     * @param classpathStr クラスパス
+     */
+    private void addLayoutClasspath(final String classpathStr) {
+        // サブディレクトリにFileLayout定義配置ディレクトリが存在するか確認
+<span class="fc" id="L74">        final File classpath = new File(classpathStr);</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (classpath.isDirectory()) {</span>
+<span class="fc" id="L76">            final File layoutDir = new File(classpath.getPath() + &quot;/&quot; + Const.CLASSPATH_LAYOUT_DIR_NAME);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            if (layoutDir.exists()) {</span>
+                // 存在する場合、配下の全てのファイルを定義追加
+<span class="fc" id="L79">                addAllLayoutFile(layoutDir);</span>
+            }
+        }
+<span class="fc" id="L82">    }</span>
+
+    /**
+     * 指定ディレクトリ配下にある全てのファイルを、ファイルレイアウト定義として上書き登録します。
+     *
+     * @param dirPath 対象のディレクトリパス
+     */
+    public void addLayoutDir(final String dirPath) {
+<span class="nc" id="L90">        log.debug(&quot;  ・addLayoutDir(&quot; + dirPath + &quot;)&quot;);</span>
+
+        // 入力チェック
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (StringUtils.isEmpty(dirPath)) {</span>
+<span class="nc" id="L94">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;dirPath&quot;});</span>
+        }
+
+        // ディレクトリ読み込みチェック
+<span class="nc" id="L98">        FileUtils.readDirCheck(dirPath);</span>
+
+        // 指定ディレクトリ配下の全てのファイルを定義追加
+<span class="nc" id="L101">        final File dir = new File(dirPath);</span>
+<span class="nc" id="L102">        addAllLayoutFile(dir);</span>
+<span class="nc" id="L103">    }</span>
+
+    /**
+     * 指定ディレクトリ直下の全てのファイルをレイアウト登録します。
+     *
+     * @param dir 対象ディレクトリ
+     */
+    private void addAllLayoutFile(final File dir) {
+<span class="fc" id="L111">        final File[] files = dir.listFiles();</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">        if (files != null) {</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">            for (final File curFile : files) {</span>
+<span class="fc" id="L114">                addLayoutFile(curFile.getPath());</span>
+            }
+        }
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * ファイルレイアウト定義ファイルを、上書き登録します。
+     *
+     * @param inputLayoutFilePath 対象のレイアウト定義ファイル
+     */
+    public void addLayoutFile(final String inputLayoutFilePath) {
+<span class="fc" id="L125">        log.debug(&quot;  ・addLayoutFile(&quot; + inputLayoutFilePath + &quot;)&quot;);</span>
+
+        // 入力チェック
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">        if (StringUtils.isEmpty(inputLayoutFilePath)) {</span>
+<span class="nc" id="L129">            throw new CompareFilesException(Const.CHECK_NOTNULL, new Object[] {&quot;inputLayoutFilePath&quot;});</span>
+        }
+        // ファイル読み込みチェック
+<span class="fc" id="L132">        FileUtils.readCheck(inputLayoutFilePath, Const.CHARSET_DEFAULT_CONFIG);</span>
+
+        // パース
+<span class="fc" id="L135">        final File inputLayoutFile = new File(inputLayoutFilePath);</span>
+<span class="fc" id="L136">        final FileLayoutList inputLayoutList = JsonUtils.parseFile(inputLayoutFile.getAbsolutePath(), Const.CHARSET_DEFAULT_CONFIG, FileLayoutList.class);</span>
+
+        // 指定ファイルの定義内容をループ
+<span class="fc bfc" id="L139" title="All 2 branches covered.">        for (final FileLayout inputLayout : inputLayoutList.getLayoutList()) {</span>
+            // 登録済み定義と一致する正規表現の場合、削除
+<span class="fc" id="L141">            final String regex = inputLayout.getFileRegexPattern();</span>
+<span class="pc bpc" id="L142" title="1 of 2 branches missed.">            if (layoutMap.containsKey(regex)) {</span>
+<span class="nc" id="L143">                layoutMap.remove(regex);</span>
+            }
+            // 定義リストに追加
+<span class="fc" id="L146">            log.trace(&quot;    ・[ADD]&quot; + inputLayout.getLogicalFileName());</span>
+<span class="fc" id="L147">            layoutMap.put(regex, inputLayout);</span>
+<span class="fc" id="L148">        }</span>
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * 物理ファイル名にマッチするファイルレイアウトを返します。
+     * マッチするレイアウトが定義されていない場合、nullを返します。
+     *
+     * @param physicalFileName 物理ファイル名
+     * @param systemConfig システム設定
+     * @return マッチするファイルレイアウト
+     */
+    public FileLayout getLayout(final String physicalFileName, final CompareFilesConfig systemConfig) {
+        // 返却用レイアウト定義
+<span class="fc" id="L161">        FileLayout returnLayout = null;</span>
+
+        // 定義リストを全件ループ
+<span class="fc bfc" id="L164" title="All 2 branches covered.">        for (final Map.Entry&lt;String, FileLayout&gt; curLayoutEntry : layoutMap.entrySet()) {</span>
+            // 定義の正規表現にマッチするか確認
+            try {
+<span class="fc" id="L167">                final Pattern pattern = Pattern.compile(curLayoutEntry.getKey());</span>
+<span class="fc" id="L168">                final Matcher matcher = pattern.matcher(physicalFileName);</span>
+<span class="fc" id="L169">                log.trace(&quot;        ・check regex:&quot; + curLayoutEntry.getKey());</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">                if (matcher.matches()) {</span>
+                    // マッチした場合、コピーしたオブジェクトを返却用レイアウト定義に設定
+<span class="fc" id="L172">                    log.info(&quot;      ・[MATCH  ]レイアウト:&quot; + curLayoutEntry.getValue().getLogicalFileName() + &quot;, 正規表現:&quot; + curLayoutEntry.getKey());</span>
+<span class="fc" id="L173">                    returnLayout = FileLayout.copy(curLayoutEntry.getValue());</span>
+<span class="fc" id="L174">                    break;</span>
+                }
+<span class="nc" id="L176">            } catch (Exception e) {</span>
+<span class="nc" id="L177">                log.error(&quot;正規表現の評価でエラーが発生しました。レイアウト:&quot; + curLayoutEntry.getValue().getLogicalFileName() + &quot;, 正規表現:&quot; + curLayoutEntry.getKey(), e);</span>
+<span class="fc" id="L178">            }</span>
+<span class="fc" id="L179">        }</span>
+
+        // マッチしなかった場合、nullを返却
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (returnLayout == null) {</span>
+<span class="fc" id="L183">            log.warn(&quot;      ・[UNMATCH]ファイル名:&quot; + physicalFileName);</span>
+<span class="fc" id="L184">            return null;</span>
+        }
+
+        // systemConfigの存在確認
+<span class="pc bpc" id="L188" title="1 of 2 branches missed.">        if (systemConfig != null) {</span>
+            // 指定されている場合、返却用レイアウト定義に除外項目を適用
+<span class="fc" id="L190">            FileLayoutManager.updateIgnore(systemConfig, returnLayout);</span>
+        }
+
+        // 除外項目適用後の返却用レイアウト定義を返却
+<span class="fc" id="L194">        return returnLayout;</span>
+    }
+
+    /**
+     * システム設定の除外項目リストを、ファイルレイアウトオブジェクトに反映します。
+     *
+     * @param systemConfig システム設定
+     * @param fileLayout ファイルレイアウト
+     */
+    private static void updateIgnore(final CompareFilesConfig systemConfig, final FileLayout fileLayout) {
+<span class="fc" id="L204">        final FileFormat fileFormat = fileLayout.getFileFormat();</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">        if (FileFormat.Image.equals(fileFormat)) {</span>
+            // 画像比較の場合、システム設定の除外エリアをマージ
+<span class="fc" id="L207">            final List&lt;Rectangle&gt; mergedIgnoreAreaList = new ArrayList&lt;Rectangle&gt;();</span>
+<span class="fc bfc" id="L208" title="All 2 branches covered.">            if (fileLayout.getIgnoreAreaList() != null) {</span>
+<span class="fc" id="L209">                mergedIgnoreAreaList.addAll(fileLayout.getIgnoreAreaList());</span>
+            }
+<span class="fc bfc" id="L211" title="All 2 branches covered.">            if (systemConfig.getIgnoreAreaList() != null) {</span>
+<span class="fc" id="L212">                mergedIgnoreAreaList.addAll(systemConfig.getIgnoreAreaList());</span>
+            }
+<span class="fc" id="L214">            fileLayout.setIgnoreAreaList(mergedIgnoreAreaList);</span>
+
+<span class="fc" id="L216">        } else {</span>
+            // 除外項目リストを取得
+<span class="fc" id="L218">            final List&lt;String&gt; ignoreItemList = systemConfig.getIgnoreItemList();</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">            if (ignoreItemList == null) {</span>
+                // 設定されていない場合、更新せずに終了
+<span class="nc" id="L221">                return;</span>
+            }
+
+            // 返却用レイアウト定義の項目を全件ループ
+<span class="fc bfc" id="L225" title="All 2 branches covered.">            for (final RecordLayout curRecordLayout : fileLayout.getRecordList()) {</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">                for (final ItemLayout curItemLayout : curRecordLayout.getItemList()) {</span>
+                    // 一致する場合、criteriaを除外に設定
+<span class="fc bfc" id="L228" title="All 2 branches covered.">                    if (FileLayoutManager.isIgnoreItem(ignoreItemList, curItemLayout)) {</span>
+<span class="fc" id="L229">                        curItemLayout.setCriteria(CompareCriteria.Ignore);</span>
+                    }
+<span class="fc" id="L231">                }</span>
+<span class="fc" id="L232">            }</span>
+        }
+<span class="fc" id="L234">    }</span>
+
+    /**
+     * 指定項目が、除外対象か否かを返します。
+     *
+     * @param ignoreItemList 除外項目リスト
+     * @param itemLayout 対象項目レイアウト
+     * @return 除外対象の場合、true
+     */
+    private static boolean isIgnoreItem(final List&lt;String&gt; ignoreItemList, final ItemLayout itemLayout) {
+<span class="fc" id="L244">        boolean isIgnore = false;</span>
+        // 除外項目リストをループ
+<span class="fc bfc" id="L246" title="All 2 branches covered.">        for (final String ignoreItemName : ignoreItemList) {</span>
+            // 項目名の一致を確認
+<span class="fc bfc" id="L248" title="All 2 branches covered.">            if (ignoreItemName.equals(itemLayout.getId())) {</span>
+<span class="fc" id="L249">                isIgnore = true;</span>
+<span class="fc" id="L250">                break;</span>
+            }
+<span class="fc" id="L252">        }</span>
+<span class="fc" id="L253">        return isIgnore;</span>
+    }
+
+    /**
+     * テキストファイルのデフォルトファイルレイアウトを返します。
+     * &lt;pre&gt;
+     * 論理名　　　：-
+     * ファイル形式：テキスト形式
+     * 文字コード　：UTF8
+     * 改行コード　：システム
+     * &lt;/pre&gt;
+     *
+     * @return デフォルトのファイルレイアウト。
+     */
+    public static FileLayout getDefaultTextLayout() {
+<span class="fc" id="L268">        final FileLayout layout = new FileLayout();</span>
+<span class="fc" id="L269">        layout.setLogicalFileName(Const.DUMMY_VALUE);</span>
+<span class="fc" id="L270">        layout.setFileFormat(FileFormat.Text);</span>
+<span class="fc" id="L271">        layout.setCharset(Const.CHARSET_DEFAULT_CONFIG);</span>
+<span class="fc" id="L272">        layout.setLineSp(null);</span>
+<span class="fc" id="L273">        return layout;</span>
+    }
+
+    /**
+     * 画像ファイルのデフォルトファイルレイアウトを返します。
+     * &lt;pre&gt;
+     * 論理名　　　：Image
+     * ファイル形式：画像形式
+     * 除外エリア　：システム設定を引き継ぐ
+     * &lt;/pre&gt;
+     *
+     * @param systemConfig システム設定
+     * @return デフォルトのファイルレイアウト。
+     */
+    public static FileLayout getDefaultImageLayout(final CompareFilesConfig systemConfig) {
+<span class="fc" id="L288">        final FileLayout layout = new FileLayout();</span>
+<span class="fc" id="L289">        layout.setLogicalFileName(Const.DUMMY_VALUE);</span>
+<span class="fc" id="L290">        layout.setFileFormat(FileFormat.Image);</span>
+<span class="fc" id="L291">        FileLayoutManager.updateIgnore(systemConfig, layout);</span>
+<span class="fc" id="L292">        return layout;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.6.201602180812</span></div></body></html>

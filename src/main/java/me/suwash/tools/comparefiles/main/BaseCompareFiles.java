@@ -57,20 +57,25 @@ public abstract class BaseCompareFiles {
         // 設定ファイルの読み込み
         // -----------------------------------------------------------------------------------------
         // デフォルト設定の読み込み
-        final CompareFilesConfig defaultConfig = CompareFilesConfig.parse(
-            ConfigUtils.getConfigFileClasspath(CompareFiles.class, Const.EXT_CONFIG),
-            true);
+        final String defaultConfigFilePath = ConfigUtils.getConfigFileClasspath(CompareFiles.class, Const.EXT_CONFIG);
+        final CompareFilesConfig defaultConfig = CompareFilesConfig.parse(defaultConfigFilePath, true);
 
         // 設定ファイルパスの指定を確認
         CompareFilesConfig config = null;
         if (StringUtils.isEmpty(option.getConfigFilePath())) {
             // 指定されていない場合、デフォルト設定を利用
+            log.info("デフォルト起動設定: " + defaultConfigFilePath);
             config = defaultConfig;
 
         } else {
             // 設定ファイルパスが指定されている場合、カスタム設定の読み込み
+            log.info("カスタム起動設定: " + option.getConfigFilePath());
             config = CompareFilesConfig.parse(option.getConfigFilePath(), false);
+            config.printDetails();
+
+            log.info("デフォルト起動設定を反映");
             config.setDefault(defaultConfig);
+            config.printDetails();
         }
 
         // 設定をコマンドライン引数で上書き

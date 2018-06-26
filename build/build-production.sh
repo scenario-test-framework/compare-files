@@ -73,7 +73,7 @@ mv target/site/ ${DIR_DOCS}/
 
 # github.io で表示できるように、jacoco report の .resource へのリンクを resource に置換
 find ${DIR_DOCS}/site/jacoco -type f -name '*.html'                               |
-xargs -I{} bash -c 'cat {} | sed -e "s|\.resources/|resources/|g" > {}.tmp'
+xargs -I{} bash -c 'filename={}; cat ${filename} | sed -e "s|\.resources/|resources/|g" > ${filename}.tmp'
 find ${DIR_DOCS}/site/jacoco -type f -name '*.html.tmp'                           |
 xargs -I{} bash -c 'filename={}; mv -f ${filename} ${filename%.*}'
 mv ${DIR_DOCS}/site/jacoco/.resources/ ${DIR_DOCS}/site/jacoco/resources/
