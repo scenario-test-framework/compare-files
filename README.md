@@ -325,6 +325,21 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
   | Datetime_LessThan_Left        | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より小 さい場合、OKと判断。 |
 
 
+#### generator
+
+レイアウトの作成を補助するgoogle sheetsを用意しています。
+
+![generator](./docs/images/compare_layout_generator.png)
+
+##### 利用方法
+
+- [generator](https://docs.google.com/spreadsheets/d/1pZ7Ta75L5zM8JshsTG9axp0QXs3WG6Xxy1N81JhF11M/copy) をマイドライブにコピー
+- `__tmpl__` シートをコピーして、レイアウトを記載
+  - ファイル形式や、レコードタイプの有無で、指定が必要な項目が異なります
+  - 指定が不要な項目は、グレーアウトされます
+- `【compare-files】`メニュー → `generate layout` をクリック
+- `__generated__` シートの内容を、前述のファイルフォーマットに従って配置
+
 
 ## 結果
 
@@ -422,17 +437,17 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
 ### 共通
 
-- クラスパスの環境変数指定
-デフォルトの挙動は、 config/ ディレクトリ配下の設定ファイルで設定できます。
-config/ ディレクトリは、Javaのclasspathを通してあるため、これが利用されています。
-動的にデフォルトの挙動を変更する場合は、環境変数「COMPAREFILES_CLASSPATH」で上書きできます。
+- クラスパスの環境変数指定  
+デフォルトの挙動は、 config/ ディレクトリ配下の設定ファイルで設定できます。  
+config/ ディレクトリは、Javaのclasspathを通してあるため、これが利用されています。  
+動的にデフォルトの挙動を変更する場合は、環境変数「COMPAREFILES_CLASSPATH」で上書きできます。  
   ```bash
   export COMPAREFILES_CLASSPATH="/path/to/dynamic_config"
   ```
 
-- 起動パラメータの環境変数指定
-デフォルトでは、起動パラメータは指定されません。
-共通で起動パラメータを設定したい場合は、環境変数「COMPAREFILES_JAVA_OPT」で設定できます。
+- 起動パラメータの環境変数指定  
+デフォルトでは、起動パラメータは指定されません。  
+共通で起動パラメータを設定したい場合は、環境変数「COMPAREFILES_JAVA_OPT」で設定できます。  
   ```bash
   export COMPAREFILES_JAVA_OPT="-od /path/to/output -oc ms932"
   ```
