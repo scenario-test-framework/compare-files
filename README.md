@@ -273,7 +273,7 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
               { "id": "keyObj.key2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal",                         "compareKey": "true" },
               { "id": "valueObj.amount",         "name": "金額",     "byteLength": 100, "criteria": "Equal",                         "compareKey": "false" },
               { "id": "valueObj.number",         "name": "連番",     "byteLength": 20,  "criteria": "Equal",                         "compareKey": "false" },
-              { "id": "valueObj.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Datetime_GraterEqualThan_Left", "compareKey": "false" }
+              { "id": "valueObj.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Datetime_GreaterEqualThan_Left", "compareKey": "false" }
             ]
           }
         ]
@@ -303,24 +303,24 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
   | Ignore                      | 比較を除外。                                                                                                                |
   | Equal                       | 文字列としての比較結果が、一致の場合、OKと判断。                                                                            |
   | NotEqual                    | 文字列としての比較結果が、不一致の場合、OKと判断。                                                                          |
-  | Number_GraterEqualThan_Left   | 数値としての比較結果が、左以上の場合、OKと判断。                                                                            |
-  | Number_GraterThan_Left        | 数値としての比較結果が、左より大きい場合、OKと判断。                                                                        |
+  | Number_GreaterEqualThan_Left   | 数値としての比較結果が、左以上の場合、OKと判断。                                                                            |
+  | Number_GreaterThan_Left        | 数値としての比較結果が、左より大きい場合、OKと判断。                                                                        |
   | Number_LessEqualThan_Left     | 数値としての比較結果が、左以下の場合、OKと判断。                                                                            |
   | Number_LessThan_Left          | 数値としての比較結果が、左より小さい場合、OKと判断。                                                                        |
-  | Year_GraterEqualThan_Left     | 年(yyyy)としての比較結果が、左以上の場合、OKと判断。                                                                        |
-  | Year_GraterThan_Left          | 年(yyyy)としての比較結果が、左より大きい場合、OKと判断。                                                                    |
+  | Year_GreaterEqualThan_Left     | 年(yyyy)としての比較結果が、左以上の場合、OKと判断。                                                                        |
+  | Year_GreaterThan_Left          | 年(yyyy)としての比較結果が、左より大きい場合、OKと判断。                                                                    |
   | Year_LessEqualThan_Left       | 年(yyyy)としての比較結果が、左以下の場合、OKと判断。                                                                        |
   | Year_LessThan_Left            | 年(yyyy)としての比較結果が、左より小さい場合、OKと判断。                                                                    |
-  | Month_GraterEqualThan_Left    | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
-  | Month_GraterThan_Left         | 年月(yyyyMM)としての比較結果が、左より大きい場合、OKと判断。                                                                |
+  | Month_GreaterEqualThan_Left    | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
+  | Month_GreaterThan_Left         | 年月(yyyyMM)としての比較結果が、左より大きい場合、OKと判断。                                                                |
   | Month_LessEqualThan_Left      | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
   | Month_LessThan_Left           | 年月(yyyyMM)としての比較結果が、左より小さい場合、OKと判断。                                                                |
-  | Date_GraterEqualThan_Left     | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以上の場合、OKと判断。                                        |
-  | Date_GraterThan_Left          | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より大きい場合、OKと判断。                                    |
+  | Date_GreaterEqualThan_Left     | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以上の場合、OKと判断。                                        |
+  | Date_GreaterThan_Left          | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より大きい場合、OKと判断。                                    |
   | Date_LessEqualThan_Left       | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以下の場合、OKと判断。                                        |
   | Date_LessThan_Left            | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より小さい場合、OKと判断。                                    |
-  | Datetime_GraterEqualThan_Left | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以上の 場合、OKと判断。     |
-  | Datetime_GraterThan_Left      | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より大 きい場合、OKと判断。 |
+  | Datetime_GreaterEqualThan_Left | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以上の 場合、OKと判断。     |
+  | Datetime_GreaterThan_Left      | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より大 きい場合、OKと判断。 |
   | Datetime_LessEqualThan_Left   | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以下の 場合、OKと判断。     |
   | Datetime_LessThan_Left        | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より小 さい場合、OKと判断。 |
 

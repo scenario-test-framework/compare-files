@@ -133,7 +133,7 @@
             { "id": "keyObj.key2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal",                         "compareKey": "true" },
             { "id": "valueObj.amount",         "name": "金額",     "byteLength": 100, "criteria": "Equal",                         "compareKey": "false" },
             { "id": "valueObj.number",         "name": "連番",     "byteLength": 20,  "criteria": "Equal",                         "compareKey": "false" },
-            { "id": "valueObj.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Datetime_GraterEqualThan_Left", "compareKey": "false" }
+            { "id": "valueObj.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Datetime_GreaterEqualThan_Left", "compareKey": "false" }
           ]
         }
       ]
