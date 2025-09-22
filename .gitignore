@@ -17,3 +17,6 @@ hs_err_pid*
 actual/
 .idea/
 temp/
+
+
+.claude/settings.local.json

@@ -1,8 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>me.suwash.commons</groupId>
     <artifactId>compare-files</artifactId>
     <version>1.1.0</version>
     <name>compare-files</name>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>me.suwash.commons</groupId>
@@ -10,12 +12,21 @@
         <version>0.1.0</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/suwa-sh/java</url>
+        </repository>
+    </repositories>
+
     <properties>
         <core.package>me.suwash.tools.comparefiles</core.package>
         <dirname.assembly.work>compare_files_${project.version}</dirname.assembly.work>
         <dir.assembly.work>${project.build.directory}/${dirname.assembly.work}</dir.assembly.work>
 
         <version.ddd>1.0.0</version.ddd>
+        <version.test>1.0.1</version.test>
     </properties>
 
     <profiles>
@@ -239,7 +250,7 @@
         <dependency>
             <groupId>me.suwash.commons</groupId>
             <artifactId>test</artifactId>
-            <version>[1.0.0,)</version>
+            <version>${version.test}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

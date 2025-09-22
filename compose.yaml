@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  compare-files:
+    image: ghcr.io/scenario-test-framework/compare-files:latest
+    volumes:
+      - ./:/data
+      - ./config:/app/config
+    working_dir: /data
+    command: ["--help"]
+
+  compare-regex:
+    image: ghcr.io/scenario-test-framework/compare-files:latest
+    volumes:
+      - ./:/data
+      - ./config:/app/config
+    working_dir: /data
+    entrypoint: ["/app/bin/compare_regex.sh"]
+    command: ["--help"]

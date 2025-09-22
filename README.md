@@ -453,14 +453,150 @@ config/ ディレクトリは、Javaのclasspathを通してあるため、こ�
   ```
 
 
+
+## Docker
+
+### Dockerイメージの取得
+
+GitHub Container Registry (ghcr.io) から公開されているイメージを利用できます：
+
+```bash
+# 最新版を取得
+docker pull ghcr.io/scenario-test-framework/compare-files:latest
+
+# 特定バージョンを取得
+docker pull ghcr.io/scenario-test-framework/compare-files:1.1.0
+```
+
+### Dockerでの実行
+
+#### ファイル比較
+
+```bash
+# ローカルファイルをマウントして比較
+docker run --rm -v $(pwd):/data ghcr.io/scenario-test-framework/compare-files:latest \
+  /data/left_file.txt /data/right_file.txt
+```
+
+#### ディレクトリ比較
+
+```bash
+# ディレクトリ全体をマウントして比較
+docker run --rm -v $(pwd):/data ghcr.io/scenario-test-framework/compare-files:latest \
+  /data/left_dir /data/right_dir
+```
+
+#### オプション付き実行
+
+```bash
+# 比較レイアウトを指定して実行
+docker run --rm \
+  -v $(pwd):/data \
+  -v $(pwd)/config:/app/config \
+  ghcr.io/scenario-test-framework/compare-files:latest \
+  --layout /app/config/my_layout.xml \
+  /data/left.txt /data/right.txt
+```
+
+### ワンラインインストール
+
+比較ツールの実行環境を一つのコマンドで構築できます：
+
+#### Linux / macOS
+```bash
+curl -sSL https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/docker/install.sh | bash
+```
+
+#### Windows PowerShell
+```powershell
+Invoke-Expression (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/docker/install.ps1" -UseBasicParsing).Content
+```
+
+#### インストール完了後の使用方法
+
+**Linux / macOS:**
+```bash
+# ファイル比較
+./bin/compare_files.sh --help
+./bin/compare_files.sh sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt
+
+# 正規表現比較
+./bin/compare_regex.sh --help
+./bin/compare_regex.sh sample/compare_target.csv
+```
+
+**Windows:**
+```cmd
+REM ファイル比較
+bin\compare_files.cmd --help
+bin\compare_files.cmd sample\left\plaintext_ok.txt sample\right\plaintext_ng.txt
+
+REM 正規表現比較
+bin\compare_regex.cmd --help
+bin\compare_regex.cmd sample\compare_target.csv
+```
+
+#### インストールされるファイル
+
+```
+.
+├── compose.yaml              # Docker Compose設定
+├── config/
+│   └── compare_files.json    # デフォルト設定ファイル
+├── bin/
+│   ├── compare_files.sh      # ファイル比較ラッパー (Linux/macOS)
+│   ├── compare_files.cmd     # ファイル比較ラッパー (Windows)
+│   ├── compare_regex.sh      # 正規表現比較ラッパー (Linux/macOS)
+│   └── compare_regex.cmd     # 正規表現比較ラッパー (Windows)
+└── sample/                   # サンプルファイル
+    ├── left/plaintext_ok.txt
+    ├── right/plaintext_ok.txt
+    ├── right/plaintext_ng.txt
+    └── compare_target.csv
+```
+
+### ローカルでのビルド
+
+```bash
+# Dockerイメージをビルド
+docker build --build-arg GITHUB_TOKEN=UPDATE_HERE -t compare-files:local .
+
+# ビルドしたイメージを実行
+docker run --rm -v $(pwd):/data compare-files:local --help
+
+# ローカルイメージをComposeで使用する場合
+# compose.yamlのimageを変更してから実行
+./bin/compare_files.sh --help
+```
+
+### docker-composeでの利用
+
+```yaml
+# docker-compose.yml
+version: '3'
+services:
+  compare-files:
+    image: ghcr.io/scenario-test-framework/compare-files:latest
+    volumes:
+      - ./data:/data
+      - ./config:/app/config
+    working_dir: /data
+    command: ["/data/left", "/data/right"]
+```
+
+```bash
+# docker-composeで実行
+docker-compose run --rm compare-files
+```
+
+---
+
 ## Contact
 
 - [要望を伝える](https://github.com/scenario-test-framework/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
 - [バグを報告する](https://github.com/scenario-test-framework/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 - [質問する](https://github.com/scenario-test-framework/compare-files/issues?q=is%3Aopen+is%3Aissue+label%3Aquestion)
 - [その他](mailto:suwash01@gmail.com)
-
-
 
 ## ライセンス
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
