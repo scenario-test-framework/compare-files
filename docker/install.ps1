@@ -66,7 +66,7 @@ docker compose run --rm compare-regex %*
     Write-Host "  .\bin\compare_regex.sh sample/compare_target.csv"
     Write-Host ""
     Write-Host "To test the installation:" -ForegroundColor Yellow
-    Write-Host "  bin\compare_files.cmd sample\left\plaintext_ok.txt sample\right\plaintext_ok.txt"
+    Write-Host "  bin\compare_files.cmd sample/left/plaintext_ok.txt sample/right/plaintext_ok.txt"
 
 } catch {
     Write-Host "Error during setup: $($_.Exception.Message)" -ForegroundColor Red
