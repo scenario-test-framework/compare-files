@@ -527,13 +527,15 @@ Invoke-Expression (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sce
 
 **Windows:**
 ```cmd
+REM 処理の実行はcontainer上なので、pathは/区切りです。
+
 REM ファイル比較
 bin\compare_files.cmd --help
-bin\compare_files.cmd sample\left\plaintext_ok.txt sample\right\plaintext_ng.txt
+bin\compare_files.cmd sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt
 
 REM 正規表現比較
 bin\compare_regex.cmd --help
-bin\compare_regex.cmd sample\compare_target.csv
+bin\compare_regex.cmd sample/compare_target.csv
 ```
 
 #### インストールされるファイル
