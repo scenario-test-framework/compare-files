@@ -563,30 +563,6 @@ docker build --build-arg GITHUB_TOKEN=UPDATE_HERE -t compare-files:local .
 
 # ビルドしたイメージを実行
 docker run --rm -v $(pwd):/data compare-files:local --help
-
-# ローカルイメージをComposeで使用する場合
-# compose.yamlのimageを変更してから実行
-./bin/compare_files.sh --help
-```
-
-### docker-composeでの利用
-
-```yaml
-# docker-compose.yml
-version: '3'
-services:
-  compare-files:
-    image: ghcr.io/scenario-test-framework/compare-files:latest
-    volumes:
-      - ./data:/data
-      - ./config:/app/config
-    working_dir: /data
-    command: ["/data/left", "/data/right"]
-```
-
-```bash
-# docker-composeで実行
-docker-compose run --rm compare-files
 ```
 
 ---
