@@ -57,10 +57,10 @@ docker compose run --rm compare-regex %*
     Write-Host ""
     Write-Host "Usage (Windows):" -ForegroundColor Cyan
     Write-Host "  bin\compare_files.cmd --help"
-    Write-Host "  bin\compare_files.cmd sample\left\plaintext_ok.txt sample\right\plaintext_ng.txt"
-    Write-Host "  bin\compare_regex.cmd sample\compare_target.csv"
+    Write-Host "  bin\compare_files.cmd sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt"
+    Write-Host "  bin\compare_regex.cmd sample/compare_target.csv"
     Write-Host ""
-    Write-Host "Usage (PowerShell/Unix):" -ForegroundColor Cyan
+    Write-Host "Usage (WSL/Unix):" -ForegroundColor Cyan
     Write-Host "  .\bin\compare_files.sh --help"
     Write-Host "  .\bin\compare_files.sh sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt"
     Write-Host "  .\bin\compare_regex.sh sample/compare_target.csv"
