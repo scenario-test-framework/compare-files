@@ -1,8 +1,7 @@
 package me.suwash.tools.comparefiles.ap;
 
-import me.suwash.ddd.policy.Input;
-import me.suwash.ddd.policy.Output;
-import me.suwash.ddd.policy.layer.ap.Facade;
+import me.suwash.tools.comparefiles.infra.policy.Input;
+import me.suwash.tools.comparefiles.infra.policy.Output;
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.Context;
 import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
@@ -16,11 +15,11 @@ import me.suwash.tools.comparefiles.infra.policy.Repository;
  * @param <O> 出力データモデル
  */
 @lombok.extern.slf4j.Slf4j
-public abstract class BaseFacade<I extends Input, O extends Output<I>> extends BaseLayerSuperType<I, O> implements Facade<I, O> {
+public abstract class BaseFacade<I extends Input, O extends Output<I>> extends BaseLayerSuperType<I, O> {
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#execute(me.suwash.ddd.policy.Input)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#execute(Input)
      */
     @Override
     public O execute(I input) {

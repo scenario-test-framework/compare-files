@@ -4,7 +4,7 @@ import java.text.NumberFormat;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.sv.domain.compare.bulk.BaseBulkCompareResult;
 import me.suwash.util.CompareUtils.CompareStatus;
 

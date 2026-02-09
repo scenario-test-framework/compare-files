@@ -1,7 +1,7 @@
 package me.suwash.tools.comparefiles.main;
 
 import static org.junit.Assert.assertEquals;
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.CompareFilesTestUtils;
 import me.suwash.tools.comparefiles.CompareFilesTestWatcher;
 import me.suwash.tools.comparefiles.infra.Const;

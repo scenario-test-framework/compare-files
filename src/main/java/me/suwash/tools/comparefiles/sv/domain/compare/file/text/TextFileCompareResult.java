@@ -6,7 +6,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 
 import lombok.Getter;
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.classification.FileFormat;
 import me.suwash.tools.comparefiles.infra.classification.LineSp;

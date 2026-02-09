@@ -11,7 +11,7 @@ public class FileRegexCompareFacade extends BaseFacade<FileRegexCompareFacadeInp
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#preExecute(me.suwash.ddd.policy.Input)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#preExecute(me.suwash.tools.comparefiles.infra.policy.Input)
      */
     @Override
     protected FileRegexCompareFacadeOutput preExecute(final FileRegexCompareFacadeInput input) {
@@ -23,7 +23,7 @@ public class FileRegexCompareFacade extends BaseFacade<FileRegexCompareFacadeInp
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#mainExecute(me.suwash.ddd.policy.Input, me.suwash.ddd.policy.Output)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#mainExecute(me.suwash.tools.comparefiles.infra.policy.Input, me.suwash.tools.comparefiles.infra.policy.Output)
      */
     @Override
     protected FileRegexCompareFacadeOutput mainExecute(final FileRegexCompareFacadeInput input, final FileRegexCompareFacadeOutput output) {
@@ -42,7 +42,7 @@ public class FileRegexCompareFacade extends BaseFacade<FileRegexCompareFacadeInp
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#postExecute(me.suwash.ddd.policy.Input, me.suwash.ddd.policy.Output)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#postExecute(me.suwash.tools.comparefiles.infra.policy.Input, me.suwash.tools.comparefiles.infra.policy.Output)
      */
     @Override
     protected FileRegexCompareFacadeOutput postExecute(final FileRegexCompareFacadeInput input, final FileRegexCompareFacadeOutput output) {

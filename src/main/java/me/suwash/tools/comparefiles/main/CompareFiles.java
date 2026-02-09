@@ -3,7 +3,7 @@ package me.suwash.tools.comparefiles.main;
 import java.io.File;
 import java.util.List;
 
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.ap.DirCompareFacade;
 import me.suwash.tools.comparefiles.ap.FileCompareFacade;
 import me.suwash.tools.comparefiles.ap.dto.DirCompareFacadeInput;

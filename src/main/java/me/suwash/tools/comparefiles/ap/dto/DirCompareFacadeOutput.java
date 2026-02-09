@@ -21,7 +21,7 @@ public class DirCompareFacadeOutput extends BaseDirCompareFacadeOutput<DirCompar
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getInput()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getInput()
      */
     @Override
     public DirCompareFacadeInput getInput() {
@@ -30,7 +30,7 @@ public class DirCompareFacadeOutput extends BaseDirCompareFacadeOutput<DirCompar
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#setViolationSet(java.util.Set)
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#setViolationSet(java.util.Set)
      */
     @Override
     public void setViolationSet(Set<ConstraintViolation<DirCompareFacadeInput>> violationSet) {
@@ -39,7 +39,7 @@ public class DirCompareFacadeOutput extends BaseDirCompareFacadeOutput<DirCompar
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getViolationSet()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getViolationSet()
      */
     @Override
     public Set<ConstraintViolation<DirCompareFacadeInput>> getViolationSet() {

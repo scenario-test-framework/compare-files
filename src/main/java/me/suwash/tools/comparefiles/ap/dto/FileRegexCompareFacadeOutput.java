@@ -21,7 +21,7 @@ public class FileRegexCompareFacadeOutput extends BaseDirCompareFacadeOutput<Fil
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getInput()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getInput()
      */
     @Override
     public FileRegexCompareFacadeInput getInput() {
@@ -30,7 +30,7 @@ public class FileRegexCompareFacadeOutput extends BaseDirCompareFacadeOutput<Fil
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#setViolationSet(java.util.Set)
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#setViolationSet(java.util.Set)
      */
     @Override
     public void setViolationSet(Set<ConstraintViolation<FileRegexCompareFacadeInput>> violationSet) {
@@ -39,7 +39,7 @@ public class FileRegexCompareFacadeOutput extends BaseDirCompareFacadeOutput<Fil
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getViolationSet()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getViolationSet()
      */
     @Override
     public Set<ConstraintViolation<FileRegexCompareFacadeInput>> getViolationSet() {
