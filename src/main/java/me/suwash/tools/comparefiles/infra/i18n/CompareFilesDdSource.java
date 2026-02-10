@@ -1,6 +1,5 @@
 package me.suwash.tools.comparefiles.infra.i18n;
 
-import me.suwash.ddd.i18n.DddDdSource;
 import me.suwash.util.i18n.DdSource;
 
 /**
@@ -24,6 +23,6 @@ public class CompareFilesDdSource extends DdSource {
      */
     @Override
     protected DdSource getParent() {
-        return DddDdSource.getInstance();
+        return null;
     }
 }

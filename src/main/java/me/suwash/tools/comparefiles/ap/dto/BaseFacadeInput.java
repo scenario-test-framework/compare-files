@@ -5,7 +5,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.suwash.ddd.policy.Input;
+import me.suwash.tools.comparefiles.infra.policy.Input;
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 
 import org.hibernate.validator.constraints.NotEmpty;

@@ -6,13 +6,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import me.suwash.ddd.classification.ProcessStatus;
-import me.suwash.ddd.policy.GenericLayerSuperType;
-import me.suwash.ddd.policy.Input;
-import me.suwash.ddd.policy.LayerSuperType;
-import me.suwash.ddd.policy.Output;
-import me.suwash.tools.comparefiles.infra.Const;
-import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
 
 /**
@@ -23,16 +17,17 @@ import me.suwash.tools.comparefiles.infra.util.ValidateUtils;
  * @param <O> Output
  */
 @lombok.extern.slf4j.Slf4j
-public abstract class BaseLayerSuperType<I extends Input, O extends Output<I>> extends GenericLayerSuperType<I, O> implements LayerSuperType<I, O> {
+public abstract class BaseLayerSuperType<I extends Input, O extends Output<I>> {
 
     private static final String MSG_START = "START ";
     private static final String MSG_END = "END   ";
 
-    /*
-     * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#execute(me.suwash.ddd.policy.Input)
+    /**
+     * 処理を実行します。
+     *
+     * @param input 入力データモデル
+     * @return 出力データモデル
      */
-    @Override
     public O execute(final I input) {
         final String className = this.getClass().getSimpleName();
         // validate
@@ -63,24 +58,41 @@ public abstract class BaseLayerSuperType<I extends Input, O extends Output<I>> e
         return postExecuteOutput;
     }
 
-    /*
-     * (非 Javadoc)
-     * @see me.suwash.ddd.policy.LayerSuperType#validate(me.suwash.ddd.policy.Input)
+    /**
+     * 入力データモデルのバリデーションを実行します。
+     *
+     * @param input 入力データモデル
+     * @return バリデーション違反セット
      */
-    @Override
     public Set<ConstraintViolation<I>> validate(final I input) {
         final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
         return validator.validate(input);
     }
 
-    /*
-     * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#getOutput(me.suwash.ddd.policy.Input)
+    /**
+     * 事前処理を実行します。
+     *
+     * @param input 入力データモデル
+     * @return 出力データモデル
      */
-    @Override
-    protected O getOutput(final I input) {
-        // validationエラー発生時は、Context保存するので、不使用。
-        throw new CompareFilesException(Const.UNSUPPORTED);
-    }
+    protected abstract O preExecute(I input);
+
+    /**
+     * 主処理を実行します。
+     *
+     * @param input 入力データモデル
+     * @param preExecuteOutput 事前処理の出力データモデル
+     * @return 出力データモデル
+     */
+    protected abstract O mainExecute(I input, O preExecuteOutput);
+
+    /**
+     * 事後処理を実行します。
+     *
+     * @param input 入力データモデル
+     * @param mainExecuteOutput 主処理の出力データモデル
+     * @return 出力データモデル
+     */
+    protected abstract O postExecute(I input, O mainExecuteOutput);
 
 }

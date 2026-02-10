@@ -1,7 +1,7 @@
 package me.suwash.tools.comparefiles.ap.dto;
 
-import me.suwash.ddd.classification.ProcessStatus;
-import me.suwash.ddd.policy.Output;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.policy.Output;
 
 /**
  * アプリケーション層 出力データモデル 基底クラス。
@@ -15,7 +15,7 @@ public abstract class BaseFacadeOutput<I extends BaseFacadeInput> implements Out
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#setProcessStatus(me.suwash.ddd.classification.ProcessStatus)
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#setProcessStatus(me.suwash.tools.comparefiles.infra.classification.ProcessStatus)
      */
     @Override
     public void setProcessStatus(ProcessStatus processStatus) {
@@ -24,7 +24,7 @@ public abstract class BaseFacadeOutput<I extends BaseFacadeInput> implements Out
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getProcessStatus()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getProcessStatus()
      */
     @Override
     public ProcessStatus getProcessStatus() {

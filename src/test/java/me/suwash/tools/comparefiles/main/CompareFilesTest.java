@@ -18,7 +18,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.FileImageOutputStream;
 
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.test.TestUtils;
 import me.suwash.tools.comparefiles.CompareFilesTestUtils;
 import me.suwash.tools.comparefiles.CompareFilesTestWatcher;

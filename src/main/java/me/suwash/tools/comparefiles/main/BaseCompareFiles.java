@@ -2,7 +2,7 @@ package me.suwash.tools.comparefiles.main;
 
 import java.util.List;
 
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 import me.suwash.tools.comparefiles.infra.config.FileLayoutManager;

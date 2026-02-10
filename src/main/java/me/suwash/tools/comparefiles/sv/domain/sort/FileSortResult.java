@@ -8,8 +8,8 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.suwash.ddd.classification.ProcessStatus;
-import me.suwash.ddd.policy.Input;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.policy.Input;
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.classification.FileFormat;
 import me.suwash.tools.comparefiles.infra.classification.LineSp;

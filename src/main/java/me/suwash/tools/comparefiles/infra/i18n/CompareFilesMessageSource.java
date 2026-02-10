@@ -1,6 +1,5 @@
 package me.suwash.tools.comparefiles.infra.i18n;
 
-import me.suwash.ddd.i18n.DddMessageSource;
 import me.suwash.util.i18n.DdSource;
 import me.suwash.util.i18n.MessageSource;
 
@@ -25,7 +24,7 @@ public class CompareFilesMessageSource extends MessageSource {
      */
     @Override
     protected MessageSource getParent() {
-        return DddMessageSource.getInstance();
+        return null;
     }
 
     /*

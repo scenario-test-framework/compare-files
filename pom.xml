@@ -25,8 +25,8 @@
         <dirname.assembly.work>compare_files_${project.version}</dirname.assembly.work>
         <dir.assembly.work>${project.build.directory}/${dirname.assembly.work}</dir.assembly.work>
 
-        <version.ddd>1.0.0</version.ddd>
         <version.test>1.0.1</version.test>
+        <version.util>1.0.0</version.util>
     </properties>
 
     <profiles>
@@ -262,14 +262,22 @@
 
         <dependency>
             <groupId>me.suwash.commons</groupId>
-            <artifactId>ddd</artifactId>
-            <version>${version.ddd}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.velocity</groupId>
-                    <artifactId>velocity</artifactId>
-                </exclusion>
-            </exclusions>
+            <artifactId>util</artifactId>
+            <version>${version.util}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
         </dependency>
 
         <dependency>

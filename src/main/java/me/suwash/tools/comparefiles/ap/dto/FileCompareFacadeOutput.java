@@ -7,7 +7,7 @@ import javax.validation.ConstraintViolation;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.suwash.ddd.classification.ProcessStatus;
+import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
 import me.suwash.tools.comparefiles.sv.domain.compare.file.FileCompareResult;
@@ -29,7 +29,7 @@ public class FileCompareFacadeOutput extends BaseFacadeOutput<FileCompareFacadeI
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getInput()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getInput()
      */
     @Override
     public FileCompareFacadeInput getInput() {
@@ -38,7 +38,7 @@ public class FileCompareFacadeOutput extends BaseFacadeOutput<FileCompareFacadeI
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#setViolationSet(java.util.Set)
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#setViolationSet(java.util.Set)
      */
     @Override
     public void setViolationSet(Set<ConstraintViolation<FileCompareFacadeInput>> violationSet) {
@@ -47,7 +47,7 @@ public class FileCompareFacadeOutput extends BaseFacadeOutput<FileCompareFacadeI
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.Output#getViolationSet()
+     * @see me.suwash.tools.comparefiles.infra.policy.Output#getViolationSet()
      */
     @Override
     public Set<ConstraintViolation<FileCompareFacadeInput>> getViolationSet() {
@@ -56,7 +56,7 @@ public class FileCompareFacadeOutput extends BaseFacadeOutput<FileCompareFacadeI
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.tools.comparefiles.ap.dto.BaseFacadeOutput#setProcessStatus(me.suwash.ddd.classification.ProcessStatus)
+     * @see me.suwash.tools.comparefiles.ap.dto.BaseFacadeOutput#setProcessStatus(me.suwash.tools.comparefiles.infra.classification.ProcessStatus)
      */
     @Override
     public void setProcessStatus(ProcessStatus processStatus) {

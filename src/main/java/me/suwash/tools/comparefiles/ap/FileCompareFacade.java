@@ -12,7 +12,7 @@ public class FileCompareFacade extends BaseFacade<FileCompareFacadeInput, FileCo
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#preExecute(me.suwash.ddd.policy.Input)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#preExecute(me.suwash.tools.comparefiles.infra.policy.Input)
      */
     @Override
     protected FileCompareFacadeOutput preExecute(final FileCompareFacadeInput input) {
@@ -24,7 +24,7 @@ public class FileCompareFacade extends BaseFacade<FileCompareFacadeInput, FileCo
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#mainExecute(me.suwash.ddd.policy.Input, me.suwash.ddd.policy.Output)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#mainExecute(me.suwash.tools.comparefiles.infra.policy.Input, me.suwash.tools.comparefiles.infra.policy.Output)
      */
     @Override
     protected FileCompareFacadeOutput mainExecute(final FileCompareFacadeInput input, final FileCompareFacadeOutput output) {
@@ -52,7 +52,7 @@ public class FileCompareFacade extends BaseFacade<FileCompareFacadeInput, FileCo
 
     /*
      * (非 Javadoc)
-     * @see me.suwash.ddd.policy.GenericLayerSuperType#postExecute(me.suwash.ddd.policy.Input, me.suwash.ddd.policy.Output)
+     * @see me.suwash.tools.comparefiles.infra.policy.BaseLayerSuperType#postExecute(me.suwash.tools.comparefiles.infra.policy.Input, me.suwash.tools.comparefiles.infra.policy.Output)
      */
     @Override
     protected FileCompareFacadeOutput postExecute(final FileCompareFacadeInput input, final FileCompareFacadeOutput output) {
