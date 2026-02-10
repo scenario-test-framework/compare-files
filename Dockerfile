@@ -1,5 +1,5 @@
 # Build stage
-FROM maven:3.8-openjdk-8 AS builder
+FROM maven:3.8-eclipse-temurin-8 AS builder
 
 ARG GITHUB_TOKEN
 ENV GITHUB_TOKEN=${GITHUB_TOKEN}
@@ -35,7 +35,7 @@ COPY env ./env
 RUN mvn clean package -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 
 # Runtime stage
-FROM openjdk:8-jre-slim
+FROM eclipse-temurin:8-jre
 
 WORKDIR /app
 
