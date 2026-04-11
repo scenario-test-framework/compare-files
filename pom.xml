@@ -26,7 +26,6 @@
         <dir.assembly.work>${project.build.directory}/${dirname.assembly.work}</dir.assembly.work>
 
         <version.test>1.0.1</version.test>
-        <version.util>1.0.0</version.util>
     </properties>
 
     <profiles>
@@ -261,12 +260,6 @@
         </dependency>
 
         <dependency>
-            <groupId>me.suwash.commons</groupId>
-            <artifactId>util</artifactId>
-            <version>${version.util}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -276,8 +269,21 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>1.9.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.orangesignal</groupId>
+            <artifactId>orangesignal-csv</artifactId>
         </dependency>
 
         <dependency>

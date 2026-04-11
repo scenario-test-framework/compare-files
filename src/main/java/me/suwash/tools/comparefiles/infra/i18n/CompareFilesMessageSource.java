@@ -24,7 +24,7 @@ public class CompareFilesMessageSource extends MessageSource {
      */
     @Override
     protected MessageSource getParent() {
-        return null;
+        return MessageSource.getInstance();
     }
 
     /*
