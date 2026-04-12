@@ -63,8 +63,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate artifact attestation
         if: github.event_name != 'pull_request'

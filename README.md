@@ -561,7 +561,7 @@ bin\compare_regex.cmd sample/compare_target.csv
 
 ```bash
 # Dockerイメージをビルド
-docker build --build-arg GITHUB_TOKEN=UPDATE_HERE -t compare-files:local .
+docker build -t compare-files:local .
 
 # ビルドしたイメージを実行
 docker run --rm -v $(pwd):/data compare-files:local --help
