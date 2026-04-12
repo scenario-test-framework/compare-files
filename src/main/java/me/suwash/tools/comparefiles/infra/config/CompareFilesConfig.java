@@ -16,8 +16,8 @@ import me.suwash.util.ImageCompareUtils.ConfirmImageStyle;
 import me.suwash.util.validation.constraints.Charset;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * システム設定。

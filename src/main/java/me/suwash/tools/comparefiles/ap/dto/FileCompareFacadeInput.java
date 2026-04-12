@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.suwash.util.validation.constraints.File;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * ファイル比較機能 入力データモデル。

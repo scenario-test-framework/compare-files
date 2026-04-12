@@ -3,8 +3,8 @@ package me.suwash.tools.comparefiles.sv.domain.sort;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +29,7 @@ import me.suwash.util.validation.constraints.ExistPath;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * ファイルのソートサービス。

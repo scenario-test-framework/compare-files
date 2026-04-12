@@ -353,26 +353,30 @@ public final class TestUtils {
      */
     private static boolean isSameFile(final File expectFile, final File actualFile, final String charset) {
         // サイズ比較
-        final long expectSize = expectFile.getTotalSpace();
-        final long actualSize = actualFile.getTotalSpace();
+        final long expectSize = expectFile.length();
+        final long actualSize = actualFile.length();
         if (expectSize != actualSize) {
+            System.err.println("・ファイルサイズが異なります。");
+            System.err.println("  ・expect:" + expectFile);
+            System.err.println("    ・サイズ:" + expectSize);
+            System.err.println("  ・actual:" + actualFile);
+            System.err.println("    ・サイズ:" + actualSize);
             return false;
         }
 
-        // 期待値ファイルコンテンツ
-        List<String> expectLineList = null;
+        // テキストとして読み込み、失敗した場合はバイナリ比較にフォールバック
+        List<String> expectLineList;
+        List<String> actualLineList;
         try {
             expectLineList = FileUtils.readLines(expectFile, charset);
         } catch (Exception e) {
-            throw new RuntimeException("期待値ファイル：" + expectFile.getName() + " の読み込みに失敗しました。", e);
+            // バイナリファイルの場合、バイト比較
+            return isSameBinaryFile(expectFile, actualFile);
         }
-
-        // 実績値ファイルコンテンツ
-        List<String> actualLineList = null;
         try {
             actualLineList = FileUtils.readLines(actualFile, charset);
         } catch (Exception e) {
-            throw new RuntimeException("実績値ファイル：" + actualFile.getName() + " の読み込みに失敗しました。", e);
+            return isSameBinaryFile(expectFile, actualFile);
         }
 
         // 行数比較
@@ -400,6 +404,17 @@ public final class TestUtils {
         }
 
         return true;
+    }
+
+    private static boolean isSameBinaryFile(final File expectFile, final File actualFile) {
+        try {
+            return FileUtils.contentEquals(expectFile, actualFile);
+        } catch (Exception e) {
+            System.err.println("・バイナリ比較に失敗しました。");
+            System.err.println("  ・expect:" + expectFile);
+            System.err.println("  ・actual:" + actualFile);
+            return false;
+        }
     }
 
 }

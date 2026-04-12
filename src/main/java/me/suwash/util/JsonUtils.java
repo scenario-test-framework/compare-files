@@ -10,7 +10,7 @@ import me.suwash.util.constant.UtilMessageConst;
 import me.suwash.util.exception.UtilException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * JSON関連ユーティリティ。

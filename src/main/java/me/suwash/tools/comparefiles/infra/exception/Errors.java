@@ -5,14 +5,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 import me.suwash.tools.comparefiles.infra.Const;
 import me.suwash.tools.comparefiles.infra.i18n.CompareFilesMessageSource;
+import me.suwash.tools.comparefiles.infra.exception.VndErrors.VndError;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.hateoas.VndErrors;
-import org.springframework.hateoas.VndErrors.VndError;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

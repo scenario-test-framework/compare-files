@@ -7,9 +7,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 
 import lombok.Getter;
 import me.suwash.tools.comparefiles.CompareFilesTestUtils;
@@ -22,7 +22,7 @@ import me.suwash.util.validation.constraints.Dir;
 import me.suwash.util.validation.constraints.ExistPath;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

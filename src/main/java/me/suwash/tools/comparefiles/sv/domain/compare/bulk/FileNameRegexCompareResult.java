@@ -23,7 +23,7 @@ import me.suwash.util.FileUtils;
 import me.suwash.util.validation.constraints.ExistPath;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * 対象ファイル名正規表現指定の比較結果。

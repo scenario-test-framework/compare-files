@@ -1,12 +1,12 @@
 package me.suwash.tools.comparefiles.sv.domain.compare;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.suwash.tools.comparefiles.infra.config.CompareFilesConfig;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * 比較処理入力データモデルの基底クラス。
