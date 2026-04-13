@@ -2,7 +2,7 @@ package me.suwash.tools.comparefiles.infra.policy;
 
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 import me.suwash.tools.comparefiles.infra.classification.ProcessStatus;
 

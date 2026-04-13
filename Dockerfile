@@ -1,25 +1,7 @@
 # Build stage
-FROM maven:3.8-eclipse-temurin-8 AS builder
-
-ARG GITHUB_TOKEN
-ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
 WORKDIR /app
-
-# Configure Maven settings for GitHub Packages
-RUN mkdir -p ~/.m2 && \
-    echo '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" \
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" \
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 \
-                              http://maven.apache.org/xsd/settings-1.0.0.xsd"> \
-      <servers> \
-        <server> \
-          <id>github</id> \
-          <username>suwa-sh</username> \
-          <password>'${GITHUB_TOKEN}'</password> \
-        </server> \
-      </servers> \
-    </settings>' > ~/.m2/settings.xml
 
 # Copy pom.xml first to leverage Docker cache
 COPY pom.xml .
@@ -35,7 +17,7 @@ COPY env ./env
 RUN mvn clean package -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
 
 # Runtime stage
-FROM eclipse-temurin:8-jre
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 

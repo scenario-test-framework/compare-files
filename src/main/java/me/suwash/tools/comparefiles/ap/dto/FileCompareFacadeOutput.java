@@ -3,7 +3,7 @@ package me.suwash.tools.comparefiles.ap.dto;
 import java.text.NumberFormat;
 import java.util.Set;
 
-import javax.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolation;
 
 import lombok.Getter;
 import lombok.Setter;

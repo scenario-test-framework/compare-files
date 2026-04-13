@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import javax.validation.groups.Default;
+import jakarta.validation.groups.Default;
 
 import lombok.Getter;
 import me.suwash.tools.comparefiles.CompareFilesTestWatcher;
@@ -17,7 +17,7 @@ import me.suwash.util.validation.constraints.Dir;
 import me.suwash.util.validation.constraints.ExistPath;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

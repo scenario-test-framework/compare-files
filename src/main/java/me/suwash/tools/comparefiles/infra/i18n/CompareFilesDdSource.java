@@ -23,6 +23,6 @@ public class CompareFilesDdSource extends DdSource {
      */
     @Override
     protected DdSource getParent() {
-        return null;
+        return DdSource.getInstance();
     }
 }

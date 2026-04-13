@@ -22,7 +22,7 @@ import me.suwash.util.FileUtils;
 import me.suwash.util.validation.constraints.Dir;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * ディレクトリ比較結果。

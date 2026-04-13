@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.suwash.util.validation.constraints.Dir;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * ディレクトリ比較機能 入力データモデル。

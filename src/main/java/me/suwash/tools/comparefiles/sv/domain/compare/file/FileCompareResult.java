@@ -24,7 +24,7 @@ import me.suwash.util.FileUtils;
 import me.suwash.util.ImageCompareUtils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * ファイル比較結果。

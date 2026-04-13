@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.Collections;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -18,7 +18,7 @@ import me.suwash.tools.comparefiles.infra.classification.RecordType;
 import me.suwash.tools.comparefiles.infra.exception.CompareFilesException;
 import me.suwash.util.validation.constraints.Charset;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * ファイルレイアウト設定。
