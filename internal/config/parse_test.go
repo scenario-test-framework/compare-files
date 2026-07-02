@@ -40,8 +40,6 @@ ignoreItemList:
 func TestParseConfigHierarchicalJSON(t *testing.T) {
 	jsonData := `{
   "input": {
-    "leftFilePath": "left.csv",
-    "rightFilePath": "right.csv",
     "defaultCharset": "ms932",
     "ignoreFileRegexList": ["^\\..*"]
   },
@@ -71,9 +69,6 @@ func TestParseConfigHierarchicalJSON(t *testing.T) {
 	cfg, err := ParseConfig([]byte(jsonData))
 	if err != nil {
 		t.Fatalf("ParseConfig: %v", err)
-	}
-	if cfg.LeftFilePath != "left.csv" || cfg.RightFilePath != "right.csv" {
-		t.Errorf("Left/RightFilePath = %q/%q", cfg.LeftFilePath, cfg.RightFilePath)
 	}
 	if cfg.DefaultInputCharset != "ms932" {
 		t.Errorf("DefaultInputCharset = %q", cfg.DefaultInputCharset)
@@ -111,7 +106,7 @@ func TestParseConfigHierarchicalYAML(t *testing.T) {
 	yamlData := `
 # コメントが書ける
 input:
-  leftFilePath: left
+  defaultCharset: ms932
 compare:
   csv:
     headerRow: 1
@@ -123,8 +118,15 @@ output:
 	if err != nil {
 		t.Fatalf("ParseConfigYAML: %v", err)
 	}
-	if cfg.LeftFilePath != "left" || cfg.CsvHeaderRow != 1 || cfg.OutputDir != "result" {
-		t.Errorf("leftFilePath/csvHeaderRow/outputDir = %q/%d/%q", cfg.LeftFilePath, cfg.CsvHeaderRow, cfg.OutputDir)
+	if cfg.DefaultInputCharset != "ms932" || cfg.CsvHeaderRow != 1 || cfg.OutputDir != "result" {
+		t.Errorf("defaultCharset/csvHeaderRow/outputDir = %q/%d/%q", cfg.DefaultInputCharset, cfg.CsvHeaderRow, cfg.OutputDir)
+	}
+}
+
+func TestParseConfigHierarchyUnusedFilePathKeys(t *testing.T) {
+	// leftFilePath / rightFilePath は実行系が参照しないため階層化キーとしては未定義
+	if _, err := ParseConfig([]byte(`{"input": {"leftFilePath": "left.csv"}}`)); err == nil {
+		t.Fatal("input.leftFilePath はエラーになるべき")
 	}
 }
 

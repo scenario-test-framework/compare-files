@@ -23,10 +23,7 @@ func main() {
 
 func run(args []string) int {
 	// メッセージ上書き定義は最初のログ出力前に適用する
-	if err := cli.InitMessages(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return status.ExitCodeError
-	}
+	cli.InitMessages()
 	slog.Info(msg.Get("process.start"))
 
 	opt, err := cli.ParseArgs(args)

@@ -178,8 +178,6 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
   | 階層化キー | フラットキー |
   |:-----------|:-------------|
-  | input.leftFilePath | leftFilePath |
-  | input.rightFilePath | rightFilePath |
   | input.defaultCharset | defaultInputCharset |
   | input.ignoreFileRegexList | ignoreFileRegexList |
   | compare.sorted | sorted |
@@ -243,12 +241,15 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
 - ファイル名: `compare_files_messages.properties`
 - 探索ディレクトリ: `COMPAREFILES_CLASSPATH` → カレントディレクトリ → `config/` (前勝ち)
-- 形式: 1 行 1 定義の `キー=値` (UTF-8)。`#` / `!` 始まりはコメント。`\n` `\t` `\\` のエスケープに対応。
+- 形式: 1 行 1 定義の `キー=値` (UTF-8)。`#` / `!` 始まりはコメント。`\n` `\t` `\\` `\ ` のエスケープに対応。
+- 値の先頭の空白は除去されます (Java properties と同様)。字下げを表現する場合は `\ ` でエスケープしてください。
+- パースできないファイルを配置した場合は警告を出して既定メッセージで続行します。
 
 ```properties
 # 例: ファイル走査の進捗ログを英語化する
 log.dir.scan=- Scanning files
-log.file.compare=  - Compare left:{0} right:{1}
+# 字下げ (先頭 2 スペース) は \ でエスケープする
+log.file.compare=\ \ - Compare left:{0} right:{1}
 ```
 
 メッセージキーの一覧は [internal/msg/msg.go](internal/msg/msg.go) を参照してください

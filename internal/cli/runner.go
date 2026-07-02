@@ -36,19 +36,21 @@ const MessageOverridesFileName = "compare_files_messages.properties"
 
 // InitMessages は探索ディレクトリのメッセージ上書き定義を読み込んで適用します。
 // 前勝ち (最初に見つかったファイルのみ) で解決します。ファイルがなければ何もしません。
-func InitMessages() error {
+// パースに失敗しても起動を止めず、警告を出して既定メッセージで続行します
+// (壊れた上書き定義 1 つで --version / --help まで使えなくなるのを防ぐため)。
+func InitMessages() {
 	for _, dir := range configSearchDirs() {
 		path := filepath.Join(dir, MessageOverridesFileName)
 		if info, err := os.Stat(path); err == nil && !info.IsDir() {
 			m, err := msg.ParsePropertiesFile(path)
 			if err != nil {
-				return err
+				slog.Warn("メッセージ上書き定義を読み込めないため、既定メッセージを使用します。", "error", err)
+				return
 			}
 			msg.SetOverrides(m)
-			return nil
+			return
 		}
 	}
-	return nil
 }
 
 // defaultConfigFileNames はデフォルト起動設定の探索ファイル名 (優先順) です。

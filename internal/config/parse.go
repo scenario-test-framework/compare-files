@@ -16,8 +16,7 @@ import (
 // 両方を受け付けます。
 var hierarchyMapping = map[string]string{
 	// input: 入力ファイルの読み込み設定
-	"input.leftFilePath":        "leftFilePath",
-	"input.rightFilePath":       "rightFilePath",
+	// (leftFilePath / rightFilePath は実行系が参照しない Java 互換フィールドのため対応表に載せない)
 	"input.defaultCharset":      "defaultInputCharset",
 	"input.defaultInputCharset": "defaultInputCharset",
 	"input.ignoreFileRegexList": "ignoreFileRegexList",

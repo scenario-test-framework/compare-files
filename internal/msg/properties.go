@@ -9,7 +9,9 @@ import (
 
 // ParsePropertiesFile はメッセージ上書き用の properties ファイル (UTF-8) をパースします。
 // 形式: 1 行 1 定義の「キー=値」。空行と # / ! 始まりのコメント行は無視します。
-// 値のエスケープは \n \t \\ をサポートします (Java properties のサブセット)。
+// 値の先頭の空白は除去されます (Java properties と同様)。字下げなど先頭の空白を
+// 保持したい場合は「\ 」でエスケープします。
+// 値のエスケープは \n \t \\ と「\ 」(空白) をサポートします (Java properties のサブセット)。
 func ParsePropertiesFile(path string) (map[string]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -56,6 +58,8 @@ func unescapeProperties(s string) string {
 			b.WriteByte('\t')
 		case '\\':
 			b.WriteByte('\\')
+		case ' ':
+			b.WriteByte(' ')
 		default:
 			b.WriteByte('\\')
 			b.WriteByte(s[i])
