@@ -52,3 +52,29 @@
   小数は `1.0` 形式、ネストオブジェクトは `{key=value}` 形式
 - Json (単一オブジェクト) はソートされないため compareKey の意味は薄いが、
   形式上 1 項目以上に `compareKey: "true"` を付けておく
+
+## pathValueMode: jsonPath ベースの比較
+
+`"pathValueMode": "true"` を指定すると、itemList の定義なしで、ドキュメントを
+**jsonPath → リーフ値** のペアに平坦化して比較する。プロパティの挿入位置を考慮した
+比較をしたい場合に利用する (挿入されたプロパティは LeftOnly / RightOnly として現れ、
+他のプロパティの比較はズレない)。
+
+```json
+{
+  "logicalFileName":  "JsonPathサンプル",
+  "fileRegexPattern": "api_response_.*\\.json",
+  "fileFormat":       "Json",
+  "charset":          "utf8",
+  "pathValueMode":    "true"
+}
+```
+
+- 結果 CSV は `path` (比較キー)・`value` の 2 カラムになる
+- パス表記: ルートは `$`、オブジェクトキーは `.key`、配列は `[0]` (0 始まり)。
+  記号を含むキーはブラケット表記 `['key-name']`
+- `Json` はルートから `$.a.b[0]`、`JsonList` は行ごとに `$[行番号].a.b` の形式
+- 空のオブジェクト・配列は `{}` / `[]` を値として 1 ペア出力される
+- `recordList` は使用されない (定義しても無視され、lint で警告になる)
+- 配列要素の**挿入**では後続要素のインデックスがずれるため、挿入位置以降は
+  LeftOnly / RightOnly のペアとして出力される

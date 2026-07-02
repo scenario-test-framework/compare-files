@@ -26,10 +26,11 @@
 |:-----|:----:|:-----|
 | logicalFileName | 推奨 | 論理ファイル名。結果サマリ (CompareSummary.csv) の Layout 列に出力される |
 | fileRegexPattern | ○ | 物理ファイル名の正規表現。**ファイル名 (パスではない) に全体一致**したレイアウトが適用される |
-| fileFormat | ○ | `CSV_withHeader` / `CSV_noHeader` / `TSV_withHeader` / `TSV_noHeader` / `Json` / `JsonList` / `Fixed` / `Text` / `Image` |
+| fileFormat | ○ | `CSV_withHeader` / `CSV_noHeader` / `TSV_withHeader` / `TSV_noHeader` / `Json` / `JsonList` / `Yaml` / `XML` / `Fixed` / `Text` / `Image` |
 | charset | テキスト形式で推奨 | 入力ファイルの文字コード (`utf8` / `ms932` / `sjis` / `euc-jp` 等)。未設定時は設定の defaultInputCharset、なければ UTF-8 |
 | lineSp | 形式による | 改行コード `CR` / `LF` / `CRLF` / `None`。主に Fixed で使用 (詳細は固定長のリファレンス) |
-| recordList | テキスト形式で必須 (Text を除く) | レコード定義の配列 |
+| recordList | テキスト形式で必須 (Text / XML / pathValueMode を除く) | レコード定義の配列 |
+| pathValueMode | 任意 | `Json` / `JsonList` / `Yaml` を jsonPath ベースの path・value 2 項目で比較する (詳細は JSON / YAML / XML のリファレンス) |
 | ignoreAreaList | Image のみ | 比較除外エリア (詳細は画像のリファレンス) |
 
 ## fileRegexPattern のマッチング仕様

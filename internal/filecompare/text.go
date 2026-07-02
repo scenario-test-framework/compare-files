@@ -126,7 +126,12 @@ func isSkipSort(fileLayout *config.FileLayout, systemConfig *config.CompareFiles
 	if fileLayout.FileFormat == status.FormatFixed && fileLayout.LineSp == status.LineSpNone {
 		return true
 	}
-	if fileLayout.FileFormat == status.FormatJSON {
+	// Json/Yaml は 1 ファイル 1 レコード、path・value モードはリーダがソート済みの
+	// ペアを返すため、ファイルソートは不要
+	if fileLayout.FileFormat == status.FormatJSON || fileLayout.FileFormat == status.FormatYaml {
+		return true
+	}
+	if fileLayout.IsPathValue() {
 		return true
 	}
 	return bool(systemConfig.Sorted)

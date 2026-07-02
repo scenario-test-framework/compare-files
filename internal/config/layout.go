@@ -77,6 +77,14 @@ type FileLayout struct {
 	LineSp           status.LineSp     `json:"lineSp"`
 	RecordList       []*RecordLayout   `json:"recordList"`
 	IgnoreAreaList   []Rectangle       `json:"ignoreAreaList"`
+	// PathValueMode は Json/JsonList/Yaml 形式を「path・value の 2 項目」で比較する
+	// モードです。項目 ID の代わりに jsonPath を比較キーとして利用します。
+	// XML 形式は常に path・value (xpath) で比較するため、この設定によらず有効です。
+	PathValueMode JBool `json:"pathValueMode"`
+
+	// userRecordListReplaced は path・value モードでユーザー定義の recordList を
+	// 合成定義で置き換えたことを示します (lint の警告用)。
+	userRecordListReplaced bool
 }
 
 // FileLayoutList はレイアウト定義ファイルのルート構造です。
@@ -90,7 +98,50 @@ func ParseLayoutList(data []byte) (*FileLayoutList, error) {
 	if err := json.Unmarshal(data, &list); err != nil {
 		return nil, err
 	}
+	for _, layout := range list.LayoutList {
+		layout.normalizePathValue()
+	}
 	return &list, nil
+}
+
+// IsPathValue は path・value の 2 項目で比較するレイアウトかを返します。
+func (l *FileLayout) IsPathValue() bool {
+	if l.FileFormat == status.FormatXML {
+		return true
+	}
+	if !l.PathValueMode {
+		return false
+	}
+	switch l.FileFormat {
+	case status.FormatJSON, status.FormatJSONList, status.FormatYaml:
+		return true
+	default:
+		return false
+	}
+}
+
+// PathValueItemPath / PathValueItemValue は path・value モードの項目 ID です。
+const (
+	PathValueItemPath  = "path"
+	PathValueItemValue = "value"
+)
+
+// normalizePathValue は path・value モードのレイアウトに合成 recordList
+// (path=比較キー、value) を設定します。ユーザー定義の recordList は利用されません。
+func (l *FileLayout) normalizePathValue() {
+	if !l.IsPathValue() {
+		return
+	}
+	if len(l.RecordList) > 0 {
+		l.userRecordListReplaced = true
+	}
+	l.RecordList = []*RecordLayout{{
+		Type: status.RecordData,
+		ItemList: []*ItemLayout{
+			{ID: PathValueItemPath, Name: PathValueItemPath, CompareKey: true},
+			{ID: PathValueItemValue, Name: PathValueItemValue},
+		},
+	}}
 }
 
 // Copy はレイアウトのディープコピーを返します。

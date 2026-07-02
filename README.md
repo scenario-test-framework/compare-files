@@ -259,8 +259,11 @@ log.file.compare=\ \ - Compare left:{0} right:{1}
 ### 比較レイアウト
 
 ファイル名の正規表現にマッチしたレイアウト定義 (JSON) に従って、ファイルを項目単位で比較します。
-CSV/TSV (ヘッダーあり・なし)、固定長テキスト、JSON/JsonList、画像に対応し、
+CSV/TSV (ヘッダーあり・なし)、固定長テキスト、JSON/JsonList、YAML、XML、画像に対応し、
 項目ごとに比較キー・比較条件 (一致 / 除外 / 数値・日付の大小比較など) を指定できます。
+XML は itemList の定義なしで xpath を比較キーとした path・value 比較を行います。
+JSON/JsonList/YAML は `pathValueMode` を指定すると、jsonPath を比較キーとした
+path・value 比較 (プロパティの挿入位置を考慮した比較) ができます。
 
 - 配置ディレクトリ: `config/compare_layout/` (`-layout` オプションで追加ディレクトリを指定可能)
 - **仕様の詳細: [比較レイアウトリファレンス](docs/compare_layout.md)**
@@ -517,7 +520,7 @@ bin\compare_regex.cmd sample/compare_target.csv
 ├── config/
 │   ├── compare_files.json        # デフォルト設定ファイル
 │   └── compare_layout/           # サンプル比較レイアウト
-├── sample/                       # 全形式のサンプル (CSV/TSV/固定長/JSON/JsonList/画像)
+├── sample/                       # 全形式のサンプル (CSV/TSV/固定長/JSON/JsonList/YAML/XML/画像)
 │   ├── left/  ├── right/         #   ok=一致 / ng=差分ありのペア
 │   └── compare_target.csv        #   正規表現比較の対象指定サンプル
 ├── docs/
