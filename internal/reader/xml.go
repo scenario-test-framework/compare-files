@@ -83,6 +83,12 @@ func loadXMLPairs(r io.Reader) ([]pathValuePair, error) {
 			path := parent.path + "/" + name + "[" + strconv.Itoa(parent.childCount[name]) + "]"
 			elem := &xmlElement{path: path, childCount: map[string]int{}}
 			for _, attr := range t.Attr {
+				// 名前空間宣言 (xmlns / xmlns:prefix) は比較対象外。
+				// 要素・属性名は URI で正規化済みのため、プリフィックス名や
+				// 宣言位置の違いを差分にしない
+				if attr.Name.Space == "xmlns" || (attr.Name.Space == "" && attr.Name.Local == "xmlns") {
+					continue
+				}
 				pairs = append(pairs, pathValuePair{path: path + "/@" + xmlName(attr.Name), value: attr.Value})
 			}
 			stack = append(stack, elem)

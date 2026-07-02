@@ -170,9 +170,8 @@ func loadJSONListPairs(filePath string, r io.Reader) ([]pathValuePair, error) {
 		if !ok {
 			return pairs, nil
 		}
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
+		// 空行もそのままパースしてエラーにする (通常の JsonList と同じセマンティクス。
+		// $[n] の n は物理行番号 - 1 に一致する)
 		lineMap, err := row.ParseJSONObject(line)
 		if err != nil {
 			return nil, fmt.Errorf("%s のパースに失敗しました。#%d: %w", filePath, index+1, err)

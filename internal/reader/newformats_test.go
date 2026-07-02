@@ -3,6 +3,7 @@ package reader
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/scenario-test-framework/compare-files/internal/config"
@@ -273,6 +274,62 @@ func TestXMLReaderMixedTextRuns(t *testing.T) {
 		if gotV, ok := got[k]; !ok || gotV != v {
 			t.Errorf("%s = %q (ok=%v), want %q", k, gotV, ok, v)
 		}
+	}
+}
+
+// 名前空間宣言は比較対象外で、プリフィックス名の違いは差分にならない
+func TestXMLReaderNamespaceDeclarations(t *testing.T) {
+	layout := layoutFromJSON(t, `{"layoutList": [{
+		"fileRegexPattern": ".*\\.xml",
+		"fileFormat": "XML",
+		"charset": "UTF-8"
+	}]}`)
+	flatten := func(content string) map[string]string {
+		t.Helper()
+		path := writeTemp(t, "ns.xml", content)
+		r, err := New(path, layout, Options{})
+		if err != nil {
+			t.Fatalf("New: %v", err)
+		}
+		got := map[string]string{}
+		for _, cur := range readAllRows(t, r) {
+			got[row.ToJavaString(cur.KeyMap.GetOrNil("path"))] = row.ToJavaString(cur.ValueMap.GetOrNil("value"))
+		}
+		return got
+	}
+	left := flatten(`<p:root xmlns:p="urn:x" p:attr="v"><p:item>a</p:item></p:root>`)
+	right := flatten(`<q:root xmlns:q="urn:x" q:attr="v"><q:item>a</q:item></q:root>`)
+	if len(left) == 0 {
+		t.Fatal("ペアが空")
+	}
+	for k, v := range left {
+		if right[k] != v {
+			t.Errorf("プリフィックスのみ異なる XML が同値にならない: %s left=%q right=%q", k, v, right[k])
+		}
+	}
+	for k := range left {
+		if strings.Contains(k, "xmlns") {
+			t.Errorf("xmlns 宣言が比較対象に含まれている: %s", k)
+		}
+	}
+}
+
+// 空行は通常の JsonList と同じくパースエラーになる
+func TestJSONListPathValueBlankLineError(t *testing.T) {
+	layout := layoutFromJSON(t, `{"layoutList": [{
+		"fileRegexPattern": ".*\\.jsonlist",
+		"fileFormat": "JsonList",
+		"charset": "UTF-8",
+		"pathValueMode": "true"
+	}]}`)
+	path := writeTemp(t, "blank.jsonlist", "{\"id\": 1}\n\n{\"id\": 2}\n")
+	r, err := New(path, layout, Options{})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	defer r.Close()
+	if _, err := r.Next(); err == nil {
+		t.Fatal("空行はエラーになるべき (通常の JsonList と同じセマンティクス)")
 	}
 }
 
