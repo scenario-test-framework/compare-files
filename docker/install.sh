@@ -19,7 +19,7 @@ curl -sSL -o compose.yaml https://raw.githubusercontent.com/scenario-test-framew
 
 # 設定ファイルをダウンロード
 echo "Downloading configuration files..."
-curl -sSL -o config/compare_files.json https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/resources/compare_files.json
+curl -sSL -o config/compare_files.json https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/config/compare_files.json
 
 # ラッパースクリプトをダウンロード
 echo "Downloading wrapper scripts..."
@@ -31,10 +31,10 @@ chmod +x bin/compare_files.sh bin/compare_regex.sh
 
 # サンプルファイルをダウンロード
 echo "Downloading sample files..."
-curl -sSL -o sample/left/plaintext_ok.txt https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/left/TEXT_PLAINTEXT/plaintext_ok.txt
-curl -sSL -o sample/right/plaintext_ok.txt https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/right/TEXT_PLAINTEXT/plaintext_ok.txt
-curl -sSL -o sample/right/plaintext_ng.txt https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/right/TEXT_PLAINTEXT/plaintext_ng.txt
-curl -sSL -o sample/compare_target.csv https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/compare_target.csv
+curl -sSL -o sample/left/plaintext_ok.txt https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/left/TEXT_PLAINTEXT/plaintext_ok.txt
+curl -sSL -o sample/right/plaintext_ok.txt https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/right/TEXT_PLAINTEXT/plaintext_ok.txt
+curl -sSL -o sample/right/plaintext_ng.txt https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/right/TEXT_PLAINTEXT/plaintext_ng.txt
+curl -sSL -o sample/compare_target.csv https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/compare_target.csv
 
 echo ""
 echo "=== Setup Complete! ==="

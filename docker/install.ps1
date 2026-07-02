@@ -17,7 +17,7 @@ try {
 
     # 設定ファイルをダウンロード
     Write-Host "Downloading configuration files..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/resources/compare_files.json" -OutFile "config/compare_files.json"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/config/compare_files.json" -OutFile "config/compare_files.json"
 
     # ラッパースクリプトをダウンロード
     Write-Host "Downloading wrapper scripts..." -ForegroundColor Yellow
@@ -38,10 +38,10 @@ docker compose run --rm compare-regex %*
 
     # サンプルファイルをダウンロード
     Write-Host "Downloading sample files..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/left/TEXT_PLAINTEXT/plaintext_ok.txt" -OutFile "sample/left/plaintext_ok.txt"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/right/TEXT_PLAINTEXT/plaintext_ok.txt" -OutFile "sample/right/plaintext_ok.txt"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/right/TEXT_PLAINTEXT/plaintext_ng.txt" -OutFile "sample/right/plaintext_ng.txt"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/src/main/scripts/sample/compare_target.csv" -OutFile "sample/compare_target.csv"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/left/TEXT_PLAINTEXT/plaintext_ok.txt" -OutFile "sample/left/plaintext_ok.txt"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/right/TEXT_PLAINTEXT/plaintext_ok.txt" -OutFile "sample/right/plaintext_ok.txt"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/right/TEXT_PLAINTEXT/plaintext_ng.txt" -OutFile "sample/right/plaintext_ng.txt"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/compare_target.csv" -OutFile "sample/compare_target.csv"
 
     Write-Host ""
     Write-Host "=== Setup Complete! ===" -ForegroundColor Green

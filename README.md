@@ -4,6 +4,9 @@
 
 テキスト、画像ファイルを一括比較するコマンドラインツールです。
 
+Go 製のシングルバイナリで動作します (v2 で Java から移植)。
+CLI 引数・設定ファイル・比較レイアウト・結果 CSV・終了コードは Java 版 (v1.x) と互換です。
+
 
 ## 機能
 
@@ -437,19 +440,28 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
 ### 共通
 
-- クラスパスの環境変数指定  
+- 設定探索パスの環境変数指定  
 デフォルトの挙動は、 config/ ディレクトリ配下の設定ファイルで設定できます。  
-config/ ディレクトリは、Javaのclasspathを通してあるため、これが利用されています。  
-動的にデフォルトの挙動を変更する場合は、環境変数「COMPAREFILES_CLASSPATH」で上書きできます。  
+設定 (compare_files.json) と比較レイアウト (compare_layout/) は、
+「COMPAREFILES_CLASSPATH で指定したディレクトリ → カレントディレクトリ → ./config → バイナリ同梱のデフォルト」
+の順で解決されます (Java 版のクラスパス解決と互換)。  
   ```bash
   export COMPAREFILES_CLASSPATH="/path/to/dynamic_config"
   ```
 
 - 起動パラメータの環境変数指定  
 デフォルトでは、起動パラメータは指定されません。  
-共通で起動パラメータを設定したい場合は、環境変数「COMPAREFILES_JAVA_OPT」で設定できます。  
+共通で起動パラメータを設定したい場合は、環境変数「COMPAREFILES_OPT」で設定できます。  
   ```bash
-  export COMPAREFILES_JAVA_OPT="-od /path/to/output -oc ms932"
+  export COMPAREFILES_OPT="-od /path/to/output -oc ms932"
+  ```
+  ※Java 版の「COMPAREFILES_JAVA_OPT」も後方互換のため参照されます (JVM 専用フラグ -X*/-D* は警告を出して無視します)。
+
+- 並列実行数の指定  
+ディレクトリ比較・対象指定比較は、ファイル単位で並列に実行されます (デフォルト: CPU コア数)。  
+環境変数「COMPAREFILES_PARALLEL」で並列数を指定できます。`1` を指定すると逐次実行になります。  
+  ```bash
+  export COMPAREFILES_PARALLEL=4
   ```
 
 
@@ -561,11 +573,55 @@ bin\compare_regex.cmd sample/compare_target.csv
 
 ```bash
 # Dockerイメージをビルド
-docker build --build-arg GITHUB_TOKEN=UPDATE_HERE -t compare-files:local .
+docker build -t compare-files:local .
 
 # ビルドしたイメージを実行
 docker run --rm -v $(pwd):/data compare-files:local --help
 ```
+
+Go ツールチェーンがあれば、バイナリを直接ビルドすることもできます:
+
+```bash
+go build -o bin/compare_files ./cmd/compare_files
+go build -o bin/compare_regex ./cmd/compare_regex
+go test ./...
+```
+
+---
+
+## パフォーマンス
+
+Go 移植 (v2) による Java 版 (v1.x) からの改善 (Apple Silicon / ローカル計測):
+
+| 項目 | Java 版 | Go 版 | 改善 |
+|:-----|--------:|------:|-----:|
+| 起動時間 (--help) | 約 290ms | 約 5ms | 約 60 倍 |
+| CSV 5 万行比較 (未ソート) | 13.0 秒 | 0.58 秒 | 約 22 倍 |
+| CSV 30 万行比較 (未ソート) | 448 秒 | 4.0 秒 | 約 110 倍 |
+| 最大メモリ (30 万行) | 491MB | 314MB | 約 36% 減 |
+| Docker イメージサイズ | 260MB+ (JRE) | 59MB | 約 77% 減 |
+
+大容量ファイルの高速化は、内部ソートを「自然マージソート (複数パス)」から
+「チャンクソート + k-way マージ (実質 2 パス)」に変更したこと、
+一括比較のファイル単位並列化 (COMPAREFILES_PARALLEL) によるものです。
+比較結果ファイルの内容は Java 版とバイト一致します。
+
+## Java 版 (v1.x) からの変更点
+
+互換性を維持している範囲:
+
+- CLI 引数、設定ファイル (compare_files.json)、比較レイアウト定義、比較対象設定 CSV
+- 結果ファイル (CompareSummary.csv / CompareDetail_*.csv) の内容 (バイト一致)
+- 終了コード (0=成功 / 3=警告 / 6=エラー)
+- 環境変数 COMPAREFILES_CLASSPATH
+- レイアウトの正規表現は Java 互換エンジン ([dlclark/regexp2](https://github.com/dlclark/regexp2)) で評価されるため、先読み等もそのまま動作します
+
+非互換となる点:
+
+- コンソールログの書式 (slog 形式に変更。ログは比較結果の契約対象外)
+- 画像比較の結果 PNG はレイアウト・配色を再現した「見た目同等」です (フォント描画等の差により Java 版とバイト一致はしません)。差分エリアの数・座標は同一アルゴリズムで算出します
+- 画像比較の対応形式は png / jpg / jpeg / gif / bmp です (wbmp は非対応になりました)
+- 引数エラー等の異常時終了コードは 6 に統一 (Java 版は未捕捉例外で 1 になるケースがありました)
 
 ---
 
