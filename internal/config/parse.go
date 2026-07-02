@@ -79,6 +79,11 @@ func ParseConfigYAML(data []byte) (*CompareFilesConfig, error) {
 	dec := yaml.NewDecoder(bytes.NewReader(data))
 	var raw map[string]any
 	if err := dec.Decode(&raw); err != nil {
+		if err == io.EOF {
+			// 空 (コメントのみ含む) の設定は全項目未設定として扱う
+			// (yaml.Unmarshal の挙動と互換)
+			return buildConfig(nil)
+		}
 		return nil, err
 	}
 	// 複数ドキュメント (---) は壊れた設定として弾く (JSON の末尾データ検証と同じ厳密さ)

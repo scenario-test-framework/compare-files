@@ -148,6 +148,28 @@ func TestParseConfigYAMLMultiDocument(t *testing.T) {
 	}
 }
 
+func TestParseConfigYAMLEdgeCases(t *testing.T) {
+	// --- で始まる単一ドキュメントは OK
+	if cfg, err := ParseConfigYAML([]byte("---\noutput:\n  dir: x\n")); err != nil || cfg.OutputDir != "x" {
+		t.Errorf("--- 始まりの単一ドキュメント: cfg=%v err=%v", cfg, err)
+	}
+	// 末尾コメントは OK
+	if cfg, err := ParseConfigYAML([]byte("output:\n  dir: x\n# comment\n")); err != nil || cfg.OutputDir != "x" {
+		t.Errorf("末尾コメント: cfg=%v err=%v", cfg, err)
+	}
+	// 空・コメントのみは全項目未設定として扱う (エラーにしない)
+	for _, data := range []string{"", "# コメントだけ\n"} {
+		cfg, err := ParseConfigYAML([]byte(data))
+		if err != nil {
+			t.Errorf("空 YAML %q: err=%v", data, err)
+			continue
+		}
+		if cfg.OutputDir != "" {
+			t.Errorf("空 YAML %q: OutputDir=%q", data, cfg.OutputDir)
+		}
+	}
+}
+
 func TestParseConfigHierarchyUnusedFilePathKeys(t *testing.T) {
 	// leftFilePath / rightFilePath は実行系が参照しないため階層化キーとしては未定義
 	if _, err := ParseConfig([]byte(`{"input": {"leftFilePath": "left.csv"}}`)); err == nil {
