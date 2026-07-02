@@ -2,6 +2,8 @@
 /bin/
 /result/
 /.goreleaser-dist/
+/.gocache/
+/.tmpbin/
 
 # 旧 Maven 成果物 (ローカル残置)
 /target/

@@ -20,6 +20,8 @@ func main() {
 }
 
 func run(args []string) int {
+	// メッセージ上書き定義は最初のログ出力前に適用する
+	cli.InitMessages()
 	slog.Info(msg.Get("process.start"))
 
 	opt, err := cli.ParseArgs(args)
@@ -63,8 +65,8 @@ func run(args []string) int {
 	}
 	targetConfigFilePath := opt.ParamList[0]
 
-	slog.Info("・入力情報")
-	slog.Info("  ・比較対象設定ファイル            : " + targetConfigFilePath)
+	slog.Info(msg.Get("log.input.header"))
+	slog.Info(msg.Get("log.input.targetConfig", targetConfigFilePath))
 
 	counts, err := bulk.CompareRegex(targetConfigFilePath, cfg.OutputDir, cfg, layoutManager)
 	if err != nil {

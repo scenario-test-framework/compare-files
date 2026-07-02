@@ -109,14 +109,14 @@ func CompareRegex(targetConfigFilePath, outputDirPath string, systemConfig *conf
 	}()
 
 	// 比較対象設定の読込み
-	slog.Info("・比較対象設定の読込み")
+	slog.Info(msg.Get("log.regex.loadTargets"))
 	targets, err := LoadRegexTargetList(targetConfigFilePath)
 	if err != nil {
 		return nil, err
 	}
 
 	// 比較
-	slog.Info("・比較")
+	slog.Info(msg.Get("log.regex.compare"))
 	for _, target := range targets {
 		if err := compareTarget(counts, resultRepo, target, systemConfig, layoutManager, startTime); err != nil {
 			return nil, err

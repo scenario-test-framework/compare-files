@@ -22,6 +22,8 @@ func main() {
 }
 
 func run(args []string) int {
+	// メッセージ上書き定義は最初のログ出力前に適用する
+	cli.InitMessages()
 	slog.Info(msg.Get("process.start"))
 
 	opt, err := cli.ParseArgs(args)
@@ -72,13 +74,13 @@ func run(args []string) int {
 	rightPath := opt.ParamList[1]
 	outputDirPath := cfg.OutputDir
 
-	slog.Info("・入力情報")
-	slog.Info("  ・左パス                          : " + leftPath)
-	slog.Info("  ・右パス                          : " + rightPath)
+	slog.Info(msg.Get("log.input.header"))
+	slog.Info(msg.Get("log.input.leftPath", leftPath))
+	slog.Info(msg.Get("log.input.rightPath", rightPath))
 
 	var processStatus status.ProcessStatus
 	if isFile(leftPath) {
-		slog.Info("  ・比較モード                      : ファイル比較")
+		slog.Info(msg.Get("log.input.modeFile"))
 		_, st, err := bulk.CompareFile(leftPath, rightPath, outputDirPath, cfg, layoutManager)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -87,7 +89,7 @@ func run(args []string) int {
 		}
 		processStatus = st
 	} else {
-		slog.Info("  ・比較モード                      : ディレクトリ比較")
+		slog.Info(msg.Get("log.input.modeDir"))
 		counts, err := bulk.CompareDir(leftPath, rightPath, outputDirPath, cfg, layoutManager)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
