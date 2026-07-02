@@ -172,12 +172,16 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Parsed version: ${VERSION} (major=${MAJOR}, minor=${MAJOR}.${MINOR})"
 
-      # OCI ラベルは metadata-action で生成する (タグの決定は上の手書きロジック)
+      # OCI ラベルは metadata-action で生成する (タグの決定は上の手書きロジック)。
+      # type=semver で org.opencontainers.image.version を v なしの semver に揃える
+      # (既定の type=ref だと v1.2.3 になり、イメージタグ・埋め込み VERSION と不一致になる)
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
 
       - name: Build and push release image
         id: build
