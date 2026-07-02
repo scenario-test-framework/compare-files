@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,6 +66,10 @@ func ParseConfig(data []byte) (*CompareFilesConfig, error) {
 	if err := dec.Decode(&raw); err != nil {
 		return nil, err
 	}
+	// 末尾に余分なデータがあれば壊れた設定として弾く (json.Unmarshal と同じ厳密さ)
+	if _, err := dec.Token(); err != io.EOF {
+		return nil, fmt.Errorf("設定の末尾に余分なデータがあります")
+	}
 	return buildConfig(raw)
 }
 
@@ -118,6 +123,8 @@ func buildConfig(raw map[string]any) (*CompareFilesConfig, error) {
 // flattenHierarchy は階層化設定 (input / compare / output グループ) を
 // フラットキーへ変換します。グループ外のキーはそのまま維持します。
 // フラットキーと階層化キーが両方指定された場合は階層化側を優先します。
+// 同じフラットキーに写る同義キー (output.dir と output.outputDir など) の
+// 併記は非決定になるためエラーにします。
 func flattenHierarchy(raw map[string]any) (map[string]any, error) {
 	flat := map[string]any{}
 	var groups []string
@@ -128,12 +135,13 @@ func flattenHierarchy(raw map[string]any) (map[string]any, error) {
 		}
 		flat[key] = value
 	}
+	seen := map[string]string{} // flatKey → 階層化キーの path
 	for _, group := range groups {
 		groupMap, ok := raw[group].(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("設定の %s はオブジェクトで指定してください", group)
 		}
-		if err := applyHierarchyGroup(flat, group, groupMap); err != nil {
+		if err := applyHierarchyGroup(flat, group, groupMap, seen); err != nil {
 			return nil, err
 		}
 	}
@@ -142,16 +150,20 @@ func flattenHierarchy(raw map[string]any) (map[string]any, error) {
 
 // applyHierarchyGroup はグループ配下のキーを対応表でフラットキーへ変換します。
 // 対応表にないキーは設定ミスの検出のためエラーにします。
-func applyHierarchyGroup(flat map[string]any, prefix string, groupMap map[string]any) error {
+func applyHierarchyGroup(flat map[string]any, prefix string, groupMap map[string]any, seen map[string]string) error {
 	for key, value := range groupMap {
 		path := prefix + "." + key
 		if flatKey, ok := hierarchyMapping[path]; ok {
+			if prevPath, dup := seen[flatKey]; dup {
+				return fmt.Errorf("設定の %s と %s は同じ設定 (%s) の別名です。どちらか一方だけを指定してください", prevPath, path, flatKey)
+			}
+			seen[flatKey] = path
 			flat[flatKey] = value
 			continue
 		}
 		// 中間グループ (compare.csv など): 配下に対応キーがあるオブジェクトのみ許容
 		if subMap, ok := value.(map[string]any); ok && hasHierarchyPrefix(path) {
-			if err := applyHierarchyGroup(flat, path, subMap); err != nil {
+			if err := applyHierarchyGroup(flat, path, subMap, seen); err != nil {
 				return err
 			}
 			continue

@@ -123,6 +123,23 @@ output:
 	}
 }
 
+func TestParseConfigHierarchyDuplicateAlias(t *testing.T) {
+	// 同じフラットキーに写る同義キーの併記は非決定になるためエラー
+	jsonData := `{"output": {"dir": "alias", "outputDir": "legacy"}}`
+	if _, err := ParseConfig([]byte(jsonData)); err == nil {
+		t.Fatal("同義キーの併記はエラーになるべき")
+	} else if !strings.Contains(err.Error(), "outputDir") {
+		t.Errorf("エラーメッセージが不親切: %v", err)
+	}
+}
+
+func TestParseConfigTrailingData(t *testing.T) {
+	// 末尾に余分なデータがある壊れた JSON はエラー
+	if _, err := ParseConfig([]byte(`{"outputDir":"ok"} {"outputDir":"ng"}`)); err == nil {
+		t.Fatal("末尾の余分なデータはエラーになるべき")
+	}
+}
+
 func TestParseConfigHierarchyUnusedFilePathKeys(t *testing.T) {
 	// leftFilePath / rightFilePath は実行系が参照しないため階層化キーとしては未定義
 	if _, err := ParseConfig([]byte(`{"input": {"leftFilePath": "left.csv"}}`)); err == nil {
