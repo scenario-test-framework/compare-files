@@ -1,0 +1,13 @@
+{
+  "layoutList": [
+    {
+      "logicalFileName":  "PNGサンプル",
+      "fileRegexPattern": "png.*\\.png",
+      "fileFormat":       "Image",
+      "ignoreAreaList" : [
+        {"x": 256, "y":452, "width":120, "height":60}
+      ]
+    }
+
+  ]
+}
