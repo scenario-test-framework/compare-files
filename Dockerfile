@@ -13,9 +13,14 @@ COPY internal ./internal
 
 # Build static binaries
 # 互換性のため、旧イメージのエントリポイント名 (*.sh) へのシンボリックリンクも用意する
+ARG VERSION=dev
 ENV CGO_ENABLED=0
-RUN go build -trimpath -ldflags "-s -w" -o /out/bin/compare_files ./cmd/compare_files && \
-    go build -trimpath -ldflags "-s -w" -o /out/bin/compare_regex ./cmd/compare_regex && \
+RUN go build -trimpath \
+      -ldflags "-s -w -X github.com/scenario-test-framework/compare-files/internal/cli.Version=${VERSION}" \
+      -o /out/bin/compare_files ./cmd/compare_files && \
+    go build -trimpath \
+      -ldflags "-s -w -X github.com/scenario-test-framework/compare-files/internal/cli.Version=${VERSION}" \
+      -o /out/bin/compare_regex ./cmd/compare_regex && \
     ln -s compare_files /out/bin/compare_files.sh && \
     ln -s compare_regex /out/bin/compare_regex.sh
 
