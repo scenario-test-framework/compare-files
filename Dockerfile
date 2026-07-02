@@ -1,43 +1,44 @@
 # Build stage
-FROM maven:3.9-eclipse-temurin-21 AS builder
+FROM golang:1.25 AS builder
 
 WORKDIR /app
 
-# Copy pom.xml first to leverage Docker cache
-COPY pom.xml .
-
-# Download dependencies
-RUN mvn dependency:go-offline -B || true
+# Download dependencies first to leverage Docker cache
+COPY go.mod go.sum ./
+RUN go mod download
 
 # Copy source code
-COPY src ./src
-COPY env ./env
+COPY cmd ./cmd
+COPY internal ./internal
 
-# Build the application
-RUN mvn clean package -DskipTests -Dmaven.test.skip=true -Dmaven.javadoc.skip=true
+# Build static binaries
+# 互換性のため、旧イメージのエントリポイント名 (*.sh) へのシンボリックリンクも用意する
+ARG VERSION=dev
+ENV CGO_ENABLED=0
+RUN go build -trimpath \
+      -ldflags "-s -w -X github.com/scenario-test-framework/compare-files/internal/cli.Version=${VERSION}" \
+      -o /out/bin/compare_files ./cmd/compare_files && \
+    go build -trimpath \
+      -ldflags "-s -w -X github.com/scenario-test-framework/compare-files/internal/cli.Version=${VERSION}" \
+      -o /out/bin/compare_regex ./cmd/compare_regex && \
+    ln -s compare_files /out/bin/compare_files.sh && \
+    ln -s compare_regex /out/bin/compare_regex.sh
 
 # Runtime stage
-FROM eclipse-temurin:21-jre
+FROM gcr.io/distroless/static-debian12
 
 WORKDIR /app
 
-# Create necessary directories
-RUN mkdir -p /app/lib /app/config /app/bin /app/sample /app/logs
+# Copy binaries (シンボリックリンク含む)
+COPY --from=builder /out/bin /app/bin
 
-# Copy built artifacts from builder stage
-COPY --from=builder /app/target/compare_files_*/lib/* /app/lib/
-COPY --from=builder /app/target/compare_files_*/config/* /app/config/
-COPY --from=builder /app/target/compare_files_*/bin/* /app/bin/
-COPY --from=builder /app/target/compare_files_*/sample/* /app/sample/
-COPY --from=builder /app/target/compare_files_*/README.md /app/
-COPY --from=builder /app/target/compare_files_*/version.txt /app/
+# Copy default configuration and samples
+COPY dist/config /app/config
+COPY dist/sample /app/sample
+COPY README.md /app/
 
-# Make scripts executable
-RUN chmod +x /app/bin/*.sh
-
-# Set environment variables
-ENV COMPAREFILES_JAVA_OPT="-Xmx1024m"
-ENV COMPAREFILES_CLASSPATH="/app/config:/app/lib/*"
+# Set environment variables (COMPAREFILES_JAVA_OPT は後方互換のため参照される)
+ENV COMPAREFILES_CLASSPATH="/app/config"
 
 # Create volume for input/output data
 VOLUME ["/data"]
@@ -45,5 +46,5 @@ VOLUME ["/data"]
 # Default working directory for file operations
 WORKDIR /data
 
-# Default command (show help for compare_files.sh)
-CMD ["/app/bin/compare_files.sh", "--help"]
+# Default command (show help)
+CMD ["/app/bin/compare_files", "--help"]

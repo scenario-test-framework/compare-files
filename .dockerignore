@@ -3,16 +3,9 @@
 .gitignore
 .gitattributes
 
-# Maven
-target/
-!target/compare_files_*/
-
 # IDE
 .idea/
 *.iml
-.project
-.classpath
-.settings/
 .vscode/
 *.swp
 *.swo
@@ -26,14 +19,19 @@ Thumbs.db
 *.md
 !README.md
 LICENSE
+docs/
 
 # CI/CD
 .github/
-.gitlab-ci.yml
-.travis.yml
 
 # Test files
-src/test/
+testdata/
+
+# Build artifacts
+target/
+deploy/
+result/
+bin/
 
 # Logs
 *.log
@@ -47,4 +45,4 @@ logs/
 # Docker
 Dockerfile
 .dockerignore
-docker-compose*.yml
+compose.yaml

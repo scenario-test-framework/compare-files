@@ -1,0 +1,20 @@
+#左ディレクトリ,右ディレクトリ,ファイル名正規表現
+#
+# #で始まる行はコメントです。
+#
+# ファイル名に、タイムスタンプが含まれる場合を想定しています。
+testdata/main/CompareFileRegexTest/input/left/TEXT_CSV,testdata/main/CompareFileRegexTest/input/right/TEXT_CSV,csv_with-header_\d{14}.csv
+#
+# ファイル名に、連番が含まれる場合を想定しています。
+testdata/main/CompareFileRegexTest/input/left/TEXT_FIXED,testdata/main/CompareFileRegexTest/input/right/TEXT_FIXED,fixed_multi-record-type_\d{4}.txt
+#
+# 固定のファイル名でも利用できます。
+testdata/main/CompareFileRegexTest/input/left/TEXT_JSONLIST,testdata/main/CompareFileRegexTest/input/right/TEXT_JSONLIST,jsonlist.json
+#
+# 存在しないファイルの場合
+testdata/main/CompareFileRegexTest/input/left,testdata/main/CompareFileRegexTest/input/right,not_exist.txt
+#
+# 存在しないディレクトリの場合
+path/to/not_exist,testdata/main/CompareFileRegexTest/input/right/TEXT_JSONLIST,jsonlist.json
+testdata/main/CompareFileRegexTest/input/left/TEXT_JSONLIST,path/to/not_exist,jsonlist.json
+path/to/not_exist/left,path/to/not_exist/right,jsonlist.json

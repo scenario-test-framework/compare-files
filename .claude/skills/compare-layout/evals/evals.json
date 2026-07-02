@@ -1,0 +1,50 @@
+{
+  "skill_name": "compare-layout",
+  "evals": [
+    {
+      "id": 0,
+      "name": "csv-with-header",
+      "prompt": "compare-files でヘッダー付き CSV を比較する準備をしたい。対象は testdata/main/CompareFilesTest/input/left/TEXT_CSV/csv_with-header_ok.csv で、右側は input/right の同名ファイル。「更新時刻」カラムは実行のたびに変わるので差分として検出したくない。キー1とキー2の組で行を特定できるはず。比較レイアウトを作って <出力先>/layout_csv.json に保存して。",
+      "expected_output": "CSV_withHeader のレイアウト JSON。全 5 カラム (キー1/キー2/金額/連番/更新時刻) が itemList に列挙され、キー1・キー2 が compareKey、更新時刻が Ignore または Datetime 系。fileRegexPattern がファイル名に全体一致し、--lintLayout が exit 0。",
+      "assertions": [
+        "レイアウト JSON ファイルが出力されている",
+        "fileFormat が CSV_withHeader である",
+        "itemList にファイルの全 5 カラム分の項目がある",
+        "キー 2 項目 (キー1・キー2 相当) に compareKey が true 指定されている",
+        "更新時刻の項目が Ignore または Datetime_* の criteria になっている",
+        "compare_files --lintLayout が exit 0 で通る",
+        "fileRegexPattern が対象ファイル名 csv_with-header_ok.csv に全体一致する"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "fixed-multi-record",
+      "prompt": "固定長テキストの比較レイアウトが必要。ファイルは testdata/main/CompareFilesTest/input/left/TEXT_FIXED/fixed_multi-record-type_ok.txt。先頭 1 桁がレコード種別で、0=ヘッダー、1=データ、2=トレーラ、9=エンドらしい。データ行は 1 桁の種別 + 3 桁のキー1 + 3 桁のキー2 + 10 桁の金額、残りは予備と聞いている。レイアウトを作って <出力先>/layout_fixed.json に保存して。",
+      "expected_output": "Fixed のマルチレコードタイプレイアウト。各レコードの codeValue が 0/1/2/9、全レコードのバイト長合計が 50 で一致、--lintLayout が exit 0。",
+      "assertions": [
+        "レイアウト JSON ファイルが出力されている",
+        "fileFormat が Fixed である",
+        "recordList に複数のレコードタイプがあり、codeValue 0/1/2/9 が定義されている",
+        "全レコードタイプの byteLength 合計が一致している (実ファイルの行長 50 バイト)",
+        "compare_files --lintLayout が exit 0 で通る"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "jsonlist-dot-notation",
+      "prompt": "testdata/main/CompareFilesTest/input/left/TEXT_JSONLIST/jsonlist_ok.json は 1 行 1 JSON のファイルで、これを compare-files で比較したい。keyObj の下の key1 と key2 がレコードのキー。valueObj.lastUpdateTime は処理時刻なので、右側 (実績値) が左側 (期待値) 以降の時刻ならOKにしたい。レイアウトを <出力先>/layout_jsonlist.json に作って。",
+      "expected_output": "JsonList のレイアウト。keyObj.key1 / keyObj.key2 が compareKey、valueObj.lastUpdateTime が Datetime_GreaterEqualThan_Left、レコードタイプは 1 つ。--lintLayout が exit 0。",
+      "assertions": [
+        "レイアウト JSON ファイルが出力されている",
+        "fileFormat が JsonList である",
+        "keyObj.key1 と keyObj.key2 がドット記法で定義され compareKey が true",
+        "valueObj.lastUpdateTime の criteria が Datetime_GreaterEqualThan_Left",
+        "recordList のレコードタイプが 1 つだけ",
+        "compare_files --lintLayout が exit 0 で通る"
+      ],
+      "files": []
+    }
+  ]
+}

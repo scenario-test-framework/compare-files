@@ -4,6 +4,9 @@
 
 テキスト、画像ファイルを一括比較するコマンドラインツールです。
 
+Go 製のシングルバイナリで動作します (v2 で Java から移植)。
+CLI 引数・設定ファイル・比較レイアウト・結果 CSV・終了コードは Java 版 (v1.x) と互換です。
+
 
 ## 機能
 
@@ -165,181 +168,16 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
 ### 比較レイアウト
 
-- ファイルフォーマット
+ファイル名の正規表現にマッチしたレイアウト定義 (JSON) に従って、ファイルを項目単位で比較します。
+CSV/TSV (ヘッダーあり・なし)、固定長テキスト、JSON/JsonList、画像に対応し、
+項目ごとに比較キー・比較条件 (一致 / 除外 / 数値・日付の大小比較など) を指定できます。
 
-  | 項目 | 説明 |
-  |:-----|:-----|
-  | 配置ディレクトリ | config/compare_layout/ |
-  | ファイル名 | 任意 |
-  | ファイル形式 | json |
-  | 文字コード | UTF8 |
-  | 改行コード | LF |
-
-- ファイルレイアウト
-
-  | 階層 | 項目 | 説明 |
-  |:-----|:-----|:-----|
-  | ファイル情報 | logicalFileName | 論理ファイル名 |
-  || fileRegexPattern | 物理ファイル名正規表現 |
-  || fileFormat | ファイル形式<br/>CSV_noHeader/CSV_withHeader/TSV_noHeader/TSV_withHeader/Json/JsonList/Fixed/Text/Image |
-  || charset | 文字コード<br/>テキストファイル比較時に利用されます。 |
-  || lineSp | 改行コード<br/>CR/LF/CRLF/None<br/>テキストファイル比較時に利用されます。 |
-  || ignoreAreaList | 比較除外エリアリスト<br/> x, y, width, height を jsonオブジェクトで指定します。<br/>画像ファイル比較時に利用されます。 |
-  | テキストファイル.レコード情報 | type | レコードタイプ<br/>Header/Data/Trailer/End |
-  || codeValue | レコードタイプを判別する文字列<br/>※例：Header=0, Data=1, Trailer=8, End=9 |
-  | テキストファイル.レコード.項目情報 | id | 項目ID<br/>※比較結果には、この値が出力されます。 |
-  || name | 項目名 |
-  || byteLength | バイト長 |
-  || criteria | 比較条件 ※詳細は、後述を参照してください。 |
-  || compareKey | 対象行を選択する比較キーとして利用する場合にtrueを設定します。 |
-
-- サンプル
-
-  ```json
-  {
-    "layoutList": [
-      {
-        "logicalFileName":  "ヘッダーありCSVサンプル",
-        "fileRegexPattern": "csv_with-header.*\\.csv",
-        "fileFormat":       "CSV_withHeader",
-        "charset":          "utf8",
-        "lineSp":           "LF",
-        "recordList": [
-          {
-            "type": "Data", "codeValue": "-", "itemList": [
-              { "id": "KEY1",             "name": "キー1",    "byteLength": 3,   "criteria": "Equal", "compareKey": "true" },
-              { "id": "KEY2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal", "compareKey": "true" },
-              { "id": "AMOUNT",           "name": "金額",     "byteLength": 100, "criteria": "Equal", "compareKey": "false" },
-              { "id": "NUMBER",           "name": "連番",     "byteLength": 20,  "criteria": "Equal", "compareKey": "false" },
-              { "id": "LAST_UPDATE_TIME", "name": "更新時刻", "byteLength": 19,  "criteria": "Equal", "compareKey": "false" }
-            ]
-          }
-        ]
-      },
-
-      {
-        "logicalFileName":  "固定長テキストサンプル",
-        "fileRegexPattern": "fixed_multi-record-type.*\\.txt",
-        "fileFormat":       "Fixed",
-        "charset":          "utf8",
-        "lineSp":           "LF",
-        "recordList": [
-          {
-            "type": "Header", "codeValue": "0", "itemList": [
-              { "id": "RECORD_TYPE", "name": "レコードタイプ",     "byteLength": 1,  "criteria": "Equal", "compareKey": "true"  },
-              { "id": "DATA_COUNT",  "name": "データレコード件数", "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
-              { "id": "BLANK",       "name": "予備",               "byteLength": 39, "criteria": "Equal", "compareKey": "false" }
-            ]
-          },
-          {
-            "type": "Data", "codeValue": "1", "itemList": [
-              { "id": "RECORD_TYPE",  "name": "レコードタイプ", "byteLength": 1,  "criteria": "Equal", "compareKey": "true" },
-              { "id": "KEY1",         "name": "キー1",          "byteLength": 3,  "criteria": "Equal", "compareKey": "true" },
-              { "id": "KEY2",         "name": "キー2",          "byteLength": 3,  "criteria": "Equal", "compareKey": "true" },
-              { "id": "AMOUNT",       "name": "金額",           "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
-              { "id": "BLANK",        "name": "予備",           "byteLength": 33, "criteria": "Equal", "compareKey": "false" }
-            ]
-          },
-          {
-            "type": "Trailer", "codeValue": "2", "itemList": [
-              { "id": "RECORD_TYPE", "name": "レコードタイプ", "byteLength": 1,  "criteria": "Equal", "compareKey": "true" },
-              { "id": "SUM_AMOUNT", "name": "合計金額",        "byteLength": 14, "criteria": "Equal", "compareKey": "false" },
-              { "id": "AVE_AMOUNT", "name": "平均金額",        "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
-              { "id": "MIN_AMOUNT", "name": "最少金額",        "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
-              { "id": "MAX_AMOUNT", "name": "最大金額",        "byteLength": 10, "criteria": "Equal", "compareKey": "false" },
-              { "id": "BLANK",      "name": "予備",            "byteLength": 5,  "criteria": "Equal", "compareKey": "false" }
-            ]
-          },
-          {
-            "type": "End", "codeValue": "9", "itemList": [
-              { "id": "RECORD_TYPE", "name": "レコードタイプ", "byteLength": 1,   "criteria": "Equal", "compareKey": "true" },
-              { "id": "STATUS",      "name": "処理ステータス", "byteLength": 1,   "criteria": "Equal", "compareKey": "false" },
-              { "id": "BLANK",       "name": "予備",           "byteLength": 48,  "criteria": "Equal", "compareKey": "false" }
-            ]
-          }
-        ]
-      },
-
-      {
-        "logicalFileName":  "JsonListサンプル",
-        "fileRegexPattern": "jsonlist_.*\\.json",
-        "fileFormat":       "JsonList",
-        "charset":          "utf8",
-        "lineSp":           "LF",
-        "recordList": [
-          {
-            "type": "Data", "codeValue": "-", "itemList": [
-              { "id": "keyObj.key1",             "name": "キー1",    "byteLength": 3,   "criteria": "Equal",                         "compareKey": "true" },
-              { "id": "keyObj.key2",             "name": "キー2",    "byteLength": 3,   "criteria": "Equal",                         "compareKey": "true" },
-              { "id": "valueObj.amount",         "name": "金額",     "byteLength": 100, "criteria": "Equal",                         "compareKey": "false" },
-              { "id": "valueObj.number",         "name": "連番",     "byteLength": 20,  "criteria": "Equal",                         "compareKey": "false" },
-              { "id": "valueObj.lastUpdateTime", "name": "更新時刻", "byteLength": 19,  "criteria": "Datetime_GreaterEqualThan_Left", "compareKey": "false" }
-            ]
-          }
-        ]
-      },
-
-      {
-        "logicalFileName":  "PNGサンプル",
-        "fileRegexPattern": "png.*\\.png",
-        "fileFormat":       "Image",
-        "ignoreAreaList" : [
-          {"x": 256, "y":452, "width":120, "height":60}
-        ]
-      }
-
-    ]
-  }
-  ```
-
-#### 比較条件
-
-比較レイアウトで指定できる条件です。 左右の値を比較して、下記の条件にマッチする場合に「比較結果=OK」と判断します。
-
-- 条件一覧
-
-  | コード                      | 比較内容                                                                                                                    |
-  |:----------------------------|:----------------------------------------------------------------------------------------------------------------------------|
-  | Ignore                      | 比較を除外。                                                                                                                |
-  | Equal                       | 文字列としての比較結果が、一致の場合、OKと判断。                                                                            |
-  | NotEqual                    | 文字列としての比較結果が、不一致の場合、OKと判断。                                                                          |
-  | Number_GreaterEqualThan_Left   | 数値としての比較結果が、左以上の場合、OKと判断。                                                                            |
-  | Number_GreaterThan_Left        | 数値としての比較結果が、左より大きい場合、OKと判断。                                                                        |
-  | Number_LessEqualThan_Left     | 数値としての比較結果が、左以下の場合、OKと判断。                                                                            |
-  | Number_LessThan_Left          | 数値としての比較結果が、左より小さい場合、OKと判断。                                                                        |
-  | Year_GreaterEqualThan_Left     | 年(yyyy)としての比較結果が、左以上の場合、OKと判断。                                                                        |
-  | Year_GreaterThan_Left          | 年(yyyy)としての比較結果が、左より大きい場合、OKと判断。                                                                    |
-  | Year_LessEqualThan_Left       | 年(yyyy)としての比較結果が、左以下の場合、OKと判断。                                                                        |
-  | Year_LessThan_Left            | 年(yyyy)としての比較結果が、左より小さい場合、OKと判断。                                                                    |
-  | Month_GreaterEqualThan_Left    | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
-  | Month_GreaterThan_Left         | 年月(yyyyMM)としての比較結果が、左より大きい場合、OKと判断。                                                                |
-  | Month_LessEqualThan_Left      | 年月(yyyyMM)としての比較結果が、左以上の場合、OKと判断。                                                                    |
-  | Month_LessThan_Left           | 年月(yyyyMM)としての比較結果が、左より小さい場合、OKと判断。                                                                |
-  | Date_GreaterEqualThan_Left     | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以上の場合、OKと判断。                                        |
-  | Date_GreaterThan_Left          | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より大きい場合、OKと判断。                                    |
-  | Date_LessEqualThan_Left       | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左以下の場合、OKと判断。                                        |
-  | Date_LessThan_Left            | 年月日(yyyyMMdd, yyyy-MM-dd, yyyy/MM/dd)としての比較結果が、左より小さい場合、OKと判断。                                    |
-  | Datetime_GreaterEqualThan_Left | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以上の 場合、OKと判断。     |
-  | Datetime_GreaterThan_Left      | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より大 きい場合、OKと判断。 |
-  | Datetime_LessEqualThan_Left   | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左以下の 場合、OKと判断。     |
-  | Datetime_LessThan_Left        | 年月日時分秒(yyyyMMddHHmmss, yyyy-MM-dd HH:mm:ss, yyyy/MM/dd HH:mm:ss etc)としての比較結果が、左より小 さい場合、OKと判断。 |
-
-
-#### generator
-
-レイアウトの作成を補助するgoogle sheetsを用意しています。
-
-![generator](./docs/images/compare_layout_generator.png)
-
-##### 利用方法
-
-- [generator](https://docs.google.com/spreadsheets/d/1pZ7Ta75L5zM8JshsTG9axp0QXs3WG6Xxy1N81JhF11M/copy) をマイドライブにコピー
-- `__tmpl__` シートをコピーして、レイアウトを記載
-  - ファイル形式や、レコードタイプの有無で、指定が必要な項目が異なります
-  - 指定が不要な項目は、グレーアウトされます
-- `【compare-files】`メニュー → `generate layout` をクリック
-- `__generated__` シートの内容を、前述のファイルフォーマットに従って配置
-
+- 配置ディレクトリ: `config/compare_layout/` (`-layout` オプションで追加ディレクトリを指定可能)
+- **仕様の詳細: [比較レイアウトリファレンス](docs/compare_layout.md)**
+- 作成の支援:
+  - Claude Code の [`compare-layout` スキル](.claude/skills/compare-layout/) — 比較対象ファイルの実物からレイアウトを生成
+  - [Google Sheets generator](https://docs.google.com/spreadsheets/d/1pZ7Ta75L5zM8JshsTG9axp0QXs3WG6Xxy1N81JhF11M/copy) — スプレッドシートから生成
+- 検証: `compare_files --lintLayout <layout.json>` でレイアウト定義を検証できます
 
 ## 結果
 
@@ -437,22 +275,47 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
 
 ### 共通
 
-- クラスパスの環境変数指定  
+- 設定探索パスの環境変数指定  
 デフォルトの挙動は、 config/ ディレクトリ配下の設定ファイルで設定できます。  
-config/ ディレクトリは、Javaのclasspathを通してあるため、これが利用されています。  
-動的にデフォルトの挙動を変更する場合は、環境変数「COMPAREFILES_CLASSPATH」で上書きできます。  
+設定 (compare_files.json) と比較レイアウト (compare_layout/) は、
+「COMPAREFILES_CLASSPATH で指定したディレクトリ → カレントディレクトリ → ./config → バイナリ同梱のデフォルト」
+の順で解決されます (Java 版のクラスパス解決と互換)。  
   ```bash
   export COMPAREFILES_CLASSPATH="/path/to/dynamic_config"
   ```
 
 - 起動パラメータの環境変数指定  
 デフォルトでは、起動パラメータは指定されません。  
-共通で起動パラメータを設定したい場合は、環境変数「COMPAREFILES_JAVA_OPT」で設定できます。  
+共通で起動パラメータを設定したい場合は、環境変数「COMPAREFILES_OPT」で設定できます。  
   ```bash
-  export COMPAREFILES_JAVA_OPT="-od /path/to/output -oc ms932"
+  export COMPAREFILES_OPT="-od /path/to/output -oc ms932"
+  ```
+  ※Java 版の「COMPAREFILES_JAVA_OPT」も後方互換のため参照されます (JVM 専用フラグ -X*/-D* は警告を出して無視します)。
+
+- 並列実行数の指定  
+ディレクトリ比較・対象指定比較は、ファイル単位で並列に実行されます (デフォルト: CPU コア数)。  
+環境変数「COMPAREFILES_PARALLEL」で並列数を指定できます。`1` を指定すると逐次実行になります。  
+  ```bash
+  export COMPAREFILES_PARALLEL=4
   ```
 
 
+
+## バイナリのダウンロード (Docker 不要)
+
+シングルバイナリで動作するため、[GitHub Releases](https://github.com/scenario-test-framework/compare-files/releases)
+から OS ごとのアーカイブ (Linux / macOS / Windows、amd64 / arm64) をダウンロードして
+そのまま実行できます (v2.0.0 以降)。
+
+```bash
+# 例: macOS (Apple Silicon)
+tar xzf compare-files_*_darwin_arm64.tar.gz
+./compare_files --version
+./compare_files left.csv right.csv
+```
+
+アーカイブにはデフォルト設定 (`config/`) と比較レイアウトリファレンス
+(`docs/compare_layout.md`) が同梱されています。
 
 ## Docker
 
@@ -516,12 +379,18 @@ Invoke-Expression (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sce
 
 **Linux / macOS:**
 ```bash
-# ファイル比較
+# ファイル比較 (プレーンテキスト)
 ./bin/compare_files.sh --help
-./bin/compare_files.sh sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt
+./bin/compare_files.sh sample/left/TEXT_PLAINTEXT/plaintext_ok.txt sample/right/TEXT_PLAINTEXT/plaintext_ng.txt
 
-# 正規表現比較
-./bin/compare_regex.sh --help
+# レイアウトを使った CSV 比較 (項目単位の差分検出)
+./bin/compare_files.sh sample/left/TEXT_CSV/csv_with-header_ng.csv sample/right/TEXT_CSV/csv_with-header_ng.csv
+
+# 画像比較 (差分を赤枠でマークした PNG が result/ に出力される)
+./bin/compare_files.sh sample/left/IMAGE_PNG/png_ng.png sample/right/IMAGE_PNG/png_ng.png
+
+# ディレクトリ一括比較 / 正規表現比較
+./bin/compare_files.sh sample/left sample/right
 ./bin/compare_regex.sh sample/compare_target.csv
 ```
 
@@ -531,30 +400,39 @@ REM 処理の実行はcontainer上なので、pathは/区切りです。
 
 REM ファイル比較
 bin\compare_files.cmd --help
-bin\compare_files.cmd sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt
+bin\compare_files.cmd sample/left/TEXT_PLAINTEXT/plaintext_ok.txt sample/right/TEXT_PLAINTEXT/plaintext_ng.txt
 
 REM 正規表現比較
 bin\compare_regex.cmd --help
 bin\compare_regex.cmd sample/compare_target.csv
 ```
 
+**自分のファイル用の比較レイアウトを作る (Claude Code):**
+
+インストールディレクトリには Claude Code 用の
+[`compare-layout` スキル](.claude/skills/compare-layout/) が展開されています。
+このディレクトリで Claude Code を開き「このファイルの比較レイアウトを作って」のように依頼すると、
+対象ファイルを分析してレイアウト定義の生成・検証・動作確認まで行います。
+
 #### インストールされるファイル
 
 ```
 .
-├── compose.yaml              # Docker Compose設定
-├── config/
-│   └── compare_files.json    # デフォルト設定ファイル
+├── compose.yaml                  # Docker Compose設定
 ├── bin/
-│   ├── compare_files.sh      # ファイル比較ラッパー (Linux/macOS)
-│   ├── compare_files.cmd     # ファイル比較ラッパー (Windows)
-│   ├── compare_regex.sh      # 正規表現比較ラッパー (Linux/macOS)
-│   └── compare_regex.cmd     # 正規表現比較ラッパー (Windows)
-└── sample/                   # サンプルファイル
-    ├── left/plaintext_ok.txt
-    ├── right/plaintext_ok.txt
-    ├── right/plaintext_ng.txt
-    └── compare_target.csv
+│   ├── compare_files.sh          # ファイル比較ラッパー (Linux/macOS)
+│   ├── compare_files.cmd         # ファイル比較ラッパー (Windows)
+│   ├── compare_regex.sh          # 正規表現比較ラッパー (Linux/macOS)
+│   └── compare_regex.cmd         # 正規表現比較ラッパー (Windows)
+├── config/
+│   ├── compare_files.json        # デフォルト設定ファイル
+│   └── compare_layout/           # サンプル比較レイアウト
+├── sample/                       # 全形式のサンプル (CSV/TSV/固定長/JSON/JsonList/画像)
+│   ├── left/  ├── right/         #   ok=一致 / ng=差分ありのペア
+│   └── compare_target.csv        #   正規表現比較の対象指定サンプル
+├── docs/
+│   └── compare_layout.md         # 比較レイアウトリファレンス
+└── .claude/skills/compare-layout # Claude Code 用レイアウト生成スキル
 ```
 
 ### ローカルでのビルド
@@ -566,6 +444,50 @@ docker build -t compare-files:local .
 # ビルドしたイメージを実行
 docker run --rm -v $(pwd):/data compare-files:local --help
 ```
+
+Go ツールチェーンがあれば、バイナリを直接ビルドすることもできます:
+
+```bash
+go build -o bin/compare_files ./cmd/compare_files
+go build -o bin/compare_regex ./cmd/compare_regex
+go test ./...
+```
+
+---
+
+## パフォーマンス
+
+Go 移植 (v2) による Java 版 (v1.x) からの改善 (Apple Silicon / ローカル計測):
+
+| 項目 | Java 版 | Go 版 | 改善 |
+|:-----|--------:|------:|-----:|
+| 起動時間 (--help) | 約 290ms | 約 5ms | 約 60 倍 |
+| CSV 5 万行比較 (未ソート) | 13.0 秒 | 0.58 秒 | 約 22 倍 |
+| CSV 30 万行比較 (未ソート) | 448 秒 | 4.0 秒 | 約 110 倍 |
+| 最大メモリ (30 万行) | 491MB | 314MB | 約 36% 減 |
+| Docker イメージサイズ | 260MB+ (JRE) | 59MB | 約 77% 減 |
+
+大容量ファイルの高速化は、内部ソートを「自然マージソート (複数パス)」から
+「チャンクソート + k-way マージ (実質 2 パス)」に変更したこと、
+一括比較のファイル単位並列化 (COMPAREFILES_PARALLEL) によるものです。
+比較結果ファイルの内容は Java 版とバイト一致します。
+
+## Java 版 (v1.x) からの変更点
+
+互換性を維持している範囲:
+
+- CLI 引数、設定ファイル (compare_files.json)、比較レイアウト定義、比較対象設定 CSV
+- 結果ファイル (CompareSummary.csv / CompareDetail_*.csv) の内容 (バイト一致)
+- 終了コード (0=成功 / 3=警告 / 6=エラー)
+- 環境変数 COMPAREFILES_CLASSPATH
+- レイアウトの正規表現は Java 互換エンジン ([dlclark/regexp2](https://github.com/dlclark/regexp2)) で評価されるため、先読み等もそのまま動作します
+
+非互換となる点:
+
+- コンソールログの書式 (slog 形式に変更。ログは比較結果の契約対象外)
+- 画像比較の結果 PNG はレイアウト・配色を再現した「見た目同等」です (フォント描画等の差により Java 版とバイト一致はしません)。差分エリアの数・座標は同一アルゴリズムで算出します
+- 画像比較の対応形式は png / jpg / jpeg / gif / bmp です (wbmp は非対応になりました)
+- 引数エラー等の異常時終了コードは 6 に統一 (Java 版は未捕捉例外で 1 になるケースがありました)
 
 ---
 

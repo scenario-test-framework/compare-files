@@ -1,0 +1,48 @@
+version: 2
+
+project_name: compare-files
+
+builds:
+  - id: compare_files
+    main: ./cmd/compare_files
+    binary: compare_files
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w -X github.com/scenario-test-framework/compare-files/internal/cli.Version={{ .Version }}
+  - id: compare_regex
+    main: ./cmd/compare_regex
+    binary: compare_regex
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w -X github.com/scenario-test-framework/compare-files/internal/cli.Version={{ .Version }}
+
+archives:
+  - ids: [compare_files, compare_regex]
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - README.md
+      - LICENSE
+      - docs/compare_layout.md
+      - src: dist/config/**
+        dst: config
+        strip_parent: false
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  filters:
+    exclude:
+      - "^chore"
