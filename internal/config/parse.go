@@ -76,9 +76,15 @@ func ParseConfig(data []byte) (*CompareFilesConfig, error) {
 // ParseConfigYAML はバイト列(UTF-8 YAML)から設定をパースします。
 // フラット形式・階層化形式のどちらも受け付けます (両方指定時は階層化側が優先)。
 func ParseConfigYAML(data []byte) (*CompareFilesConfig, error) {
+	dec := yaml.NewDecoder(bytes.NewReader(data))
 	var raw map[string]any
-	if err := yaml.Unmarshal(data, &raw); err != nil {
+	if err := dec.Decode(&raw); err != nil {
 		return nil, err
+	}
+	// 複数ドキュメント (---) は壊れた設定として弾く (JSON の末尾データ検証と同じ厳密さ)
+	var extra any
+	if err := dec.Decode(&extra); err != io.EOF {
+		return nil, fmt.Errorf("設定に複数の YAML ドキュメントが含まれています")
 	}
 	return buildConfig(raw)
 }

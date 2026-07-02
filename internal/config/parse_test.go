@@ -140,6 +140,14 @@ func TestParseConfigTrailingData(t *testing.T) {
 	}
 }
 
+func TestParseConfigYAMLMultiDocument(t *testing.T) {
+	// 複数ドキュメント (---) の YAML はエラー (先頭だけの黙認をしない)
+	yamlData := "output:\n  dir: first\n---\noutput:\n  dir: second\n"
+	if _, err := ParseConfigYAML([]byte(yamlData)); err == nil {
+		t.Fatal("複数ドキュメントの YAML はエラーになるべき")
+	}
+}
+
 func TestParseConfigHierarchyUnusedFilePathKeys(t *testing.T) {
 	// leftFilePath / rightFilePath は実行系が参照しないため階層化キーとしては未定義
 	if _, err := ParseConfig([]byte(`{"input": {"leftFilePath": "left.csv"}}`)); err == nil {
