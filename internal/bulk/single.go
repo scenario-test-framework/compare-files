@@ -55,7 +55,7 @@ func compareOneFile(leftFilePath, rightFilePath, outputDirPath string, systemCon
 		os.Remove(filepath.Join(outputDirPath, outputName))
 	}
 
-	slog.Info("  ・ファイル比較 左:" + leftFileName + "、右:" + filepath.Base(rightFilePath))
+	slog.Info(msg.Get("log.file.compare", leftFileName, filepath.Base(rightFilePath)))
 
 	// ファイル名除外ルール確認
 	if isIgnoreFile(leftFileName, systemConfig.IgnoreFileRegexList) {
@@ -137,7 +137,7 @@ func isIgnoreFile(fileName string, ignoreFileRegexList []string) bool {
 			continue
 		}
 		if ok {
-			slog.Info("      ・[SKIP]正規表現:" + regex + ", ファイル名:" + fileName)
+			slog.Info(msg.Get("log.file.skip", regex, fileName))
 			return true
 		}
 	}

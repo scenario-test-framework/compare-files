@@ -117,7 +117,7 @@ func CompareDir(leftDirPath, rightDirPath, outputDirPath string, systemConfig *c
 	rightExists := isDir(rightDirPath)
 	switch {
 	case leftExists && !rightExists:
-		slog.Info("・[左のみ]" + leftDirPath)
+		slog.Info(msg.Get("log.dir.leftOnly", leftDirPath))
 		result := fixedResult(status.CompareLeftOnly, leftDirPath, rightDirPath, startTime)
 		counts.AddFileResult(result.Status)
 		if err := resultRepo.Write(result); err != nil {
@@ -126,7 +126,7 @@ func CompareDir(leftDirPath, rightDirPath, outputDirPath string, systemConfig *c
 		committed = true
 		return counts, resultRepo.Commit()
 	case !leftExists && rightExists:
-		slog.Info("・[右のみ]" + rightDirPath)
+		slog.Info(msg.Get("log.dir.rightOnly", rightDirPath))
 		result := fixedResult(status.CompareRightOnly, leftDirPath, rightDirPath, startTime)
 		counts.AddFileResult(result.Status)
 		if err := resultRepo.Write(result); err != nil {
@@ -142,7 +142,7 @@ func CompareDir(leftDirPath, rightDirPath, outputDirPath string, systemConfig *c
 	}
 
 	// ファイル走査: 左右の相対パスをマージして辞書順にソート
-	slog.Info("・ファイル走査")
+	slog.Info(msg.Get("log.dir.scan"))
 	leftRelPaths, err := relPathList(leftDirPath)
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func CompareDir(leftDirPath, rightDirPath, outputDirPath string, systemConfig *c
 	})
 
 	// ディレクトリ比較 (ワーカープールで並列実行、サマリは入力順で出力)
-	slog.Info("・ディレクトリ比較")
+	slog.Info(msg.Get("log.dir.compare"))
 	pairs := make([]filePair, len(merged))
 	for i, relPath := range merged {
 		pairs[i] = filePair{leftFilePath: leftDirPath + relPath, rightFilePath: rightDirPath + relPath}

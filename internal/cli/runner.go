@@ -31,18 +31,44 @@ func configSearchDirs() []string {
 	return dirs
 }
 
+// MessageOverridesFileName は進捗ログ・メッセージ上書き定義のファイル名です。
+const MessageOverridesFileName = "compare_files_messages.properties"
+
+// InitMessages は探索ディレクトリのメッセージ上書き定義を読み込んで適用します。
+// 前勝ち (最初に見つかったファイルのみ) で解決します。ファイルがなければ何もしません。
+func InitMessages() error {
+	for _, dir := range configSearchDirs() {
+		path := filepath.Join(dir, MessageOverridesFileName)
+		if info, err := os.Stat(path); err == nil && !info.IsDir() {
+			m, err := msg.ParsePropertiesFile(path)
+			if err != nil {
+				return err
+			}
+			msg.SetOverrides(m)
+			return nil
+		}
+	}
+	return nil
+}
+
+// defaultConfigFileNames はデフォルト起動設定の探索ファイル名 (優先順) です。
+// Java 版互換の JSON を優先し、なければ YAML を利用します。
+var defaultConfigFileNames = []string{"compare_files.json", "compare_files.yaml", "compare_files.yml"}
+
 // LoadDefaultConfig はデフォルト設定を解決して返します。
-// 探索ディレクトリの compare_files.json を前勝ちで解決し、
+// 探索ディレクトリの compare_files.json (なければ .yaml / .yml) を前勝ちで解決し、
 // 見つからない場合は同梱デフォルトを利用します。
 func LoadDefaultConfig() (*config.CompareFilesConfig, string, error) {
 	for _, dir := range configSearchDirs() {
-		path := filepath.Join(dir, "compare_files.json")
-		if info, err := os.Stat(path); err == nil && !info.IsDir() {
-			cfg, err := config.ParseConfigFile(path)
-			if err != nil {
-				return nil, path, err
+		for _, name := range defaultConfigFileNames {
+			path := filepath.Join(dir, name)
+			if info, err := os.Stat(path); err == nil && !info.IsDir() {
+				cfg, err := config.ParseConfigFile(path)
+				if err != nil {
+					return nil, path, err
+				}
+				return cfg, path, nil
 			}
-			return cfg, path, nil
 		}
 	}
 	cfg, err := config.ParseConfig(assets.DefaultConfig())
@@ -62,10 +88,10 @@ func LoadConfig(opt *Option) (*config.CompareFilesConfig, error) {
 
 	var cfg *config.CompareFilesConfig
 	if opt.GetConfigFilePath() == "" {
-		slog.Info("デフォルト起動設定: " + defaultPath)
+		slog.Info(msg.Get("log.config.default", defaultPath))
 		cfg = defaultConfig
 	} else {
-		slog.Info("カスタム起動設定: " + opt.GetConfigFilePath())
+		slog.Info(msg.Get("log.config.custom", opt.GetConfigFilePath()))
 		cfg, err = config.ParseConfigFile(opt.GetConfigFilePath())
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", msg.Get("error.parse", opt.GetConfigFilePath()), err)

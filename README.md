@@ -96,8 +96,8 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
   | 項目 | 説明 |
   |:-----|:-----|
   | 配置ディレクトリ | config/ |
-  | ファイル名 | compare_files.json |
-  | ファイル形式 | json |
+  | ファイル名 | compare_files.json ※なければ compare_files.yaml → compare_files.yml の順で探索します。 |
+  | ファイル形式 | json / yaml ※yaml はコメントを記載できます。`-config` オプションは拡張子で形式を判定します。 |
   | 文字コード | UTF8 |
   | 改行コード | LF |
 
@@ -169,6 +169,90 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
       }
   }
   ```
+
+- 階層化形式
+
+  フラット形式に加えて、利用目的ごとに階層化した形式でも記載できます (json / yaml どちらでも可)。
+  同じ設定をフラット形式と階層化形式の両方で指定した場合は、階層化形式が優先されます。
+  グループ内のキーは、下表の簡潔な別名に加えて従来のフラットキー名 (`input.defaultInputCharset` など) も利用できます。
+
+  | 階層化キー | フラットキー |
+  |:-----------|:-------------|
+  | input.leftFilePath | leftFilePath |
+  | input.rightFilePath | rightFilePath |
+  | input.defaultCharset | defaultInputCharset |
+  | input.ignoreFileRegexList | ignoreFileRegexList |
+  | compare.sorted | sorted |
+  | compare.chunkSize | chunkSize |
+  | compare.ignoreItemList | ignoreItemList |
+  | compare.layoutDir | overwriteLayoutDir |
+  | compare.csv.headerRow | csvHeaderRow |
+  | compare.csv.dataStartRow | csvDataStartRow |
+  | compare.fixed.codeValueForOnlyOneRecordType | codeValueForOnlyOneRecordType |
+  | compare.image.ignoreAreaList | ignoreAreaList |
+  | compare.image.okStyle | okImageStyle |
+  | compare.image.ngStyle | ngImageStyle |
+  | output.dir | outputDir |
+  | output.charset | outputCharset |
+  | output.resultFileName | compareResultFileName |
+  | output.detailFilePrefix | compareDetailFilePrefix |
+  | output.writeDiffOnly | writeDiffOnly |
+  | output.leftPrefix | leftPrefix |
+  | output.rightPrefix | rightPrefix |
+  | output.deleteWorkDir | deleteWorkDir |
+
+  yaml + 階層化形式のサンプル (compare_files.yaml):
+
+  ```yaml
+  # 入力ファイルの読み込み設定
+  input:
+    ignoreFileRegexList:
+      - "^\\..*"
+
+  # 比較処理の設定
+  compare:
+    sorted: false
+    chunkSize: 1000
+    ignoreItemList:
+      - last_update_time
+      - LAST_UPDATE_TIME
+    csv:
+      headerRow: 1      # 何行目をヘッダー行として扱うか
+      dataStartRow: 2   # 何行目からデータが始まるか
+    fixed:
+      codeValueForOnlyOneRecordType: "-"
+    image:
+      ignoreAreaList:
+        - {x: 0, y: 0, width: 1024, height: 128}
+
+  # 比較結果の出力設定
+  output:
+    dir: result
+    charset: utf8
+    resultFileName: CompareSummary.csv
+    detailFilePrefix: CompareDetail_
+    writeDiffOnly: false
+    leftPrefix: "期待値:"
+    rightPrefix: "実績値:"
+    deleteWorkDir: true
+  ```
+
+### 進捗ログのメッセージ上書き
+
+進捗ログ・終了メッセージなどの文言は、メッセージ定義ファイルを配置すると上書きできます。
+
+- ファイル名: `compare_files_messages.properties`
+- 探索ディレクトリ: `COMPAREFILES_CLASSPATH` → カレントディレクトリ → `config/` (前勝ち)
+- 形式: 1 行 1 定義の `キー=値` (UTF-8)。`#` / `!` 始まりはコメント。`\n` `\t` `\\` のエスケープに対応。
+
+```properties
+# 例: ファイル走査の進捗ログを英語化する
+log.dir.scan=- Scanning files
+log.file.compare=  - Compare left:{0} right:{1}
+```
+
+メッセージキーの一覧は [internal/msg/msg.go](internal/msg/msg.go) を参照してください
+(進捗ログは `log.*`、終了メッセージは `exit.*`)。
 
 ### 比較レイアウト
 

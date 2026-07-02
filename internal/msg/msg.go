@@ -18,6 +18,26 @@ var appMessages = map[string]string{
 	"exit.fail":     "処理が異常終了しました。比較設定を見直してください。",
 	"exit.error":    "想定外のエラーが発生しました。",
 
+	// 進捗ログ (log.*)。外部設定 (compare_files_messages.properties) で上書きできます。
+	"log.config.default":     "デフォルト起動設定: {0}",
+	"log.config.custom":      "カスタム起動設定: {0}",
+	"log.input.header":       "・入力情報",
+	"log.input.leftPath":     "  ・左パス                          : {0}",
+	"log.input.rightPath":    "  ・右パス                          : {0}",
+	"log.input.targetConfig": "  ・比較対象設定ファイル            : {0}",
+	"log.input.modeFile":     "  ・比較モード                      : ファイル比較",
+	"log.input.modeDir":      "  ・比較モード                      : ディレクトリ比較",
+	"log.dir.leftOnly":       "・[左のみ]{0}",
+	"log.dir.rightOnly":      "・[右のみ]{0}",
+	"log.dir.scan":           "・ファイル走査",
+	"log.dir.compare":        "・ディレクトリ比較",
+	"log.file.compare":       "  ・ファイル比較 左:{0}、右:{1}",
+	"log.file.skip":          "      ・[SKIP]正規表現:{0}, ファイル名:{1}",
+	"log.regex.loadTargets":  "・比較対象設定の読込み",
+	"log.regex.compare":      "・比較",
+	"log.text.sort":          "    ・ソート",
+	"log.text.compare":       "    ・テキスト比較",
+
 	"error.arg":         "引数の指定内容に誤りがあります。",
 	"error.parse":       "{0} のパースに失敗しました。",
 	"error.validate":    "妥当性チェックエラーが発生しました。",
@@ -71,10 +91,24 @@ var commonMessages = map[string]string{
 	"file.cantDelete": "ファイルを削除できません。対象:{0}",
 }
 
+// overrides は外部設定ファイルによるメッセージ上書きです。
+// アプリ固有・共通メッセージより優先して解決されます。
+var overrides = map[string]string{}
+
+// SetOverrides はメッセージの上書き定義を設定します (キーごとにマージ)。
+func SetOverrides(m map[string]string) {
+	for k, v := range m {
+		overrides[k] = v
+	}
+}
+
 // Get はメッセージ ID を解決し、{n} プレースホルダを引数で置換して返します。
-// アプリ固有 → 共通の順で解決し、見つからない場合はキーをそのまま返します。
+// 外部上書き → アプリ固有 → 共通の順で解決し、見つからない場合はキーをそのまま返します。
 func Get(id string, args ...any) string {
-	tmpl, ok := appMessages[id]
+	tmpl, ok := overrides[id]
+	if !ok {
+		tmpl, ok = appMessages[id]
+	}
 	if !ok {
 		tmpl, ok = commonMessages[id]
 	}

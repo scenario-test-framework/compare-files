@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
-	"os"
 
 	"github.com/scenario-test-framework/compare-files/internal/charset"
 )
@@ -100,28 +99,6 @@ func NewConfig() *CompareFilesConfig {
 		CsvDataStartRow: DefaultIntValue,
 		ChunkSize:       DefaultIntValue,
 	}
-}
-
-// ParseConfig はバイト列(UTF-8 JSON)から設定をパースします。
-func ParseConfig(data []byte) (*CompareFilesConfig, error) {
-	cfg := NewConfig()
-	if err := json.Unmarshal(data, cfg); err != nil {
-		return nil, err
-	}
-	return cfg, nil
-}
-
-// ParseConfigFile は指定パスの設定ファイルをパースします。
-func ParseConfigFile(path string) (*CompareFilesConfig, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("設定ファイルを読み込めません: %s: %w", path, err)
-	}
-	cfg, err := ParseConfig(data)
-	if err != nil {
-		return nil, fmt.Errorf("設定ファイルをパースできません: %s: %w", path, err)
-	}
-	return cfg, nil
 }
 
 // SetDefault はフィールドが未設定の項目を defaultConfig の値で埋めます。

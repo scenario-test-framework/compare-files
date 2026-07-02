@@ -10,6 +10,7 @@ import (
 
 	"github.com/scenario-test-framework/compare-files/internal/compare"
 	"github.com/scenario-test-framework/compare-files/internal/config"
+	"github.com/scenario-test-framework/compare-files/internal/msg"
 	"github.com/scenario-test-framework/compare-files/internal/reader"
 	"github.com/scenario-test-framework/compare-files/internal/row"
 	"github.com/scenario-test-framework/compare-files/internal/sortfile"
@@ -58,7 +59,7 @@ func CompareTextOpts(leftFilePath, rightFilePath string, fileLayout *config.File
 	leftSortedPath := leftFilePath
 	rightSortedPath := rightFilePath
 	if !isSkipSort(fileLayout, systemConfig) {
-		slog.Info("    ・ソート")
+		slog.Info(msg.Get("log.text.sort"))
 		var leftStatus, rightStatus status.ProcessStatus
 		var leftErr, rightErr error
 		var wg sync.WaitGroup
@@ -94,7 +95,7 @@ func CompareTextOpts(leftFilePath, rightFilePath string, fileLayout *config.File
 	}
 
 	// ファイル比較
-	slog.Info("    ・テキスト比較")
+	slog.Info(msg.Get("log.text.compare"))
 	outputFileName := OutputFileName(leftFilePath, rightFilePath, systemConfig, textOutputExt)
 	outputFilePath := filepath.Join(outputDirPath, outputFileName)
 	if err := compareTextFiles(result, leftSortedPath, rightSortedPath, charsetName, outputFilePath, fileLayout, systemConfig); err != nil {
