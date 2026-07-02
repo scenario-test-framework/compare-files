@@ -2,6 +2,9 @@ version: 2
 
 project_name: compare-files
 
+# リポジトリの dist/ (配布用設定・サンプル) と衝突しないよう、出力先を変更する
+dist: .goreleaser-dist
+
 builds:
   - id: compare_files
     main: ./cmd/compare_files

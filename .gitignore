@@ -1,6 +1,7 @@
 # Go build artifacts
 /bin/
 /result/
+/.goreleaser-dist/
 
 # 旧 Maven 成果物 (ローカル残置)
 /target/
