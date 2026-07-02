@@ -182,6 +182,14 @@
       "fileRegexPattern": "xml_.*\\.xml",
       "fileFormat":       "XML",
       "charset":          "utf8"
+    },
+
+    {
+      "logicalFileName":  "JsonPathサンプル",
+      "fileRegexPattern": "jsonpath_.*\\.json",
+      "fileFormat":       "Json",
+      "charset":          "utf8",
+      "pathValueMode":    "true"
     }
 
   ]

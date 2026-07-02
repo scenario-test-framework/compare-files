@@ -1,0 +1,7 @@
+{
+  "keyObj": {"key1": 100, "key2": "AAA", "inserted": "yes"},
+  "valueList": [
+    {"month": 201701, "amount": 1500},
+    {"month": 201702, "amount": 2000}
+  ]
+}

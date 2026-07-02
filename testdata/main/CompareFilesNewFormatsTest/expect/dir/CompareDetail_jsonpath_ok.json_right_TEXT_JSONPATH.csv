@@ -1,0 +1,13 @@
+"Status","RowNum","DiffItems","path","value"
+"OK","期待値:1
+実績値:1","-","$.keyObj.key1","100"
+"OK","期待値:2
+実績値:2","-","$.keyObj.key2","AAA"
+"OK","期待値:4
+実績値:4","-","$.valueList[0].amount","1000"
+"OK","期待値:3
+実績値:3","-","$.valueList[0].month","201701"
+"OK","期待値:6
+実績値:6","-","$.valueList[1].amount","2000"
+"OK","期待値:5
+実績値:5","-","$.valueList[1].month","201702"

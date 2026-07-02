@@ -78,3 +78,5 @@
 - `recordList` は使用されない (定義しても無視され、lint で警告になる)
 - 配列要素の**挿入**では後続要素のインデックスがずれるため、挿入位置以降は
   LeftOnly / RightOnly のペアとして出力される
+- 動くサンプル: 同梱の `sample/left|right/TEXT_JSONPATH/jsonpath_*.json` と
+  レイアウト `JsonPathサンプル` (`jsonpath_.*\\.json`) で挙動を確認できる

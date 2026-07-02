@@ -481,6 +481,15 @@ Invoke-Expression (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/sce
 # レイアウトを使った CSV 比較 (項目単位の差分検出)
 ./bin/compare_files.sh sample/left/TEXT_CSV/csv_with-header_ng.csv sample/right/TEXT_CSV/csv_with-header_ng.csv
 
+# YAML 比較 (JSON と同様、レイアウトの項目 ID で比較)
+./bin/compare_files.sh sample/left/TEXT_YAML/yaml_ng.yaml sample/right/TEXT_YAML/yaml_ng.yaml
+
+# XML 比較 (itemList 定義なし。xpath を比較キーにした path・value の 2 カラム結果になる)
+./bin/compare_files.sh sample/left/TEXT_XML/xml_ng.xml sample/right/TEXT_XML/xml_ng.xml
+
+# jsonPath 比較 (pathValueMode。プロパティが挿入されても他の項目の比較がズレない)
+./bin/compare_files.sh sample/left/TEXT_JSONPATH/jsonpath_ng.json sample/right/TEXT_JSONPATH/jsonpath_ng.json
+
 # 画像比較 (差分を赤枠でマークした PNG が result/ に出力される)
 ./bin/compare_files.sh sample/left/IMAGE_PNG/png_ng.png sample/right/IMAGE_PNG/png_ng.png
 
@@ -522,7 +531,7 @@ bin\compare_regex.cmd sample/compare_target.csv
 ├── config/
 │   ├── compare_files.json        # デフォルト設定ファイル
 │   └── compare_layout/           # サンプル比較レイアウト
-├── sample/                       # 全形式のサンプル (CSV/TSV/固定長/JSON/JsonList/YAML/XML/画像)
+├── sample/                       # 全形式のサンプル (CSV/TSV/固定長/JSON/JsonList/jsonPath/YAML/XML/画像)
 │   ├── left/  ├── right/         #   ok=一致 / ng=差分ありのペア
 │   └── compare_target.csv        #   正規表現比較の対象指定サンプル
 ├── docs/
