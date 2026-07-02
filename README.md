@@ -2,6 +2,8 @@
 
 # compare-files
 
+![compare-files](docs/images/ogp.png)
+
 [![Docker Build and Publish](https://github.com/scenario-test-framework/compare-files/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/scenario-test-framework/compare-files/actions/workflows/docker-publish.yml)
 [![Release](https://img.shields.io/github/v/release/scenario-test-framework/compare-files)](https://github.com/scenario-test-framework/compare-files/releases/latest)
 [![License](https://img.shields.io/github/license/scenario-test-framework/compare-files)](LICENSE)
