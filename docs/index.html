@@ -146,7 +146,7 @@
 								<span class="icon major fa-file-image-o accent5"></span>
 								<h3>対応フォーマット</h3>
 								<p>
-									jpeg / png / gif / bmp / wbmp 形式に対応しています。
+									jpeg / png / gif / bmp 形式に対応しています。
 								</p>
 							</section>
 						</div>
@@ -204,23 +204,18 @@
 							<section class="box">
 								<h2>Getting Started</h2>
 
-								<h3>デプロイ</h3>
-								<p>配布アーカイブを展開して、すぐに利用できます。</p>
+								<h3>インストール</h3>
+								<p>ワンラインで Docker ベースの実行環境を構築できます (設定・サンプル・Claude Code 用スキル込み)。</p>
 								<pre>
-# 配置ディレクトリで展開
-cd ${DIR_PARENT}
-tar xvfz ./compare-files_*.tar.gz
-rm -f ./compare-files_*.tar.gz
-
-# 最新版にシンボリックリンクを作成
-ln -s ${DIR_PARENT}/compare_files_${VERSION} ${DIR_PARENT}/compare_files
+# 任意の作業ディレクトリで実行
+curl -sSL https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/docker/install.sh | bash
 </pre>
+								<p>Docker を使わない場合は、<a href="https://github.com/scenario-test-framework/compare-files/releases/latest">GitHub Releases</a> から OS ごとのシングルバイナリをダウンロードしてそのまま実行できます。</p>
 
 								<h3>テキストファイル比較</h3>
 								<p>サンプルファイルを利用して、テキストファイルの比較を実行します。</p>
 								<pre>
-# カレントディレクトリからの相対パスで対象を指定できます。
-cd compare_files/
+# インストールしたディレクトリで、相対パスで対象を指定できます。
 
 # 比較レイアウトは config/compare_layout/sample_text.json を参照してください。
 bin/compare_files.sh sample/left/TEXT_JSONLIST/jsonlist_ng.json sample/right/TEXT_JSONLIST/jsonlist_ng.json
@@ -242,8 +237,7 @@ rm -fr result/
 								<h3>画像ファイル比較</h3>
 								<p>サンプルファイルを利用して、画像ファイルの比較を実行します。</p>
 								<pre>
-# カレントディレクトリからの相対パスで対象を指定できます。
-cd compare_files/
+# インストールしたディレクトリで、相対パスで対象を指定できます。
 
 # 比較レイアウトは config/compare_layout/sample_image.json を参照してください。
 bin/compare_files.sh sample/left/IMAGE_JPG/jpg_ng.jpg sample/right/IMAGE_JPG/jpg_ng.jpg
@@ -265,8 +259,7 @@ rm -fr result/
 								<h3>ディレクトリ比較</h3>
 								<p>サンプルファイルを利用して、ディレクトリの比較を実行します。</p>
 								<pre>
-# カレントディレクトリからの相対パスで対象を指定できます。
-cd compare_files/
+# インストールしたディレクトリで、相対パスで対象を指定できます。
 
 # 構成が同じ、2つのディレクトリを再帰的に比較します。
 bin/compare_files.sh sample/left sample/right
@@ -288,8 +281,7 @@ rm -fr result/
 								<h3>正規表現での指定比較</h3>
 								<p>サンプルファイルを利用して、対象ファイルを正規表現で指定する比較を実行します。</p>
 								<pre>
-# カレントディレクトリからの相対パスで比較対象設定ファイルを指定できます。
-cd compare_files/
+# インストールしたディレクトリで、相対パスで比較対象設定ファイルを指定できます。
 
 # ファイル名が動的に変わる場合は、正規表現で指定できます。
 bin/compare_regex.sh sample/compare_target.csv
