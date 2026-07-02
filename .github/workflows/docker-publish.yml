@@ -113,8 +113,15 @@ jobs:
         with:
           go-version-file: go.mod
 
+      # タグ push では test ジョブがスキップされるため、通常 CI と同じ検証を再実行する
       - name: Run tests
         run: go test ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Check generated docs are up to date
+        run: python3 .claude/skills/compare-layout/scripts/generate_docs.py --check
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -126,19 +133,39 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # プレリリース (2.1.0-rc.1 等) では latest / major / minor を更新せず、
+      # 完全一致タグのみ push する
       - name: Extract version from tag
         id: version
         run: |
           # Strip 'v' prefix if present
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#v}"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          if ! printf '%s' "${VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Tag ${TAG} is not a semver (X.Y.Z or X.Y.Z-prerelease)"
+            exit 1
+          fi
 
-          # Parse semver components
+          IMAGE="${REGISTRY}/${IMAGE_NAME}"
           MAJOR=$(echo "${VERSION}" | cut -d. -f1)
           MINOR=$(echo "${VERSION}" | cut -d. -f2)
-          echo "major=${MAJOR}" >> "$GITHUB_OUTPUT"
-          echo "minor=${MAJOR}.${MINOR}" >> "$GITHUB_OUTPUT"
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          {
+            echo "tags<<TAGS_EOF"
+            echo "${IMAGE}:${VERSION}"
+            case "${VERSION}" in
+              *-*)
+                echo "Prerelease detected: only the exact version tag is pushed" >&2
+                ;;
+              *)
+                echo "${IMAGE}:latest"
+                echo "${IMAGE}:${MAJOR}.${MINOR}"
+                echo "${IMAGE}:${MAJOR}"
+                ;;
+            esac
+            echo "TAGS_EOF"
+          } >> "$GITHUB_OUTPUT"
           echo "Parsed version: ${VERSION} (major=${MAJOR}, minor=${MAJOR}.${MINOR})"
 
       - name: Build and push release image
@@ -148,11 +175,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.minor }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.major }}
+          tags: ${{ steps.version.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
