@@ -1,0 +1,13 @@
+"Status","RowNum","DiffItems","path","value"
+"OK","期待値:1
+実績値:1","-","/order[1]/@id","1"
+"OK","期待値:2
+実績値:2","-","/order[1]/customer[1]","alice"
+"OK","期待値:3
+実績値:3","-","/order[1]/items[1]/item[1]/@code","A01"
+"OK","期待値:4
+実績値:4","-","/order[1]/items[1]/item[1]/qty[1]","2"
+"OK","期待値:5
+実績値:5","-","/order[1]/items[1]/item[2]/@code","B02"
+"OK","期待値:6
+実績値:6","-","/order[1]/items[1]/item[2]/qty[1]","1"
