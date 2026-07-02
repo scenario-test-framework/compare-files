@@ -84,12 +84,19 @@ func LintLayoutList(list *FileLayoutList) []LintIssue {
 
 		// fileFormat
 		if layout.FileFormat == "" {
-			errorf("%sfileFormat は必須です (CSV_withHeader/CSV_noHeader/TSV_withHeader/TSV_noHeader/Json/JsonList/Fixed/Text/Image)", prefix)
+			errorf("%sfileFormat は必須です (CSV_withHeader/CSV_noHeader/TSV_withHeader/TSV_noHeader/Json/JsonList/Yaml/XML/Fixed/Text/Image)", prefix)
 			continue
 		}
 
 		if layout.FileFormat == status.FormatImage {
 			lintImageLayout(layout, prefix, errorf, warnf)
+			continue
+		}
+		if bool(layout.PathValueMode) && !layout.IsPathValue() {
+			errorf("%spathValueMode は Json/JsonList/Yaml 形式でのみ使用できます (XML は常に path・value で比較します)", prefix)
+		}
+		if layout.IsPathValue() {
+			lintPathValueLayout(layout, prefix, errorf, warnf)
 			continue
 		}
 		lintTextLayout(layout, prefix, errorf, warnf)
@@ -105,6 +112,21 @@ func lintImageLayout(layout *FileLayout, prefix string, errorf, warnf func(strin
 		if area.Width <= 0 || area.Height <= 0 {
 			warnf("%signoreAreaList[%d] の width/height が 0 以下です (マスクされません)", prefix, j)
 		}
+	}
+}
+
+// lintPathValueLayout は path・value モード (XML / pathValueMode) のレイアウトを検証します。
+func lintPathValueLayout(layout *FileLayout, prefix string, errorf, warnf func(string, ...any)) {
+	if layout.Charset == "" {
+		warnf("%scharset が未設定です (設定の defaultInputCharset、なければ UTF-8 が使われます)", prefix)
+	} else if !charset.IsValid(layout.Charset) {
+		errorf("%scharset %q は解決できません (utf8/ms932/sjis/euc-jp 等)", prefix, layout.Charset)
+	}
+	if len(layout.IgnoreAreaList) > 0 {
+		warnf("%signoreAreaList はテキスト形式では使用されません (画像形式専用)", prefix)
+	}
+	if layout.userRecordListReplaced {
+		warnf("%srecordList は使用されません (path・value の 2 項目で比較します)", prefix)
 	}
 }
 
@@ -140,9 +162,9 @@ func lintTextLayout(layout *FileLayout, prefix string, errorf, warnf func(string
 		return
 	}
 
-	// Json/JsonList はレコードタイプ判定をサポートしない
-	if (format == status.FormatJSON || format == status.FormatJSONList) && len(layout.RecordList) > 1 {
-		errorf("%sJson/JsonList 形式で複数レコードタイプは使用できません (実行時エラーになります)", prefix)
+	// Json/JsonList/Yaml はレコードタイプ判定をサポートしない
+	if (format == status.FormatJSON || format == status.FormatJSONList || format == status.FormatYaml) && len(layout.RecordList) > 1 {
+		errorf("%sJson/JsonList/Yaml 形式で複数レコードタイプは使用できません (実行時エラーになります)", prefix)
 	}
 
 	// マルチレコードタイプの codeValue 必須

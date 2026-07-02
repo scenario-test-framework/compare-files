@@ -1,6 +1,6 @@
 ---
 name: compare-layout
-description: compare-files の比較レイアウト定義 (JSON) を、比較対象ファイルの実物から生成する。ユーザーが「比較レイアウトを作って」「このファイルを比較したい」「レイアウト定義がわからない」「CSV/TSV/固定長/JSON/画像の比較設定」「compare_files で比較する準備」などに言及したら、ファイル形式が何であっても必ずこのスキルを使うこと。レイアウトの修正・検証・レビューにも使う。入力は単一ファイル・複数ファイル・ディレクトリのいずれでもよい。
+description: compare-files の比較レイアウト定義 (JSON) を、比較対象ファイルの実物から生成する。ユーザーが「比較レイアウトを作って」「このファイルを比較したい」「レイアウト定義がわからない」「CSV/TSV/固定長/JSON/YAML/XML/画像の比較設定」「compare_files で比較する準備」などに言及したら、ファイル形式が何であっても必ずこのスキルを使うこと。レイアウトの修正・検証・レビューにも使う。入力は単一ファイル・複数ファイル・ディレクトリのいずれでもよい。
 ---
 
 # 比較レイアウト生成
@@ -32,6 +32,8 @@ python3 scripts/analyze_files.py <path> [<path>...]
 | CSV / TSV (ヘッダーあり・なし) | `references/format-csv-tsv.md` |
 | 固定長テキスト | `references/format-fixed.md` |
 | JSON / JSONList (改行区切り JSON) | `references/format-json.md` |
+| YAML | `references/format-yaml.md` |
+| XML | `references/format-xml.md` |
 | 画像 (png/jpg/jpeg/gif/bmp) | `references/format-image.md` |
 | 比較条件 (criteria) の選び方 | `references/criteria.md` |
 
@@ -39,6 +41,9 @@ python3 scripts/analyze_files.py <path> [<path>...]
 - 区切り文字が検出されず行のバイト長が全行同一 → 固定長の可能性が高い
 - 各行が `{` で始まり独立した JSON としてパースできる → JsonList
 - ファイル全体で 1 つの JSON → Json
+- 拡張子 .yaml / .yml またはインデントベースのキー: 値 構造 → Yaml
+- `<?xml` 宣言またはタグ構造 → XML (itemList 不要。xpath ベースの path・value 比較)
+- プロパティの挿入位置を考慮した比較をしたい JSON/YAML → pathValueMode (format-json.md 参照)
 - どれにも該当しない → Text (レイアウト不要。レイアウトなしで行全体比較になる)
 
 ### 3. 比較キーと比較条件を決める

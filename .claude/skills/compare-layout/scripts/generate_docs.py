@@ -22,6 +22,8 @@ SECTIONS = [
     "format-csv-tsv.md",
     "format-fixed.md",
     "format-json.md",
+    "format-yaml.md",
+    "format-xml.md",
     "format-image.md",
     "criteria.md",
 ]

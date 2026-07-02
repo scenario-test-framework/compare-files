@@ -1,0 +1,8 @@
+# YAML サンプル (NG: amount が左右で異なる)
+keyObj:
+  key1: 100
+  key2: AAA
+valueObj:
+  amount: 1000
+  number: 1
+  lastUpdateTime: "2017/01/01 00:00:00.000"

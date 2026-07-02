@@ -215,6 +215,21 @@ def analyze_file(path):
     if json_result:
         info["json"] = json_result
 
+    # XML / YAML らしさ (事実のみ。最終判断はモデル側)
+    stripped = text.lstrip()
+    if stripped.startswith("<?xml") or stripped.startswith("<"):
+        info["xml_like"] = True
+    ext = os.path.splitext(path)[1].lower()
+    if ext in (".yaml", ".yml"):
+        info["yaml_extension"] = True
+    elif not json_result and not stripped.startswith("<"):
+        key_value_lines = sum(
+            1 for l in lines if re.match(r"^\s*[\w.\-]+:(\s|$)", l) or l.strip().startswith("- ")
+        )
+        non_empty_count = len([l for l in lines if l.strip() and not l.strip().startswith("#")])
+        if non_empty_count and key_value_lines / non_empty_count > 0.7:
+            info["yaml_like"] = True
+
     delimited = {}
     for sep, name in [(",", "comma"), ("\t", "tab")]:
         result = analyze_delimited(lines, sep, name)

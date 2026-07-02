@@ -157,6 +157,31 @@
           ]
         }
       ]
+    },
+
+    {
+      "logicalFileName":  "Yamlサンプル",
+      "fileRegexPattern": "yaml_.*\\.ya?ml",
+      "fileFormat":       "Yaml",
+      "charset":          "utf8",
+      "recordList": [
+        {
+          "type": "Data", "codeValue": "-", "itemList": [
+            { "id": "keyObj.key1",              "name": "キー1",    "criteria": "Equal", "compareKey": "true" },
+            { "id": "keyObj.key2",              "name": "キー2",    "criteria": "Equal", "compareKey": "true" },
+            { "id": "valueObj.amount",          "name": "金額",     "criteria": "Equal", "compareKey": "false" },
+            { "id": "valueObj.number",          "name": "連番",     "criteria": "Equal", "compareKey": "false" },
+            { "id": "valueObj.lastUpdateTime",  "name": "更新時刻", "criteria": "Ignore", "compareKey": "false" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "logicalFileName":  "XMLサンプル",
+      "fileRegexPattern": "xml_.*\\.xml",
+      "fileFormat":       "XML",
+      "charset":          "utf8"
     }
 
   ]

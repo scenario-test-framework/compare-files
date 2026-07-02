@@ -57,9 +57,22 @@ func New(filePath string, layout *config.FileLayout, opts Options) (RowReader, e
 	case status.FormatTSVNoHeader, status.FormatTSVWithHeader:
 		return newCsvReader(filePath, enc, layout, opts, true)
 	case status.FormatJSON:
+		if decided.IsPathValue() {
+			return newJSONPathValueReader(filePath, enc, layout, false)
+		}
 		return newJSONReader(filePath, enc, layout)
 	case status.FormatJSONList:
+		if decided.IsPathValue() {
+			return newJSONPathValueReader(filePath, enc, layout, true)
+		}
 		return newJSONListReader(filePath, enc, layout)
+	case status.FormatYaml:
+		if decided.IsPathValue() {
+			return newYamlPathValueReader(filePath, enc, layout)
+		}
+		return newYamlReader(filePath, enc, layout)
+	case status.FormatXML:
+		return newXMLReader(filePath, enc, layout)
 	case status.FormatFixed:
 		return newFixedReader(filePath, cs, enc, layout, opts.CodeValueForOnlyOneRecordType)
 	default:

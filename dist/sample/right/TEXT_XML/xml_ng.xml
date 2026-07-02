@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<order id="1">
+  <customer>bob</customer>
+  <items>
+    <item code="A01">
+      <qty>3</qty>
+    </item>
+    <item code="B02">
+      <qty>1</qty>
+    </item>
+    <item code="C03">
+      <qty>5</qty>
+    </item>
+  </items>
+</order>
