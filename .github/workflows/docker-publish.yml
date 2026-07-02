@@ -141,7 +141,11 @@ jobs:
           # Strip 'v' prefix if present
           TAG="${GITHUB_REF_NAME}"
           VERSION="${TAG#v}"
-          if ! printf '%s' "${VERSION}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+          # semver.org の公式パターン (build metadata を除く。+ は Docker タグに使えないため対象外)
+          NUM='0|[1-9][0-9]*'
+          IDENT="${NUM}|[0-9]*[A-Za-z-][0-9A-Za-z-]*"
+          SEMVER="^(${NUM})\\.(${NUM})\\.(${NUM})(-(${IDENT})(\\.(${IDENT}))*)?\$"
+          if ! printf '%s' "${VERSION}" | grep -Eq "${SEMVER}"; then
             echo "::error::Tag ${TAG} is not a semver (X.Y.Z or X.Y.Z-prerelease)"
             exit 1
           fi
@@ -168,6 +172,13 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "Parsed version: ${VERSION} (major=${MAJOR}, minor=${MAJOR}.${MINOR})"
 
+      # OCI ラベルは metadata-action で生成する (タグの決定は上の手書きロジック)
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Build and push release image
         id: build
         uses: docker/build-push-action@v5
@@ -176,6 +187,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.version.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
