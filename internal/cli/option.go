@@ -11,6 +11,7 @@ import (
 // Option はコマンドラインオプションです。Java 版 CompareFilesOption 相当。
 type Option struct {
 	Help                    bool
+	ShowVersion             bool
 	ConfigFilePath          string
 	DeleteWorkDir           bool
 	InputCharset            string
@@ -27,6 +28,7 @@ type Option struct {
 	ChunkSize               int
 	IgnoreItemList          []string
 	OverwriteLayoutDir      string
+	LintLayout              string
 	ParamList               []string
 }
 
@@ -41,6 +43,7 @@ type flagDef struct {
 
 var flagDefs = []flagDef{
 	{names: []string{"-h", "--help"}, isBool: true, assign: func(o *Option, _ string) error { o.Help = true; return nil }},
+	{names: []string{"-v", "--version"}, isBool: true, assign: func(o *Option, _ string) error { o.ShowVersion = true; return nil }},
 	{names: []string{"-config", "--configFile"}, assign: func(o *Option, v string) error { o.ConfigFilePath = v; return nil }},
 	{names: []string{"-d", "--deleteWorkDir"}, isBool: true, assign: func(o *Option, _ string) error { o.DeleteWorkDir = true; return nil }},
 	{names: []string{"-ic", "--inputCharset"}, assign: func(o *Option, v string) error { o.InputCharset = v; return nil }},
@@ -62,6 +65,7 @@ var flagDefs = []flagDef{
 		return nil
 	}},
 	{names: []string{"-layout", "--overwriteLayoutDir"}, assign: func(o *Option, v string) error { o.OverwriteLayoutDir = v; return nil }},
+	{names: []string{"-lint", "--lintLayout"}, assign: func(o *Option, v string) error { o.LintLayout = v; return nil }},
 }
 
 func assignInt(v string, target *int) error {

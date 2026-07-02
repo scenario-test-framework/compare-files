@@ -28,6 +28,10 @@ func run(args []string) int {
 		printUsage()
 		return status.ExitCodeError
 	}
+	if opt.ShowVersion {
+		fmt.Println("compare-files " + cli.Version)
+		return status.ExitCodeSuccess
+	}
 	if opt.Help {
 		printUsage()
 		return status.ExitCodeSuccess

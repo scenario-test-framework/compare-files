@@ -12,6 +12,7 @@ import (
 
 	"github.com/scenario-test-framework/compare-files/internal/bulk"
 	"github.com/scenario-test-framework/compare-files/internal/cli"
+	"github.com/scenario-test-framework/compare-files/internal/config"
 	"github.com/scenario-test-framework/compare-files/internal/msg"
 	"github.com/scenario-test-framework/compare-files/internal/status"
 )
@@ -29,9 +30,17 @@ func run(args []string) int {
 		printUsage()
 		return status.ExitCodeError
 	}
+	if opt.ShowVersion {
+		fmt.Println("compare-files " + cli.Version)
+		return status.ExitCodeSuccess
+	}
 	if opt.Help {
 		printUsage()
 		return status.ExitCodeSuccess
+	}
+	// レイアウト定義の検証モード
+	if opt.LintLayout != "" {
+		return lintLayout(opt.LintLayout)
 	}
 	// 設定ファイルパスが指定されていない場合、左右パスの指定が必須
 	if opt.GetConfigFilePath() == "" && len(opt.ParamList) != 2 {
@@ -94,6 +103,25 @@ func run(args []string) int {
 func isFile(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && !info.IsDir()
+}
+
+// lintLayout はレイアウト定義ファイルを検証し、結果を表示します。
+// エラーなし (警告のみ含む) なら 0、エラーありなら 6 を返します。
+func lintLayout(path string) int {
+	issues := config.LintLayoutFile(path)
+	hasError := false
+	for _, issue := range issues {
+		fmt.Fprintln(os.Stderr, issue)
+		if issue.Error {
+			hasError = true
+		}
+	}
+	if hasError {
+		fmt.Fprintf(os.Stderr, "NG: %s にエラーがあります\n", path)
+		return status.ExitCodeError
+	}
+	fmt.Printf("OK: %s\n", path)
+	return status.ExitCodeSuccess
 }
 
 func printUsage() {
