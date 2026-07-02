@@ -2,6 +2,10 @@
 
 # compare-files
 
+[![Docker Build and Publish](https://github.com/scenario-test-framework/compare-files/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/scenario-test-framework/compare-files/actions/workflows/docker-publish.yml)
+[![Release](https://img.shields.io/github/v/release/scenario-test-framework/compare-files)](https://github.com/scenario-test-framework/compare-files/releases/latest)
+[![License](https://img.shields.io/github/license/scenario-test-framework/compare-files)](LICENSE)
+
 テキスト、画像ファイルを一括比較するコマンドラインツールです。
 
 Go 製のシングルバイナリで動作します (v2 で Java から移植)。
