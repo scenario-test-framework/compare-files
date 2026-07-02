@@ -1,74 +1,86 @@
-#===================================================================================================
+# ===================================================================================================
 #
-# Compare Files Docker Environment Installer for Windows
+# Compare Files Docker Environment Installer (Windows PowerShell)
 #
-#===================================================================================================
+#   実行ディレクトリに以下を展開します:
+#     compose.yaml / bin (ラッパー) / config (設定・比較レイアウト) /
+#     sample (全形式のサンプル) / .claude/skills/compare-layout (レイアウト生成スキル)
+#
+# ===================================================================================================
 
-Write-Host "=== Compare Files Docker Environment Setup ===" -ForegroundColor Green
+$ErrorActionPreference = "Stop"
 
+$Repo = "scenario-test-framework/compare-files"
+$Branch = if ($env:COMPAREFILES_INSTALL_BRANCH) { $env:COMPAREFILES_INSTALL_BRANCH } else { "master" }
+$ZipUrl = "https://github.com/$Repo/archive/refs/heads/$Branch.zip"
+
+Write-Host "=== Compare Files Docker Environment Setup ==="
+
+# リポジトリのスナップショットを一時ディレクトリに取得
+Write-Host "Downloading $Repo@$Branch ..."
+$TmpDir = Join-Path ([System.IO.Path]::GetTempPath()) ("compare-files-install-" + [System.Guid]::NewGuid())
+New-Item -ItemType Directory -Path $TmpDir | Out-Null
 try {
-    # ディレクトリ作成
-    Write-Host "Creating directories..." -ForegroundColor Yellow
-    New-Item -ItemType Directory -Force -Path config, bin, sample/left, sample/right | Out-Null
+    $ZipPath = Join-Path $TmpDir "repo.zip"
+    Invoke-WebRequest -Uri $ZipUrl -OutFile $ZipPath -UseBasicParsing
+    Expand-Archive -Path $ZipPath -DestinationPath $TmpDir
+    $Src = Get-ChildItem -Path $TmpDir -Directory | Where-Object { $_.Name -like "compare-files-*" } | Select-Object -First 1
 
-    # compose.yamlをダウンロード
-    Write-Host "Downloading compose.yaml..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/compose.yaml" -OutFile "compose.yaml"
+    # compose.yaml
+    Write-Host "Installing compose.yaml ..."
+    Copy-Item (Join-Path $Src "compose.yaml") "compose.yaml" -Force
 
-    # 設定ファイルをダウンロード
-    Write-Host "Downloading configuration files..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/config/compare_files.json" -OutFile "config/compare_files.json"
+    # ラッパースクリプト
+    Write-Host "Installing wrapper scripts ..."
+    New-Item -ItemType Directory -Path "bin" -Force | Out-Null
+    foreach ($f in @("compare_files.sh", "compare_regex.sh", "compare_files.cmd", "compare_regex.cmd")) {
+        Copy-Item (Join-Path $Src "docker/$f") (Join-Path "bin" $f) -Force
+    }
 
-    # ラッパースクリプトをダウンロード
-    Write-Host "Downloading wrapper scripts..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/docker/compare_files.sh" -OutFile "bin/compare_files.sh"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/docker/compare_regex.sh" -OutFile "bin/compare_regex.sh"
+    # 設定ファイルと比較レイアウト (既存の設定は上書きしない)
+    Write-Host "Installing configuration ..."
+    New-Item -ItemType Directory -Path "config/compare_layout" -Force | Out-Null
+    if (-not (Test-Path "config/compare_files.json")) {
+        Copy-Item (Join-Path $Src "dist/config/compare_files.json") "config/compare_files.json"
+    }
+    Copy-Item (Join-Path $Src "dist/config/compare_layout/*") "config/compare_layout/" -Recurse -Force
 
-    # Windows用バッチファイルも作成
-    Write-Host "Creating Windows batch files..." -ForegroundColor Yellow
-    @"
-@echo off
-docker compose run --rm compare-files %*
-"@ | Out-File -FilePath "bin/compare_files.cmd" -Encoding ASCII
+    # サンプルファイル
+    Write-Host "Installing samples ..."
+    New-Item -ItemType Directory -Path "sample" -Force | Out-Null
+    Copy-Item (Join-Path $Src "dist/sample/*") "sample/" -Recurse -Force
 
-    @"
-@echo off
-docker compose run --rm compare-regex %*
-"@ | Out-File -FilePath "bin/compare_regex.cmd" -Encoding ASCII
+    # 比較レイアウト生成スキル (Claude Code 用)
+    Write-Host "Installing compare-layout skill for Claude Code ..."
+    New-Item -ItemType Directory -Path ".claude/skills" -Force | Out-Null
+    if (Test-Path ".claude/skills/compare-layout") { Remove-Item ".claude/skills/compare-layout" -Recurse -Force }
+    Copy-Item (Join-Path $Src ".claude/skills/compare-layout") ".claude/skills/compare-layout" -Recurse
+    if (Test-Path ".claude/skills/compare-layout/evals") { Remove-Item ".claude/skills/compare-layout/evals" -Recurse -Force }
 
-    # サンプルファイルをダウンロード
-    Write-Host "Downloading sample files..." -ForegroundColor Yellow
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/left/TEXT_PLAINTEXT/plaintext_ok.txt" -OutFile "sample/left/plaintext_ok.txt"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/right/TEXT_PLAINTEXT/plaintext_ok.txt" -OutFile "sample/right/plaintext_ok.txt"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/right/TEXT_PLAINTEXT/plaintext_ng.txt" -OutFile "sample/right/plaintext_ng.txt"
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scenario-test-framework/compare-files/refs/heads/master/dist/sample/compare_target.csv" -OutFile "sample/compare_target.csv"
-
-    Write-Host ""
-    Write-Host "=== Setup Complete! ===" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "Files created:" -ForegroundColor White
-    Write-Host "  compose.yaml                  - Docker Compose configuration" -ForegroundColor Gray
-    Write-Host "  config\compare_files.json     - Default configuration" -ForegroundColor Gray
-    Write-Host "  bin\compare_files.cmd         - File comparison wrapper (Windows)" -ForegroundColor Gray
-    Write-Host "  bin\compare_regex.cmd         - Regex comparison wrapper (Windows)" -ForegroundColor Gray
-    Write-Host "  bin\compare_files.sh          - File comparison wrapper (Unix)" -ForegroundColor Gray
-    Write-Host "  bin\compare_regex.sh          - Regex comparison wrapper (Unix)" -ForegroundColor Gray
-    Write-Host "  sample\                       - Sample files for testing" -ForegroundColor Gray
-    Write-Host ""
-    Write-Host "Usage (Windows):" -ForegroundColor Cyan
-    Write-Host "  bin\compare_files.cmd --help"
-    Write-Host "  bin\compare_files.cmd sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt"
-    Write-Host "  bin\compare_regex.cmd sample/compare_target.csv"
-    Write-Host ""
-    Write-Host "Usage (WSL/Unix):" -ForegroundColor Cyan
-    Write-Host "  .\bin\compare_files.sh --help"
-    Write-Host "  .\bin\compare_files.sh sample/left/plaintext_ok.txt sample/right/plaintext_ng.txt"
-    Write-Host "  .\bin\compare_regex.sh sample/compare_target.csv"
-    Write-Host ""
-    Write-Host "To test the installation:" -ForegroundColor Yellow
-    Write-Host "  bin\compare_files.cmd sample/left/plaintext_ok.txt sample/right/plaintext_ok.txt"
-
-} catch {
-    Write-Host "Error during setup: $($_.Exception.Message)" -ForegroundColor Red
-    exit 1
+    # 利用者向けドキュメント
+    New-Item -ItemType Directory -Path "docs" -Force | Out-Null
+    Copy-Item (Join-Path $Src "docs/compare_layout.md") "docs/compare_layout.md" -Force
 }
+finally {
+    Remove-Item $TmpDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+Write-Host ""
+Write-Host "=== Setup Complete! ==="
+Write-Host ""
+Write-Host "Files created:"
+Write-Host "  compose.yaml                  - Docker Compose configuration"
+Write-Host "  bin/compare_files.(sh|cmd)    - File comparison wrapper"
+Write-Host "  bin/compare_regex.(sh|cmd)    - Regex comparison wrapper"
+Write-Host "  config/compare_files.json     - Default configuration"
+Write-Host "  config/compare_layout/        - Sample compare layouts"
+Write-Host "  sample/                       - Sample files (CSV/TSV/Fixed/JSON/JsonList/Image)"
+Write-Host "  docs/compare_layout.md        - Compare layout reference"
+Write-Host "  .claude/skills/compare-layout - Claude Code skill (比較レイアウト生成)"
+Write-Host ""
+Write-Host "Try it (処理は container 上で実行されるため、パスは / 区切りです):"
+Write-Host "  bin\compare_files.cmd --help"
+Write-Host "  bin\compare_files.cmd sample/left/TEXT_PLAINTEXT/plaintext_ok.txt sample/right/TEXT_PLAINTEXT/plaintext_ng.txt"
+Write-Host "  bin\compare_files.cmd sample/left/TEXT_CSV/csv_with-header_ng.csv sample/right/TEXT_CSV/csv_with-header_ng.csv"
+Write-Host "  bin\compare_files.cmd sample/left sample/right"
+Write-Host "  bin\compare_regex.cmd sample/compare_target.csv"
