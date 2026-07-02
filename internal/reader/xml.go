@@ -18,7 +18,8 @@ import (
 //   - 要素:   /root/item[n] (n は同名兄弟要素内の 1 始まりの出現順)
 //   - 属性:   要素パス + /@属性名
 //   - テキスト: 子要素を持たない要素はそのパスに値を出力
-//     子要素を持つ要素に空白以外のテキストがある場合は 要素パス + /text() に出力
+//     子要素を持つ要素に空白以外のテキストがある場合は、子要素で区切られた
+//     テキストランごとに 要素パス + /text()[n] (1 始まりの出現順) に出力
 func newXMLReader(filePath string, enc encoding.Encoding, layout *config.FileLayout) (RowReader, error) {
 	f, r, err := openDecoded(filePath, enc)
 	if err != nil {
@@ -36,11 +37,20 @@ func newXMLReader(filePath string, enc encoding.Encoding, layout *config.FileLay
 }
 
 // xmlElement は解析中の要素の状態です。
+// テキストは子要素で区切られたラン単位で保持します
+// (連結すると <mixed>a<sub/>b</mixed> と <mixed>ab<sub/></mixed> の構造差分が潰れるため)。
 type xmlElement struct {
 	path       string
-	text       strings.Builder
+	curText    strings.Builder
+	textRuns   []string
 	childCount map[string]int // 同名子要素の出現数
 	hasChild   bool
+}
+
+// flushTextRun は蓄積中のテキストをランとして確定します。
+func (e *xmlElement) flushTextRun() {
+	e.textRuns = append(e.textRuns, e.curText.String())
+	e.curText.Reset()
 }
 
 // loadXMLPairs は XML ドキュメントを path・value ペアに平坦化します。
@@ -67,6 +77,7 @@ func loadXMLPairs(r io.Reader) ([]pathValuePair, error) {
 		case xml.StartElement:
 			parent := stack[len(stack)-1]
 			parent.hasChild = true
+			parent.flushTextRun()
 			name := xmlName(t.Name)
 			parent.childCount[name]++
 			path := parent.path + "/" + name + "[" + strconv.Itoa(parent.childCount[name]) + "]"
@@ -82,15 +93,25 @@ func loadXMLPairs(r io.Reader) ([]pathValuePair, error) {
 			}
 			elem := stack[len(stack)-1]
 			stack = stack[:len(stack)-1]
-			text := strings.TrimSpace(elem.text.String())
+			elem.flushTextRun()
 			if !elem.hasChild {
-				pairs = append(pairs, pathValuePair{path: elem.path, value: text})
-			} else if text != "" {
-				pairs = append(pairs, pathValuePair{path: elem.path + "/text()", value: text})
+				// 子要素なし: 全テキストを要素値として出力
+				pairs = append(pairs, pathValuePair{path: elem.path, value: strings.TrimSpace(strings.Join(elem.textRuns, ""))})
+				continue
+			}
+			// 子要素あり (mixed content): 空白以外のテキストランを出現順に出力
+			runIndex := 0
+			for _, run := range elem.textRuns {
+				text := strings.TrimSpace(run)
+				if text == "" {
+					continue
+				}
+				runIndex++
+				pairs = append(pairs, pathValuePair{path: elem.path + "/text()[" + strconv.Itoa(runIndex) + "]", value: text})
 			}
 
 		case xml.CharData:
-			stack[len(stack)-1].text.Write(t)
+			stack[len(stack)-1].curText.Write(t)
 		}
 	}
 	if len(stack) != 1 {
@@ -99,7 +120,8 @@ func loadXMLPairs(r io.Reader) ([]pathValuePair, error) {
 	return pairs, nil
 }
 
-// xmlName は名前空間プリフィックス付きの要素・属性名を返します。
+// xmlName は名前空間付きの要素・属性名を返します。
+// プリフィックスは左右のファイルで異なりうるため、名前空間 URI で正規化します。
 func xmlName(name xml.Name) string {
 	if name.Space == "" {
 		return name.Local

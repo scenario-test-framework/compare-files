@@ -226,13 +226,45 @@ func TestXMLReader(t *testing.T) {
 		got[row.ToJavaString(cur.KeyMap.GetOrNil("path"))] = row.ToJavaString(cur.ValueMap.GetOrNil("value"))
 	}
 	want := map[string]string{
-		"/root[1]/item[1]/@id":     "1",
-		"/root[1]/item[1]/name[1]": "alice",
-		"/root[1]/item[1]/memo[1]": "",
-		"/root[1]/item[2]/@id":     "2",
-		"/root[1]/item[2]/name[1]": "bob",
-		"/root[1]/mixed[1]/sub[1]": "s",
-		"/root[1]/mixed[1]/text()": "text",
+		"/root[1]/item[1]/@id":        "1",
+		"/root[1]/item[1]/name[1]":    "alice",
+		"/root[1]/item[1]/memo[1]":    "",
+		"/root[1]/item[2]/@id":        "2",
+		"/root[1]/item[2]/name[1]":    "bob",
+		"/root[1]/mixed[1]/sub[1]":    "s",
+		"/root[1]/mixed[1]/text()[1]": "text",
+	}
+	if len(got) != len(want) {
+		t.Errorf("ペア数 = %d, want %d (全体: %v)", len(got), len(want), got)
+	}
+	for k, v := range want {
+		if gotV, ok := got[k]; !ok || gotV != v {
+			t.Errorf("%s = %q (ok=%v), want %q", k, gotV, ok, v)
+		}
+	}
+}
+
+// mixed content のテキスト境界が保持されること (連結すると構造差分が潰れる)
+func TestXMLReaderMixedTextRuns(t *testing.T) {
+	layout := layoutFromJSON(t, `{"layoutList": [{
+		"fileRegexPattern": ".*\\.xml",
+		"fileFormat": "XML",
+		"charset": "UTF-8"
+	}]}`)
+	path := writeTemp(t, "runs.xml", `<root><mixed>a<sub/>b</mixed></root>`)
+	r, err := New(path, layout, Options{})
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	rows := readAllRows(t, r)
+	got := map[string]string{}
+	for _, cur := range rows {
+		got[row.ToJavaString(cur.KeyMap.GetOrNil("path"))] = row.ToJavaString(cur.ValueMap.GetOrNil("value"))
+	}
+	want := map[string]string{
+		"/root[1]/mixed[1]/text()[1]": "a",
+		"/root[1]/mixed[1]/sub[1]":    "",
+		"/root[1]/mixed[1]/text()[2]": "b",
 	}
 	if len(got) != len(want) {
 		t.Errorf("ペア数 = %d, want %d (全体: %v)", len(got), len(want), got)

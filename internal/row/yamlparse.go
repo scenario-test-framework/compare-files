@@ -44,9 +44,22 @@ func yamlNodeValue(n *yaml.Node) (any, error) {
 		return yamlNodeValue(n.Content[0])
 
 	case yaml.MappingNode:
+		// merge key (<<) より明示キーが優先されるため、先に明示キーを収集する
+		explicit := map[string]bool{}
+		for i := 0; i+1 < len(n.Content); i += 2 {
+			if !isYamlMergeKey(n.Content[i]) {
+				explicit[n.Content[i].Value] = true
+			}
+		}
 		m := NewOrderedMap()
 		for i := 0; i+1 < len(n.Content); i += 2 {
 			keyNode := n.Content[i]
+			if isYamlMergeKey(keyNode) {
+				if err := applyYamlMerge(m, n.Content[i+1], explicit); err != nil {
+					return nil, err
+				}
+				continue
+			}
 			key, err := yamlScalarKey(keyNode)
 			if err != nil {
 				return nil, err
@@ -79,6 +92,49 @@ func yamlNodeValue(n *yaml.Node) (any, error) {
 	default:
 		return nil, fmt.Errorf("不正な YAML ノードです: kind=%d 行=%d", n.Kind, n.Line)
 	}
+}
+
+// isYamlMergeKey は YAML merge key (<<) かを返します。
+// yaml.v3 はプレーンな << を !!merge タグに解決します (引用された "<<" は通常キー)。
+func isYamlMergeKey(n *yaml.Node) bool {
+	return n.Kind == yaml.ScalarNode && n.Tag == "!!merge"
+}
+
+// applyYamlMerge は merge key (<<) の値を YAML merge セマンティクスで展開します。
+//   - マッピング内の明示キーが merge されたキーより常に優先される
+//   - 値がシーケンスの場合、先に書かれたマッピングのキーが優先される
+//
+// 展開されたキーは merge key の位置に挿入されます。
+func applyYamlMerge(m *OrderedMap, valNode *yaml.Node, explicit map[string]bool) error {
+	sources := []*yaml.Node{valNode}
+	resolved := valNode
+	if resolved.Kind == yaml.AliasNode {
+		resolved = resolved.Alias
+	}
+	if resolved.Kind == yaml.SequenceNode {
+		sources = resolved.Content
+	}
+	for _, src := range sources {
+		v, err := yamlNodeValue(src)
+		if err != nil {
+			return err
+		}
+		mm, ok := v.(*OrderedMap)
+		if !ok {
+			return fmt.Errorf("merge key (<<) の値はマッピングで指定してください: 行=%d", valNode.Line)
+		}
+		for _, key := range mm.Keys() {
+			if explicit[key] {
+				continue
+			}
+			if _, exists := m.Get(key); exists {
+				// 先に merge されたキーが優先される
+				continue
+			}
+			m.Put(key, mm.GetOrNil(key))
+		}
+	}
+	return nil
 }
 
 // yamlScalarKey はマッピングキーを文字列として返します。
