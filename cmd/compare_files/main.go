@@ -81,12 +81,13 @@ func run(args []string) int {
 	var processStatus status.ProcessStatus
 	if isFile(leftPath) {
 		slog.Info(msg.Get("log.input.modeFile"))
-		_, st, err := bulk.CompareFile(leftPath, rightPath, outputDirPath, cfg, layoutManager)
+		result, st, err := bulk.CompareFile(leftPath, rightPath, outputDirPath, cfg, layoutManager)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			slog.Error(msg.Get("exit.fail"))
 			return status.ExitCodeError
 		}
+		bulk.PrintFileSummary(result)
 		processStatus = st
 	} else {
 		slog.Info(msg.Get("log.input.modeDir"))
@@ -96,6 +97,7 @@ func run(args []string) int {
 			slog.Error(msg.Get("exit.fail"))
 			return status.ExitCodeError
 		}
+		counts.PrintSummary()
 		processStatus = counts.ProcessStatus()
 	}
 

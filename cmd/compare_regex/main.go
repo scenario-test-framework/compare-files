@@ -74,6 +74,7 @@ func run(args []string) int {
 		slog.Error(msg.Get("exit.fail"))
 		return status.ExitCodeError
 	}
+	counts.PrintSummary()
 	return cli.ExitCode(counts.ProcessStatus())
 }
 

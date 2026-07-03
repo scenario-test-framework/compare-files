@@ -38,6 +38,22 @@ var appMessages = map[string]string{
 	"log.text.sort":          "    ・ソート",
 	"log.text.compare":       "    ・テキスト比較",
 
+	// 比較結果サマリー (log.summary.*)。Java 版 printDetails 相当。
+	"log.summary.processFileCount": "・処理ファイル件数",
+	"log.summary.success":          "  ・成功         : {0}",
+	"log.summary.failure":          "  ・失敗         : {0}",
+	"log.summary.result":           "・比較結果",
+	"log.summary.dirUnit":          "  ・ディレクトリ単位",
+	"log.summary.fileUnit":         "  ・ファイル単位",
+	"log.summary.rowUnit":          "  ・行単位",
+	"log.summary.subResult":        "    ・比較結果   : {0}",
+	"log.summary.totalCount":       "    ・総件数     : {0}",
+	"log.summary.okCount":          "    ・OK件数     : {0}",
+	"log.summary.ngCount":          "    ・NG件数     : {0}",
+	"log.summary.ignoreCount":      "    ・除外件数   : {0}",
+	"log.summary.leftOnlyCount":    "    ・左のみ件数 : {0}",
+	"log.summary.rightOnlyCount":   "    ・右のみ件数 : {0}",
+
 	"error.arg":         "引数の指定内容に誤りがあります。",
 	"error.parse":       "{0} のパースに失敗しました。",
 	"error.validate":    "妥当性チェックエラーが発生しました。",
