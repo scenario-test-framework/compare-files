@@ -90,6 +90,16 @@ type CompareFilesConfig struct {
 	CodeValueForOnlyOneRecordType string             `json:"codeValueForOnlyOneRecordType"`
 	OkImageStyle                  *ConfirmImageStyle `json:"okImageStyle"`
 	NgImageStyle                  *ConfirmImageStyle `json:"ngImageStyle"`
+
+	// specified は設定ファイルに値 (null 以外) を書いたフラットキーの集合。
+	// bool の false と一覧の [] は未設定と区別できないため、SetDefault はこれを見て補完を止める。
+	// キーは正規のフラットキー名 (JSON タグ) で記録する (canonicalFlatKey)。
+	specified map[string]bool
+}
+
+// isSpecified は設定ファイルで key に値を書いたかを返します。
+func (c *CompareFilesConfig) isSpecified(key string) bool {
+	return c.specified[key]
 }
 
 // NewConfig は未設定状態(int フィールド = DefaultIntValue)の設定を返します。
@@ -102,7 +112,8 @@ func NewConfig() *CompareFilesConfig {
 }
 
 // SetDefault はフィールドが未設定の項目を defaultConfig の値で埋めます。
-// Java 版 CompareFilesConfig.setDefault と同一セマンティクス。
+// Java 版 CompareFilesConfig.setDefault を基本に、bool と一覧は設定ファイルに値を書いた項目を
+// 補完しない (書いた false・[] を尊重する)。文字列は空、int は DefaultIntValue を未設定とみなす。
 func (c *CompareFilesConfig) SetDefault(d *CompareFilesConfig) {
 	if c.LeftFilePath == "" {
 		c.LeftFilePath = d.LeftFilePath
@@ -119,7 +130,7 @@ func (c *CompareFilesConfig) SetDefault(d *CompareFilesConfig) {
 	if c.OutputCharset == "" {
 		c.OutputCharset = d.OutputCharset
 	}
-	if !c.Sorted {
+	if !bool(c.Sorted) && !c.isSpecified("sorted") {
 		c.Sorted = d.Sorted
 	}
 	if c.CsvHeaderRow == DefaultIntValue {
@@ -128,7 +139,7 @@ func (c *CompareFilesConfig) SetDefault(d *CompareFilesConfig) {
 	if c.CsvDataStartRow == DefaultIntValue {
 		c.CsvDataStartRow = d.CsvDataStartRow
 	}
-	if !c.WriteDiffOnly {
+	if !bool(c.WriteDiffOnly) && !c.isSpecified("writeDiffOnly") {
 		c.WriteDiffOnly = d.WriteDiffOnly
 	}
 	if c.LeftPrefix == "" {
@@ -146,19 +157,19 @@ func (c *CompareFilesConfig) SetDefault(d *CompareFilesConfig) {
 	if c.ChunkSize == DefaultIntValue {
 		c.ChunkSize = d.ChunkSize
 	}
-	if len(c.IgnoreFileRegexList) == 0 {
+	if len(c.IgnoreFileRegexList) == 0 && !c.isSpecified("ignoreFileRegexList") {
 		c.IgnoreFileRegexList = d.IgnoreFileRegexList
 	}
-	if len(c.IgnoreItemList) == 0 {
+	if len(c.IgnoreItemList) == 0 && !c.isSpecified("ignoreItemList") {
 		c.IgnoreItemList = d.IgnoreItemList
 	}
-	if len(c.IgnoreAreaList) == 0 {
+	if len(c.IgnoreAreaList) == 0 && !c.isSpecified("ignoreAreaList") {
 		c.IgnoreAreaList = d.IgnoreAreaList
 	}
 	if c.OverwriteLayoutDir == "" {
 		c.OverwriteLayoutDir = d.OverwriteLayoutDir
 	}
-	if !c.DeleteWorkDir {
+	if !bool(c.DeleteWorkDir) && !c.isSpecified("deleteWorkDir") {
 		c.DeleteWorkDir = d.DeleteWorkDir
 	}
 	if c.CodeValueForOnlyOneRecordType == "" {

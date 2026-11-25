@@ -238,6 +238,20 @@ compare_regex に「比較対象設定ファイルのパス」を指定して起
     deleteWorkDir: true
   ```
 
+- `-config` 指定時の補完
+
+  `-config` で指定した起動設定に書いていない項目は、既定の起動設定（`COMPAREFILES_CLASSPATH` の各ディレクトリ → カレント → `./config` の順で最初に見つかった `compare_files.{json,yaml,yml}`、なければ同梱の既定）の値で補われます。
+
+  | 項目の種類 | 補われる条件 |
+  |:-----|:-----|
+  | true / false の項目（`sorted` / `writeDiffOnly` / `deleteWorkDir`） | 項目を書いていないとき、または `null` のとき。`false` と書けば既定が `true` でも `false` になります |
+  | 一覧の項目（`ignoreFileRegexList` / `ignoreItemList` / `ignoreAreaList`） | 項目を書いていないとき、または `null` のとき。`[]` と書けば既定の一覧を引き継がず、空になります |
+  | 文字列の項目 | 項目を書いていないとき、`null` のとき、または空文字のとき |
+  | 数値の項目 | 項目を書いていないとき |
+  | 画像スタイル（`okImageStyle` / `ngImageStyle`） | 項目を書いていないとき、または `null` のとき。オブジェクトを書いた場合は、書いていない内側の項目も補わずスタイル全体を置き換えます |
+
+  v2.2.4 までは、`false` と `[]` も書いていないのと同じ扱いで、既定の値で補われていました。
+
 ### 進捗ログのメッセージ上書き
 
 進捗ログ・終了メッセージなどの文言は、メッセージ定義ファイルを配置すると上書きできます。
