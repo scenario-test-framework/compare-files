@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -128,6 +129,14 @@ func buildConfig(raw map[string]any) (*CompareFilesConfig, error) {
 	if err := json.Unmarshal(jsonBytes, cfg); err != nil {
 		return nil, err
 	}
+	// 値を書いたキーを記録する (null は書かないのと同じ扱い)。flat は正規のキー名・階層化側優先で
+	// 解決済みのため、デコードに使った値そのものから記録できる
+	cfg.specified = map[string]bool{}
+	for key, value := range flat {
+		if value != nil {
+			cfg.specified[key] = true
+		}
+	}
 	return cfg, nil
 }
 
@@ -138,13 +147,21 @@ func buildConfig(raw map[string]any) (*CompareFilesConfig, error) {
 // 併記は非決定になるためエラーにします。
 func flattenHierarchy(raw map[string]any) (map[string]any, error) {
 	flat := map[string]any{}
+	spelled := map[string]string{} // 正規のキー名 → 書かれた綴り
 	var groups []string
 	for key, value := range raw {
 		if hierarchyGroups[key] {
 			groups = append(groups, key)
 			continue
 		}
-		flat[key] = value
+		// encoding/json はキーの大文字・小文字を区別せずに読むため、正規のキー名にそろえる
+		// (階層化側の上書きと specified の記録を、デコードと同じキーで行うため)
+		name := canonicalFlatKey(key)
+		if prev, dup := spelled[name]; dup {
+			return nil, fmt.Errorf("設定の %s と %s は同じ設定 (%s) です。どちらか一方だけを指定してください", prev, key, name)
+		}
+		spelled[name] = key
+		flat[name] = value
 	}
 	seen := map[string]string{} // flatKey → 階層化キーの path
 	for _, group := range groups {
@@ -193,4 +210,27 @@ func hasHierarchyPrefix(path string) bool {
 		}
 	}
 	return false
+}
+
+// flatKeyNames は CompareFilesConfig の JSON タグ (正規のフラットキー名) の一覧です。
+var flatKeyNames = func() []string {
+	t := reflect.TypeOf(CompareFilesConfig{})
+	var names []string
+	for i := 0; i < t.NumField(); i++ {
+		if name, _, _ := strings.Cut(t.Field(i).Tag.Get("json"), ","); name != "" && name != "-" {
+			names = append(names, name)
+		}
+	}
+	return names
+}()
+
+// canonicalFlatKey は key と大文字・小文字の違いだけで一致する正規のフラットキー名を返します
+// (encoding/json のフィールド照合と同じく strings.EqualFold で比べる)。一致しなければ key をそのまま返します。
+func canonicalFlatKey(key string) string {
+	for _, name := range flatKeyNames {
+		if strings.EqualFold(key, name) {
+			return name
+		}
+	}
+	return key
 }
